@@ -7,32 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                            dark: '#0f172a',
-                            card: '#1e293b'
+                            50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a',
+                            700: '#15803d', 800: '#166534', 900: '#14532d',
+                            dark: '#0f172a', card: '#ffffff'
                         }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         @media print {
@@ -40,391 +33,556 @@
             header, nav, button, .no-print { display: none !important; }
             #raportPreview { box-shadow: none !important; border: none !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
         }
-        ::-webkit-scrollbar { height: 4px; width: 4px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .invalid-row { background-color: #fef2f2 !important; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-    <div id="notificationBanner" class="hidden fixed top-4 right-4 left-4 sm:left-auto z-50 bg-emerald-900 border border-emerald-600 text-emerald-100 px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between sm:justify-start gap-3 transition-all duration-300">
+    <div id="notificationBanner" class="hidden fixed top-4 right-4 left-4 sm:left-auto z-50 bg-emerald-600 border border-emerald-500 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between sm:justify-start gap-3 transition-all duration-300">
         <div class="flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <i class="fa-solid fa-circle-check text-white text-lg"></i>
             <span id="notificationText" class="text-xs font-medium">Pemberitahuan sistem...</span>
         </div>
-        <button onclick="hideNotification()" class="text-emerald-300 hover:text-white p-1"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="hideNotification()" class="text-emerald-100 hover:text-white p-1"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-40 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 shadow-md">
+    <header class="bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 text-white sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 shadow-lg">
         <div class="flex items-center justify-between sm:justify-start gap-3">
             <div class="flex items-center gap-2.5">
-                <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-inner flex items-center justify-center font-bold text-base">
+                <div class="bg-white/25 backdrop-blur-md text-white p-2.5 rounded-xl shadow-inner flex items-center justify-center font-bold text-base border border-white/20">
                     <i class="fa-solid fa-clipboard-user"></i>
                 </div>
                 <div>
                     <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        SeMARAK <span class="hidden sm:inline text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">UPTD PPSGBR</span>
+                        SeMARAK <span class="hidden sm:inline text-[11px] bg-white/20 backdrop-blur-md text-white border border-white/30 px-2.5 py-0.5 rounded-full font-semibold">UPTD PPSGBR</span>
                     </h1>
-                    <p class="text-[11px] text-slate-400">Sistem Monitoring & Raport Karakter Anak</p>
+                    <p class="text-[11px] text-sky-100">Sistem Monitoring & Raport Karakter Anak</p>
                 </div>
             </div>
             <div class="flex sm:hidden items-center gap-1.5">
-                <button onclick="saveAllGranular()" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow flex items-center gap-1">
+                <button onclick="openWeeklyInputModal()" class="bg-amber-500 hover:bg-amber-600 text-white p-2 rounded-xl text-xs shadow-md border border-amber-400">
+                    <i class="fa-solid fa-calendar-week"></i>
+                </button>
+                <button onclick="openAppsScriptModal()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl text-xs backdrop-blur-md border border-white/20" title="Setup">
+                    <i class="fa-solid fa-gear text-white text-sm"></i>
+                </button>
+                <button onclick="saveAllGranular()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </button>
             </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2 justify-between sm:justify-end">
-            <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs shadow-inner flex-1 sm:flex-initial">
-                <i class="fa-regular fa-calendar text-emerald-400 mr-2"></i>
-                <span class="text-slate-400 mr-1.5 hidden xs:inline">Tanggal:</span>
-                <input type="date" id="reportDate" onchange="onDateChanged()" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer w-full sm:w-auto" value="2026-09-10">
+            <div class="flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-1.5 text-xs shadow-inner flex-1 sm:flex-initial text-white">
+                <i class="fa-regular fa-calendar text-sky-200 mr-2"></i>
+                <span class="text-sky-100 mr-1.5 hidden xs:inline font-medium">Tanggal:</span>
+                <input type="date" id="reportDate" onchange="onDateChanged()" class="bg-transparent text-white font-bold focus:outline-none cursor-pointer w-full sm:w-auto">
             </div>
             <div class="hidden sm:flex items-center gap-2">
-                <button onclick="openRangeGenerateModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow" title="Generate otomatis rentang tanggal">
+                <button onclick="openWeeklyInputModal()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-calendar-week"></i> Input Mingguan
+                </button>
+                <button onclick="openRangeGenerateModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md">
                     <i class="fa-solid fa-wand-magic-sparkles text-blue-200"></i> Generate Range
                 </button>
-                <button onclick="saveAllGranular()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                <button onclick="openAppsScriptModal()" class="bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 backdrop-blur-md">
+                    <i class="fa-solid fa-gear text-sky-200"></i> Setup Script
+                </button>
+                <button onclick="saveAllGranular()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Semua
                 </button>
             </div>
         </div>
     </header>
 
-    <nav class="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5">
+    <nav class="bg-white border-b border-slate-200 px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 shadow-sm">
         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-            <button onclick="switchTab('matriks')" id="btn-matriks" class="tab-btn px-3 py-2 rounded-lg text-xs font-medium transition bg-emerald-600 text-white shadow whitespace-nowrap flex items-center gap-1.5">
+            <button onclick="switchTab('matriks')" id="btn-matriks" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md whitespace-nowrap flex items-center gap-1.5">
                 <i class="fa-solid fa-table-cells"></i> Matriks 22 Kegiatan
             </button>
-            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-3 py-2 rounded-lg text-xs font-medium transition text-slate-300 hover:bg-slate-800 whitespace-nowrap flex items-center gap-1.5">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:bg-slate-100 whitespace-nowrap flex items-center gap-1.5">
                 <i class="fa-solid fa-chart-pie"></i> Dashboard & Rekap
             </button>
-            <button onclick="switchTab('cetak')" id="btn-cetak" class="tab-btn px-3 py-2 rounded-lg text-xs font-medium transition text-slate-300 hover:bg-slate-800 whitespace-nowrap flex items-center gap-1.5">
+            <button onclick="switchTab('summary')" id="btn-summary" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:bg-slate-100 whitespace-nowrap flex items-center gap-1.5">
+                <i class="fa-solid fa-user-shield"></i> Summary Per Anak
+            </button>
+            <button onclick="switchTab('cetak')" id="btn-cetak" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:bg-slate-100 whitespace-nowrap flex items-center gap-1.5">
                 <i class="fa-solid fa-print"></i> Cetak Raport
             </button>
         </div>
-
         <div class="flex items-center justify-between sm:justify-end gap-1.5 text-xs">
-            <button onclick="openRangeGenerateModal()" class="sm:hidden bg-blue-600 text-white px-2.5 py-1.5 rounded font-semibold flex items-center gap-1">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Range
+            <button onclick="openRangeGenerateModal()" class="sm:hidden bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 shadow">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate
             </button>
             <div class="flex items-center gap-1.5">
-                <button onclick="toggleAllAccordions(true)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded border border-slate-700 transition">
-                    Buka Semua
-                </button>
-                <button onclick="toggleAllAccordions(false)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded border border-slate-700 transition">
-                    Lipat Semua
-                </button>
+                <button onclick="toggleAllAccordions(true)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition">Buka Semua</button>
+                <button onclick="toggleAllAccordions(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition">Lipat Semua</button>
             </div>
         </div>
     </nav>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
 
-        <div class="bg-emerald-950/40 border border-emerald-800/60 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
+        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
             <div class="flex items-start gap-3">
-                <div class="bg-emerald-600/20 text-emerald-400 p-2 rounded-lg mt-0.5 shrink-0">
+                <div class="bg-emerald-600 text-white p-2.5 rounded-xl mt-0.5 shrink-0 shadow-md">
                     <i class="fa-solid fa-database text-base"></i>
                 </div>
                 <div>
-                    <h2 class="text-xs sm:text-sm font-bold text-emerald-200" id="dbStatusTitle">Database Sheet "nama" & Asal Daerah:</h2>
-                    <p class="text-[11px] text-emerald-300/80" id="dbStatusDesc">Memuat daftar anak dan Asal Daerah dari Google Spreadsheet. Total anak dimuat: <span id="totalAnakCount" class="font-bold">0</span> Orang.</p>
+                    <h2 class="text-xs sm:text-sm font-bold text-emerald-900" id="dbStatusTitle">Status Database: Belum Terhubung</h2>
+                    <p class="text-[11px] text-emerald-700" id="dbStatusDesc">Silakan setup URL Web App Apps Script Anda. Total anak: <span id="totalAnakCount" class="font-bold">0</span> Orang.</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button onclick="fetchChildrenFromAppsScript()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-semibold shadow transition flex items-center gap-1.5 w-full sm:w-auto justify-center">
-                    <i class="fa-solid fa-rotate"></i> Muat Ulang Sheet "nama"
+                <button onclick="fetchChildrenFromAppsScript()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5 w-full sm:w-auto justify-center">
+                    <i class="fa-solid fa-rotate"></i> Muat Ulang Anak Asuh
                 </button>
             </div>
         </div>
 
-        <!-- Tab 1: Matriks 22 Kegiatan -->
+        <!-- TAB 1: MATRIKS 22 KEGIATAN -->
         <div id="tab-matriks" class="tab-content active space-y-3.5">
-            <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
-                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-400">
-                    <i class="fa-solid fa-users-viewfinder text-base"></i> Target Evaluasi (Mencegah Overwrite Petugas Lain):
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="fa-solid fa-users-viewfinder text-sky-600 text-base"></i> Target Evaluasi (Mencegah Overwrite Petugas Lain):
                 </div>
-                <select id="genderFilter" onchange="renderActivities()" class="w-full sm:w-auto bg-slate-900 border border-slate-600 text-white font-medium rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-emerald-500 shadow-inner">
+                <select id="genderFilter" onchange="renderActivities()" class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 shadow-inner">
                     <option value="semua">Semua Anak (L & P)</option>
                     <option value="L">Laki-Laki Saja (L)</option>
                     <option value="P">Perempuan Saja (P)</option>
                 </select>
             </div>
-
-            <div id="activitiesAccordionContainer" class="space-y-3">
-                <!-- Javascript will inject 22 activity blocks here -->
-            </div>
+            <div id="activitiesAccordionContainer" class="space-y-3"></div>
         </div>
 
-        <!-- Tab 2: Dashboard & Rekap -->
+        <!-- TAB 2: DASHBOARD & REKAP -->
         <div id="tab-dashboard" class="tab-content space-y-4">
-            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 sm:p-6 shadow">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 border-b border-slate-700 pb-3.5">
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 border-b border-slate-100 pb-4">
                     <div>
-                        <h2 class="text-base sm:text-lg font-bold text-white mb-0.5 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-line text-emerald-400"></i> Rekapitulasi Disiplin & Karakter
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-0.5 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-indigo-600"></i> Rekapitulasi Disiplin & Karakter
                         </h2>
-                        <p class="text-xs text-slate-400">Ringkasan persentase kepatuhan kegiatan harian anak asuh tersinkronisasi.</p>
+                        <p class="text-xs text-slate-500">Ringkasan persentase kepatuhan kegiatan harian anak asuh tersinkronisasi.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                        <select id="dashboardScopeSelect" onchange="renderDashboardTable()" class="bg-slate-900 border border-slate-700 text-emerald-400 font-semibold rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                        <select id="dashboardScopeSelect" onchange="renderDashboardTable()" class="bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3 py-2 text-xs focus:outline-none shadow-inner">
                             <option value="akumulasi">Akumulasi Semua Hari</option>
                             <option id="optBulanan" value="bulanan">Akumulasi Per Bulan</option>
                             <option id="optHarian" value="harian">Tanggal Terpilih</option>
                         </select>
-                        <button onclick="fetchAllLogsForDashboard()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                        <button onclick="fetchAllLogsForDashboard()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm">
                             <i class="fa-solid fa-rotate"></i> Refresh
                         </button>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-                    <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-700">
-                        <div class="text-[11px] text-slate-400 mb-1">Rata-rata Sesuai</div>
-                        <div class="text-xl sm:text-2xl font-bold text-emerald-400" id="dashAvgSesuai">0.0%</div>
-                        <div class="text-[10px] text-emerald-500 mt-0.5">Tepat jadwal</div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl shadow-sm">
+                        <div class="text-[11px] font-bold text-emerald-700 mb-1">Rata-rata Sesuai</div>
+                        <div class="text-xl sm:text-2xl font-black text-emerald-600" id="dashAvgSesuai">0.0%</div>
+                        <div class="text-[10px] text-emerald-600 mt-0.5 font-medium">Tepat jadwal</div>
                     </div>
-                    <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-700">
-                        <div class="text-[11px] text-slate-400 mb-1">Dengan Arahan</div>
-                        <div class="text-xl sm:text-2xl font-bold text-amber-400" id="dashAvgArahan">0.0%</div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">Pendampingan</div>
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl shadow-sm">
+                        <div class="text-[11px] font-bold text-amber-700 mb-1">Dengan Arahan</div>
+                        <div class="text-xl sm:text-2xl font-black text-amber-600" id="dashAvgArahan">0.0%</div>
+                        <div class="text-[10px] text-amber-600 mt-0.5 font-medium">Pendampingan</div>
                     </div>
-                    <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-700">
-                        <div class="text-[11px] text-slate-400 mb-1">Terlambat</div>
-                        <div class="text-xl sm:text-2xl font-bold text-orange-400" id="dashAvgTerlambat">0.0%</div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">Kedisiplinan</div>
+                    <div class="bg-orange-50 border border-orange-200 p-4 rounded-2xl shadow-sm">
+                        <div class="text-[11px] font-bold text-orange-700 mb-1">Terlambat</div>
+                        <div class="text-xl sm:text-2xl font-black text-orange-600" id="dashAvgTerlambat">0.0%</div>
+                        <div class="text-[10px] text-orange-600 mt-0.5 font-medium">Kedisiplinan</div>
                     </div>
-                    <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-700">
-                        <div class="text-[11px] text-slate-400 mb-1">Tidak / Libur</div>
-                        <div class="text-xl sm:text-2xl font-bold text-rose-400" id="dashAvgTidak">0.0%</div>
-                        <div class="text-[10px] text-rose-500 mt-0.5">Evaluasi / Libur</div>
+                    <div class="bg-rose-50 border border-rose-200 p-4 rounded-2xl shadow-sm">
+                        <div class="text-[11px] font-bold text-rose-700 mb-1">Tidak (Pelanggaran)</div>
+                        <div class="text-xl sm:text-2xl font-black text-rose-600" id="dashAvgTidak">0.0%</div>
+                        <div class="text-[10px] text-rose-600 mt-0.5 font-medium">Tidak dilakukan</div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-award text-indigo-600"></i> Rekapitulasi 5 Pilar Karakter Utama
+                    </h3>
+                    <div id="dashPillarCardsContainer" class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center"></div>
+                </div>
+
+                <div class="mb-6 bg-slate-50 border border-slate-200 p-4 rounded-2xl shadow-inner">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-area text-indigo-600"></i> Grafik Tren Kinerja Waktu Ke Waktu
+                        </h3>
+                        <span class="text-[11px] text-slate-500 font-semibold" id="chartPeriodLabel">Akumulasi Harian</span>
+                    </div>
+                    <div class="h-64 relative w-full">
+                        <canvas id="performanceTrendChart"></canvas>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                     <table class="w-full text-left border-collapse text-xs sm:text-sm whitespace-nowrap sm:whitespace-normal">
                         <thead>
-                            <tr class="bg-slate-900 border-b border-slate-700 text-slate-400">
-                                <th class="p-2.5 sm:p-3">No</th>
-                                <th class="p-2.5 sm:p-3">Nama Anak Asuh</th>
-                                <th class="p-2.5 sm:p-3">Asal Daerah</th>
-                                <th class="p-2.5 sm:p-3 text-center">Sesuai</th>
-                                <th class="p-2.5 sm:p-3 text-center">Arahan</th>
-                                <th class="p-2.5 sm:p-3 text-center">Terlambat</th>
-                                <th class="p-2.5 sm:p-3 text-center">Tidak/Libur</th>
-                                <th class="p-2.5 sm:p-3 text-center">Skor Kinerja</th>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold">
+                                <th class="p-3">No</th>
+                                <th class="p-3">Nama Anak Asuh</th>
+                                <th class="p-3">Asal Daerah</th>
+                                <th class="p-3 text-center">Sesuai</th>
+                                <th class="p-3 text-center">Arahan</th>
+                                <th class="p-3 text-center">Terlambat</th>
+                                <th class="p-3 text-center">Tidak</th>
+                                <th class="p-3 text-center">Skor Kinerja</th>
                             </tr>
                         </thead>
-                        <tbody id="dashboardTableBody" class="divide-y divide-slate-700/50">
-                            <!-- Injected by JS -->
-                        </tbody>
+                        <tbody id="dashboardTableBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 3: Cetak Raport -->
-        <div id="tab-cetak" class="tab-content space-y-4">
-            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 sm:p-6 shadow flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3">
+        <!-- TAB 3: SUMMARY PER ANAK -->
+        <div id="tab-summary" class="tab-content space-y-4">
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                    <h2 class="text-base sm:text-lg font-bold text-white mb-0.5 flex items-center gap-2">
-                        <i class="fa-solid fa-file-pdf text-emerald-400"></i> Cetak Dokumen Raport Karakter
+                    <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-0.5 flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-indigo-600"></i> Summary & Analisis Individu Anak Asuh
                     </h2>
-                    <p class="text-xs text-slate-400">Evaluasi 22 kegiatan dikelompokkan ke Pilar <strong class="text-emerald-400">Berehan, Motekar, Calakan, Berseka, Waringkas</strong>.</p>
+                    <p class="text-xs text-slate-500">Analisis mendalam kedisiplinan, pencapaian 5 pilar karakter, dan riwayat kegiatan per anak.</p>
                 </div>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <select id="selectReportType" onchange="updateRaportPreview()" class="bg-slate-900 border border-slate-700 text-emerald-400 font-semibold rounded-lg px-3 py-2 text-xs focus:outline-none">
-                        <option value="harian">Raport Harian</option>
-                        <option value="akumulasi">Raport Akumulasi Semua Hari</option>
-                    </select>
-                    <select id="selectAnakCetak" class="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 text-xs focus:outline-none">
-                        <!-- Injected by JS -->
-                    </select>
-                    <button onclick="fetchAccumulatedLogsAndPrint()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-print"></i> Cetak Dokumen
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="selectSummaryAnak" onchange="renderSummaryAnak()" class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none shadow-inner"></select>
+                    <button onclick="fetchAllLogsForDashboard(); renderSummaryAnak();" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm shrink-0">
+                        <i class="fa-solid fa-rotate"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Preview Card -->
-            <div id="raportPreview" class="bg-white text-slate-900 p-4 sm:p-8 rounded-xl shadow-lg max-w-4xl mx-auto border border-slate-300 text-xs sm:text-sm">
-                <div class="mb-6">
-                    <img src="https://cdn.phototourl.com/free/2026-09-10-3dcfc7e4-e08b-46d9-bb27-9ef7dc12a2c7.png" 
-                         onerror="this.onerror=null; this.src='https://placehold.co/800x150/fef2f2/ef4444?text=Kop+Surat+Gagal+Dimuat.+Pastikan+Tautan+Benar';" 
-                         alt="Kop Surat Dinas Sosial UPTD PPSGBR" 
-                         class="w-full max-w-[210mm] mx-auto h-auto sm:h-24 md:h-32 lg:h-36 object-contain object-center mb-5">
-                    
-                    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-50 p-2.5 rounded border border-slate-200 gap-2">
-                        <span class="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest text-center sm:text-left">Evaluasi Karakter Anak Asuh</span>
-                        <span id="previewRaportBadge" class="text-[10px] sm:text-xs font-bold bg-slate-300 px-2.5 py-1 rounded text-slate-800">RAPORT PILAR KARAKTER</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs bg-slate-50 p-3.5 rounded-lg border border-slate-200">
-                    <div>
-                        <p><strong>Nama Anak:</strong> <span id="previewNama">-</span></p>
-                        <p><strong>Asal Daerah:</strong> <span id="previewAsal">-</span></p>
-                        <p><strong>Jenis Kelamin:</strong> <span id="previewJK">-</span></p>
-                    </div>
-                    <div>
-                        <p id="previewPeriodeContainer"><strong>Tanggal Catat:</strong> <span id="previewTanggal">-</span></p>
-                        <p><strong>Jurusan / Vokasi:</strong> <span id="previewJurusan">-</span></p>
-                        <p><strong>Standar Evaluasi:</strong> <span class="text-emerald-700 font-semibold">Berehan, Motekar, Calakan, Berseka, Waringkas</span></p>
-                    </div>
-                </div>
-
-                <div class="mb-5">
-                    <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
-                        <i class="fa-solid fa-award text-emerald-600"></i> Rekapitulasi 5 Pilar Karakter Utama
-                    </h4>
-                    <div id="pillarSummaryCards" class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-                        <!-- Injected by JS -->
-                    </div>
-                </div>
-
-                <div id="tableWrapperContainer" class="overflow-x-auto">
-                    <!-- Dynamic Table grouped by Pillars injected by JS -->
-                </div>
-
-                <div class="mb-5 bg-slate-50 border border-slate-300 p-3.5 rounded-lg text-xs space-y-3">
-                    <h4 class="font-bold uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-1.5 flex items-center gap-1.5">
-                        <i class="fa-solid fa-comments text-emerald-700"></i> Catatan, Evaluasi & Rekomendasi (Pekerja Sosial / Pamong)
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
+                    <div class="flex items-center gap-3 sm:col-span-2">
+                        <div id="sumAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-indigo-600 text-white font-bold text-base flex items-center justify-center shadow-md shrink-0">AN</div>
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">Kesan & Catatan Perilaku Harian:</label>
-                            <textarea id="catatanPerilaku" rows="3" class="w-full bg-white border border-slate-300 rounded p-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-600" placeholder="Catatan perkembangan perilaku anak..."></textarea>
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-600 mb-1">Rekomendasi / Tindak Lanjut:</label>
-                            <textarea id="rekomendasiTindakLanjut" rows="3" class="w-full bg-white border border-slate-300 rounded p-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-600" placeholder="Rekomendasi pasca pelayanan..."></textarea>
+                            <h3 id="sumNama" class="text-sm sm:text-base font-bold text-slate-900">-</h3>
+                            <p id="sumMeta" class="text-xs text-sky-600 font-semibold mt-0.5">-</p>
                         </div>
                     </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-500">Asal Daerah</div>
+                        <div id="sumAsal" class="text-xs font-bold text-slate-800 mt-0.5">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-500">Angkatan / Gelombang</div>
+                        <div id="sumAngkatan" class="text-xs font-bold text-slate-800 mt-0.5">-</div>
+                    </div>
                 </div>
 
-                <div class="flex justify-between items-end pt-6 mt-6 border-t border-slate-300 text-xs">
-                    <div>
-                        <p class="text-[11px] text-slate-500">Mengetahui,</p>
-                        <p class="font-bold mt-10">Pekerja Sosial / Pamong Asrama</p>
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl shadow-sm text-center">
+                        <div class="text-[10px] font-bold text-emerald-700 mb-1 uppercase tracking-wider">Tepat / Sesuai</div>
+                        <div class="text-xl font-black text-emerald-600" id="sumSesuaiCount">0</div>
+                        <div class="text-[10px] text-emerald-600 font-semibold mt-0.5" id="sumSesuaiPct">0.0%</div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[11px] text-slate-500">Lembang, <span id="ttdTanggal">10 September 2026</span></p>
-                        <p class="font-bold mt-10">Kepala UPTD PPSGBR</p>
+                    <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl shadow-sm text-center">
+                        <div class="text-[10px] font-bold text-amber-700 mb-1 uppercase tracking-wider">Dengan Arahan</div>
+                        <div class="text-xl font-black text-amber-600" id="sumArahanCount">0</div>
+                        <div class="text-[10px] text-amber-600 font-semibold mt-0.5" id="sumArahanPct">0.0%</div>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-200 p-3.5 rounded-2xl shadow-sm text-center">
+                        <div class="text-[10px] font-bold text-orange-700 mb-1 uppercase tracking-wider">Terlambat</div>
+                        <div class="text-xl font-black text-orange-600" id="sumTerlambatCount">0</div>
+                        <div class="text-[10px] text-orange-600 font-semibold mt-0.5" id="sumTerlambatPct">0.0%</div>
+                    </div>
+                    <div class="bg-rose-50 border border-rose-200 p-3.5 rounded-2xl shadow-sm text-center">
+                        <div class="text-[10px] font-bold text-rose-700 mb-1 uppercase tracking-wider">Tidak (Pelanggaran)</div>
+                        <div class="text-xl font-black text-rose-600" id="sumTidakCount">0</div>
+                        <div class="text-[10px] text-rose-600 font-semibold mt-0.5" id="sumTidakPct">0.0%</div>
+                    </div>
+                    <div class="bg-slate-100 border border-slate-200 p-3.5 rounded-2xl shadow-sm text-center col-span-2 lg:col-span-1">
+                        <div class="text-[10px] font-bold text-slate-700 mb-1 uppercase tracking-wider">Skor Kinerja</div>
+                        <div class="text-xl font-black text-indigo-600" id="sumFinalScore">0%</div>
+                        <div class="text-[10px] text-slate-500 font-semibold mt-0.5">Performa Akumulasi</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-award text-indigo-600"></i> Capaian 5 Pilar Karakter Utama
+                    </h4>
+                    <div id="sumPillarCardsContainer" class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center"></div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check text-indigo-600"></i> Rekapitulasi Rinci Per Kegiatan (22 Kegiatan)
+                    </h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold">
+                                    <th class="p-2.5">No</th>
+                                    <th class="p-2.5">Uraian Kegiatan</th>
+                                    <th class="p-2.5 text-center">Sesuai</th>
+                                    <th class="p-2.5 text-center">Arahan</th>
+                                    <th class="p-2.5 text-center">Telat</th>
+                                    <th class="p-2.5 text-center">Tidak</th>
+                                    <th class="p-2.5 text-center">Libur</th>
+                                    <th class="p-2.5 text-center">Skor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sumActivityTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- TAB 4: CETAK RAPORT -->
+        <div id="tab-cetak" class="tab-content space-y-4">
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3">
+                <div>
+                    <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-0.5 flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-indigo-600"></i> Cetak Dokumen Raport Karakter
+                    </h2>
+                    <p class="text-xs text-slate-500">Evaluasi 22 kegiatan dikelompokkan ke Pilar <strong class="text-indigo-600">Berehan, Motekar, Calakan, Berseka, Waringkas</strong>.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <select id="selectReportType" onchange="updateRaportPreview()" class="bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none">
+                        <option value="harian">Raport Harian</option>
+                        <option value="akumulasi">Raport Akumulasi Terpilih</option>
+                    </select>
+                    <select id="selectAnakCetak" class="bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none"></select>
+                    <button onclick="fetchAccumulatedLogsAndPrint()" class="bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-print"></i> Cetak Dokumen
+                    </button>
+                </div>
+            </div>
+
+            <div id="raportPreview" class="bg-white text-slate-900 p-4 sm:p-8 rounded-2xl shadow-xl max-w-4xl mx-auto border border-slate-200 text-xs sm:text-sm">
+                <div class="mb-6 text-center">
+                    <img src="https://cdn.phototourl.com/free/2026-09-10-3dcfc7e4-e08b-46d9-bb27-9ef7dc12a2c7.png" 
+                         onerror="this.onerror=null; this.outerHTML='<div class=\'bg-red-50 text-red-600 border border-red-200 p-4 rounded text-center mb-4 text-xs\'><i class=\'fa-solid fa-triangle-exclamation text-lg mb-1\'></i><br><b>Kop Surat Gagal Dimuat</b></div>';" 
+                         alt="Kop Surat" class="w-full max-w-[210mm] mx-auto h-auto sm:h-24 md:h-32 lg:h-36 object-contain object-center mb-5">
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-100 p-3 rounded-xl border border-slate-200 gap-2">
+                        <span class="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest text-center sm:text-left">Evaluasi Karakter Anak Asuh</span>
+                        <span id="previewRaportBadge" class="text-[10px] sm:text-xs font-bold bg-indigo-600 px-3 py-1 rounded-lg text-white shadow-sm">RAPORT PILAR KARAKTER</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
+                    <div>
+                        <p class="mb-1"><strong>Nama Anak:</strong> <span id="previewNama" class="font-bold text-slate-800">-</span></p>
+                        <p class="mb-1"><strong>Asal Daerah:</strong> <span id="previewAsal" class="font-bold text-slate-800">-</span></p>
+                        <p class="mb-1"><strong>Jenis Kelamin:</strong> <span id="previewJK" class="font-bold text-slate-800">-</span></p>
+                        <p><strong>Angkatan / Gelombang:</strong> <span id="previewAngkatan" class="font-bold text-slate-800">-</span></p>
+                    </div>
+                    <div>
+                        <p class="mb-1" id="previewPeriodeContainer"><strong>Tanggal Catat:</strong> <span id="previewTanggal" class="font-bold text-slate-800">-</span></p>
+                        <p class="mb-1"><strong>Jurusan / Vokasi:</strong> <span id="previewJurusan" class="font-bold text-slate-800">-</span></p>
+                        <p><strong>Standar Evaluasi:</strong> <span class="text-indigo-600 font-bold">Berehan, Motekar, Calakan, Berseka, Waringkas</span></p>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-2.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-award text-indigo-600"></i> Rekapitulasi 5 Pilar Karakter Utama
+                    </h4>
+                    <div id="pillarSummaryCards" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center"></div>
+                </div>
+
+                <div id="tableWrapperContainer" class="overflow-x-auto mb-5"></div>
+
+                <div class="mb-5 bg-slate-50 border border-slate-200 p-4 rounded-xl text-xs space-y-3 shadow-inner">
+                    <h4 class="font-bold uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-comments text-indigo-600"></i> Catatan, Evaluasi & Rekomendasi (Pekerja Sosial / Pamong)
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Kesan & Catatan Perilaku Harian:</label>
+                            <textarea id="catatanPerilaku" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-inner" placeholder="Catatan perkembangan perilaku anak..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Rekomendasi / Tindak Lanjut:</label>
+                            <textarea id="rekomendasiTindakLanjut" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-inner" placeholder="Rekomendasi pasca pelayanan..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end pt-6 mt-6 border-t border-slate-200 text-xs">
+                    <div>
+                        <p class="text-[11px] text-slate-500">Mengetahui,</p>
+                        <p class="font-bold mt-12 text-slate-800">Pekerja Sosial / Pamong Asrama</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[11px] text-slate-500">Lembang, <span id="ttdTanggal">Hari Ini</span></p>
+                        <p class="font-bold mt-12 text-slate-800">Kepala UPTD PPSGBR</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <div id="rangeGenerateModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> Generate Laporan Tanggal Otomatis
+    <!-- WEEKLY INPUT MODAL (PER ANAK) -->
+    <div id="weeklyInputModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-week text-amber-600"></i> Rekap Input Mingguan Per Anak (Mulai 24 Juni 2026)
                 </h3>
-                <button onclick="closeRangeGenerateModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeWeeklyInputModal()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <p class="text-xs text-slate-300 leading-relaxed">
-                Fitur ini akan men-generate template/entri kegiatan di Google Sheets mulai dari tanggal <strong class="text-emerald-400">24 Juni 2026</strong> s.d. <strong class="text-emerald-400" id="lblTodayRange">Hari Ini</strong>. Data manual yang sudah diinput oleh petugas sebelumnya <strong>tidak akan tertimpa (aman)</strong>.
-            </p>
+            <p class="text-xs text-slate-500 mb-2">Petugas mengisi jumlah status per kegiatan dalam 1 minggu (7 hari) untuk anak yang dipilih.</p>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="space-y-1">
-                    <label class="text-[11px] font-semibold text-slate-400">Dari Tanggal:</label>
-                    <input type="date" id="genStartDate" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500" value="2026-06-24">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-700">Pilih Minggu (Siklus 7 Hari mulai 24 Juni):</label>
+                    <select id="weeklySelectWeek" onchange="renderWeeklyTable()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none mt-1"></select>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[11px] font-semibold text-slate-400">Sampai Tanggal:</label>
-                    <input type="date" id="genEndDate" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-700">Pilih Anak Asuh:</label>
+                    <select id="weeklySelectChild" onchange="renderWeeklyTable()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none mt-1"></select>
                 </div>
             </div>
 
+            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold">
+                            <th class="p-2 w-10 text-center">No</th>
+                            <th class="p-2">Uraian Kegiatan (22 Kegiatan)</th>
+                            <th class="p-2 text-center text-emerald-600">Sesuai</th>
+                            <th class="p-2 text-center text-amber-600">Arahan</th>
+                            <th class="p-2 text-center text-orange-600">Telat</th>
+                            <th class="p-2 text-center text-rose-600">Tidak</th>
+                            <th class="p-2 text-center text-slate-500">Libur</th>
+                            <th class="p-2 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weeklyTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-slate-100">
+                <span class="text-[11px] text-rose-500 font-bold bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> Pastikan total per kegiatan = 7 Hari</span>
+                <div class="flex flex-wrap gap-2 justify-end w-full sm:w-auto">
+                    <button onclick="closeWeeklyInputModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Batal</button>
+                    <button onclick="executeBulkSaveRangeToCurrent()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan S.d. Sekarang (Semua Anak)
+                    </button>
+                    <button onclick="executeWeeklyDistribution()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-paper-plane"></i> Simpan Minggu Ini
+                    </button>
+                </div>
+            </div>
+
+            <div id="weeklyProgressBarContainer" class="hidden space-y-1.5 pt-2 border-t border-slate-100">
+                <div class="flex justify-between text-[11px] text-slate-600 font-semibold">
+                    <span id="weeklyProgressStatus">Memproses tanggal...</span>
+                    <span id="weeklyProgressCount">0 / 0</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200 overflow-hidden shadow-inner">
+                    <div id="weeklyProgressBar" class="bg-blue-600 h-full w-0 transition-all duration-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RANGE GENERATE MODAL -->
+    <div id="rangeGenerateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Generate Laporan Tanggal Otomatis
+                </h3>
+                <button onclick="closeRangeGenerateModal()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Fitur ini men-generate template/entri kegiatan di Google Sheets mulai dari tanggal <strong class="text-blue-600">24 Juni 2026</strong> s.d. <strong class="text-blue-600" id="lblTodayRange">Hari Ini</strong>.
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-700">Dari Tanggal:</label>
+                    <input type="date" id="genStartDate" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 shadow-inner" value="2026-06-24">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-700">Sampai Tanggal:</label>
+                    <input type="date" id="genEndDate" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 shadow-inner">
+                </div>
+            </div>
             <div id="generateProgressBarContainer" class="hidden space-y-1.5 pt-2">
-                <div class="flex justify-between text-[11px] text-slate-300">
+                <div class="flex justify-between text-[11px] text-slate-600 font-semibold">
                     <span id="genProgressStatus">Memproses tanggal...</span>
                     <span id="genProgressCount">0 / 0</span>
                 </div>
-                <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
+                <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200 overflow-hidden shadow-inner">
                     <div id="genProgressBar" class="bg-blue-600 h-full w-0 transition-all duration-200"></div>
                 </div>
             </div>
-
-            <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
-                <button onclick="closeRangeGenerateModal()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Batal</button>
-                <button id="btnExecuteGenerate" onclick="executeDateRangeGeneration()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+            <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button onclick="closeRangeGenerateModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Batal</button>
+                <button id="btnExecuteGenerate" onclick="executeDateRangeGeneration()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
                     <i class="fa-solid fa-play"></i> Mulai Generate
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="infoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
-            <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
-                <div class="bg-blue-500/20 text-blue-400 p-2 rounded-lg">
-                    <i class="fa-solid fa-circle-info text-xl"></i>
-                </div>
-                <h3 id="infoModalTitle" class="text-sm sm:text-base font-bold text-white">Informasi Sistem</h3>
+    <!-- APPS SCRIPT MODAL -->
+    <div id="appsScriptModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-code text-indigo-600"></i> Pengaturan Google Apps Script
+                </h3>
+                <button onclick="closeAppsScriptModal()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <p id="infoModalMessage" class="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line"></p>
-            <div class="flex justify-end pt-2">
-                <button onclick="closeInfoModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow transition">Mengerti</button>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                URL Web App Google Apps Script Anda. Pastikan Deployment berjalan sebagai "Anyone" agar database bisa diakses web ini.
+            </p>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-700">URL Web App Apps Script Anda:</label>
+                <input type="text" id="appsScriptUrlInput" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500 shadow-inner font-mono">
+            </div>
+            <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button onclick="closeAppsScriptModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Tutup</button>
+                <button onclick="saveAndReloadAppsScript()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md transition">Simpan URL</button>
             </div>
         </div>
     </div>
 
-    <footer class="bg-slate-950 border-t border-slate-800 text-center py-3.5 text-[11px] text-slate-500 px-4">
+    <!-- INFO MODAL -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                <div class="bg-blue-100 text-blue-600 p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-circle-info text-xl"></i>
+                </div>
+                <h3 id="infoModalTitle" class="text-sm sm:text-base font-bold text-slate-800">Informasi Sistem</h3>
+            </div>
+            <p id="infoModalMessage" class="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeInfoModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 text-center py-4 text-xs text-slate-500 px-4 mt-auto shadow-sm">
         &copy; 2026 SeMARAK (Sistem Monitoring & Raport Karakter Anak) - UPTD PPSGBR Lembang. All rights reserved.
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        const DEFAULT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ0gWILWDl6rWpFzNhDm1-ABqNgBXS_KeVRA64VGhKWvf2sv3U7LXl1Et_v9I1Q31r/exec";
 
-        let app, db, auth, currentUser;
-        
-        // 1. Ganti dengan ID unik instansi Anda (bebas, asal unik dan tidak pakai spasi)
-        const appId = 'semarak-uptd-lembang'; 
-        
-        // 2. PASTE Konfigurasi Firebase dari Langkah 4 di sini:
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyDqdr3CGqm7I3RA4m7Rk5Jpf_2ouxw3iEQ",
-            authDomain: "semarakppsgbr.firebaseapp.com",
-            projectId: "semarakppsgbr",
-            storageBucket: "semarakppsgbr.firebasestorage.app",
-            messagingSenderId: "454538885456",
-            appId: "1:454538885456:web:e705c47d70f4dc9080d455",
-            measurementId: "G-SSH8M6C2SZ"
-        };
-        
-        async function initFirebase() {
-            if (firebaseConfig.apiKey.includes("MASUKKAN")) {
-                console.warn("Firebase config is placeholder. Falling back to LocalStorage.");
-                db = null;
-                currentUser = { uid: "local-user" };
-                window.showNotification("Mode Offline Aktif (Local Storage). Isi config Firebase untuk Cloud Sync.");
-                return;
+        function getSavedUrl() {
+            let url = localStorage.getItem('pps_apps_script_url');
+            if (!url) {
+                url = DEFAULT_APPS_SCRIPT_URL;
+                localStorage.setItem('pps_apps_script_url', url);
             }
-
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            try {
-                await signInAnonymously(auth);
-                currentUser = auth.currentUser;
-                console.log("Firebase initialized and authenticated.");
-            } catch (error) {
-                console.error("Firebase auth error:", error);
-                window.showNotification("Gagal terhubung ke Firebase. Beralih ke Mode Offline (Local Storage).");
-                db = null;
-                currentUser = { uid: "local-user" };
-            }
+            return url;
         }
 
         const activities = [
@@ -437,10 +595,10 @@
             "Aku Mengikuti Kegiatan Bimbingan Keterampilan Jam 08.00 s.d. 11.00",
             "Aku Mengikuti Kegiatan Bimbingan Kedisiplinan Jam 08.00 s.d. 11.00",
             "Aku Mengikuti Kegiatan Bimbingan Batik Ecoprint Jam 08.00 s.d. 12.00",
-            "Aku Mengikuti Kegiatan Bimbingan Sosial Jam 11.00 s.d. 12.00",
+            "Aku Mengikuti Kegiatan Bimbingan Sosial I Jam 11.00 s.d. 12.00",
             "Aku Shalat Dzuhur Jam 12.00 di Masjid",
             "Aku Mengikuti Kegiatan Makan Siang Jam 12.30 s.d. 13.00",
-            "Aku Mengikuti Kegiatan Bimbingan Sosial Jam 13.00 s.d. 15.00",
+            "Aku Mengikuti Kegiatan Bimbingan Sosial II Jam 13.00 s.d. 15.00",
             "Aku Mengikuti Kegiatan Bimbingan Farming Jam 13.00 s.d. 15.00",
             "Aku Shalat Ashar Jam 15.00 di Masjid",
             "Aku Mandi Sore Jam 15.30 s.d. 16.00",
@@ -460,558 +618,347 @@
             "Berehan": { desc: "Dermawan, Sosial & Kebersamaan (Makan)", indices: [4, 11, 18], color: "indigo" }
         };
 
-        const defaultChildren = [
-            { id: "A01", name: "IS Fazar Saputra", initial: "IS", asal: "Bandung", jk: "L", jurusan: "Batik Ecoprint" },
-            { id: "A02", name: "Rafi Rahdianal Aqil", initial: "R", asal: "Cimahi", jk: "L", jurusan: "Farming" },
-            { id: "A03", name: "Dwi Sarah Anjani", initial: "D", asal: "Sumedang", jk: "P", jurusan: "Batik Ecoprint" },
-            { id: "A04", name: "Sahla Shahira", initial: "S", asal: "Garut", jk: "P", jurusan: "Farming" },
-            { id: "A05", name: "Kayla Davina Rusmana", initial: "K", asal: "Tasikmalaya", jk: "P", jurusan: "-" },
-            { id: "A06", name: "Anggi Sapariah", initial: "A", asal: "Subang", jk: "P", jurusan: "-" },
-            { id: "A07", name: "Ridho Ahmad Fadlilah", initial: "R", asal: "Cianjur", jk: "L", jurusan: "-" },
-            { id: "A08", name: "Zahira Shafa", initial: "Z", asal: "Purwakarta", jk: "P", jurusan: "-" },
-            { id: "A09", name: "Siti Fadilah", initial: "S", asal: "Bogor", jk: "P", jurusan: "-" },
-            { id: "A10", name: "Restu Muhamad", initial: "R", asal: "Sukabumi", jk: "L", jurusan: "-" }
-        ];
-
-        let children = [...defaultChildren];
+        let children = [];
         let stateData = {};
         let globalAccumulatedLogs = [];
+        let trendChartInstance = null;
+        let weeklyTargetDatesCache = [];
 
-        window.getVisibleChildren = function() {
+        // ATURAN JADWAL TERPUSAT & Pengecualian Khusus Anak
+        function isActivityActive(actIdx, dateStr, child) {
+            if (child) {
+                const nameLower = (child.name || "").toLowerCase();
+                // 1. Yohanes, Andrian, Andhika (Non-Muslim / Kristen): Shalat (1,10,14,17,19) & Pengajian (20) Libur
+                if (nameLower.includes("yohanes") || nameLower.includes("andrian") || nameLower.includes("andhika")) {
+                    if ([1, 10, 14, 17, 19, 20].includes(actIdx)) return false;
+                }
+                // 2. Doddy dan Endang (Masih kecil): Hanya kegiatan makan (4, 11, 18) yang aktif, lainnya libur
+                if (nameLower.includes("doddy") || nameLower.includes("endang")) {
+                    if (![4, 11, 18].includes(actIdx)) return false;
+                }
+            }
+
+            const d = new Date(dateStr);
+            if (isNaN(d)) return false;
+            const day = d.getDay(); // 0=Minggu, 1=Senin, ..., 6=Sabtu
+            const mm = d.getMonth() + 1;
+            const dd = d.getDate();
+
+            // 1. Kedisiplinan: 20-27 Juli & 24-31 Agustus
+            if (actIdx === 7) {
+                const isJuli = (mm === 7 && dd >= 20 && dd <= 27);
+                const isAgustus = (mm === 8 && dd >= 24 && dd <= 31);
+                return (isJuli || isAgustus);
+            }
+            // 2. Sosial I: Senin s.d. Kamis, KECUALI saat kedisiplinan aktif
+            if (actIdx === 9) {
+                const isJuli = (mm === 7 && dd >= 20 && dd <= 27);
+                const isAgustus = (mm === 8 && dd >= 24 && dd <= 31);
+                if (isJuli || isAgustus) return false;
+                return (day >= 1 && day <= 4);
+            }
+            // 3. Batik Ecoprint: Hanya hari Sabtu (6)
+            if (actIdx === 8) {
+                return (day === 6);
+            }
+            // 4. Sosial II: Senin (1) dan Rabu (3)
+            if (actIdx === 12) {
+                return (day === 1 || day === 3);
+            }
+            // 5. Farming: Selasa (2), Kamis (4), Jumat (5)
+            if (actIdx === 13) {
+                return (day === 2 || day === 4 || day === 5);
+            }
+            // 6. Keterampilan: Senin s.d. Jumat (1 s.d. 5)
+            if (actIdx === 6) {
+                return (day >= 1 && day <= 5);
+            }
+            return true;
+        }
+
+        function getVisibleChildren() {
             const filterEl = document.getElementById('genderFilter');
             const jk = filterEl ? filterEl.value : 'semua';
             if (jk === 'semua') return children;
             return children.filter(c => c.jk === jk || c.jk === '-');
         }
-
-        window.showNotification = function(message) {
+        function showNotification(message) {
             const banner = document.getElementById('notificationBanner');
             const text = document.getElementById('notificationText');
-            if (banner && text) {
-                text.innerText = message;
-                banner.classList.remove('hidden');
-                setTimeout(() => { banner.classList.add('hidden'); }, 4000);
-            }
+            if (banner && text) { text.innerText = message; banner.classList.remove('hidden'); setTimeout(() => { banner.classList.add('hidden'); }, 4000); }
         }
-
-        window.hideNotification = function() {
-            const banner = document.getElementById('notificationBanner');
-            if (banner) banner.classList.add('hidden');
-        }
-
-        window.showModalInfo = function(title, message) {
+        function hideNotification() { const banner = document.getElementById('notificationBanner'); if (banner) banner.classList.add('hidden'); }
+        function showModalInfo(title, message) {
             const modal = document.getElementById('infoModal');
-            if (modal) {
-                document.getElementById('infoModalTitle').innerText = title;
-                document.getElementById('infoModalMessage').innerText = message;
-                modal.classList.remove('hidden');
-            }
+            if (modal) { document.getElementById('infoModalTitle').innerText = title; document.getElementById('infoModalMessage').innerText = message; modal.classList.remove('hidden'); }
+        }
+        function closeInfoModal() { const modal = document.getElementById('infoModal'); if (modal) modal.classList.add('hidden'); }
+        function formatDateLocal(dateObj) {
+            const y = dateObj.getFullYear(), m = String(dateObj.getMonth() + 1).padStart(2, '0'), d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
-        window.closeInfoModal = function() {
-            const modal = document.getElementById('infoModal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        window.initAppState = function() {
+        function initAppState() {
             stateData = {};
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
             activities.forEach((_, actIdx) => {
                 stateData[actIdx] = {};
                 children.forEach(child => {
-                    stateData[actIdx][child.id] = 'sesuai';
+                    if (!isActivityActive(actIdx, selectedDate, child)) {
+                        stateData[actIdx][child.id] = 'tidak_ada';
+                    } else {
+                        stateData[actIdx][child.id] = 'sesuai';
+                    }
+                });
+            });
+        }
+        function applyAutomaticHolidayRules(dateStr) {
+            activities.forEach((_, actIdx) => {
+                children.forEach(child => {
+                    if (!isActivityActive(actIdx, dateStr, child)) stateData[actIdx][child.id] = 'tidak_ada';
                 });
             });
         }
 
-        window.applyAutomaticHolidayRules = function(dateStr) {
-            const dObj = new Date(dateStr);
-            if (isNaN(dObj)) return;
-            const dayOfWeek = dObj.getDay();
-            const month = dObj.getMonth();
-            const dateNum = dObj.getDate();
-
-            children.forEach(child => {
-                if (dayOfWeek === 0 || dayOfWeek === 6) stateData[6][child.id] = 'tidak_ada';
-                const isJuliActive = (month === 6 && dateNum >= 20 && dateNum <= 27);
-                const isAgustusActive = (month === 7 && dateNum >= 24 && dateNum <= 31);
-                if (!isJuliActive && !isAgustusActive) stateData[7][child.id] = 'tidak_ada';
-                if (dayOfWeek !== 6) stateData[8][child.id] = 'tidak_ada';
-                if (dayOfWeek !== 2 && dayOfWeek !== 4 && dayOfWeek !== 5) stateData[13][child.id] = 'tidak_ada';
-                if (dayOfWeek === 0 || dayOfWeek === 6) stateData[9][child.id] = 'tidak_ada';
-                if (dayOfWeek !== 1 && dayOfWeek !== 3) stateData[12][child.id] = 'tidak_ada';
-            });
-        }
-
-        window.switchTab = function(tabId) {
+        function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('bg-emerald-600', 'text-white', 'shadow');
-                el.classList.add('text-slate-300', 'hover:bg-slate-800');
-            });
-
-            const targetTab = document.getElementById('tab-' + tabId);
-            if (targetTab) targetTab.classList.add('active');
-
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow');
-                activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
-            }
-
-            if(tabId === 'dashboard') {
-                window.fetchAllLogsForDashboard();
-            } else if(tabId === 'cetak') {
-                window.updateRaportPreview();
-            }
+            document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('bg-gradient-to-r', 'from-sky-600', 'to-indigo-600', 'text-white', 'shadow-md'); el.classList.add('text-slate-600', 'hover:bg-slate-100'); });
+            const targetTab = document.getElementById('tab-' + tabId); if (targetTab) targetTab.classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId); if (activeBtn) { activeBtn.classList.add('bg-gradient-to-r', 'from-sky-600', 'to-indigo-600', 'text-white', 'shadow-md'); activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100'); }
+            if(tabId === 'dashboard') fetchAllLogsForDashboard();
+            else if(tabId === 'summary') { fetchAllLogsForDashboard().then(() => { renderSummaryAnakSelect(); renderSummaryAnak(); }); }
+            else if(tabId === 'cetak') updateRaportPreview();
         }
-
-        window.toggleAllAccordions = function(expand) {
-            document.querySelectorAll('.accordion-body').forEach(el => {
-                if(expand) el.classList.remove('hidden');
-                else el.classList.add('hidden');
-            });
-        }
-
-        window.normalizeStr = function(str) {
-            return String(str || "").toLowerCase().replace(/[\u2010\u2011\u2012\u2013\u2014\u2015]/g, "-").replace(/\s+/g, " ").trim();
-        }
-
-        window.normalizeStatus = function(raw) {
+        function toggleAllAccordions(expand) { document.querySelectorAll('.accordion-body').forEach(el => { if(expand) el.classList.remove('hidden'); else el.classList.add('hidden'); }); }
+        function normalizeStr(str) { return String(str || "").toLowerCase().replace(/[\u2010\u2011\u2012\u2013\u2014\u2015]/g, "-").replace(/\s+/g, " ").trim(); }
+        function normalizeStatus(raw) {
             const s = String(raw || "").toLowerCase().trim();
-            if (s.includes('tidak ada') || s.includes('libur') || s.includes('ditiadakan')) return 'tidak_ada';
+            if (s === 'tidak_ada' || s.includes('tidak ada') || s.includes('libur') || s.includes('ditiadakan')) return 'tidak_ada';
+            if (s === 'tidak' || s.includes('tidak melaksanakan') || s.includes('pelanggaran')) return 'tidak';
             if (s.includes('arahan')) return 'arahan';
             if (s.includes('terlambat')) return 'terlambat';
-            if (s.includes('tidak')) return 'tidak';
             return 'sesuai';
         }
 
-        window.renderActivities = function() {
+        function renderActivities() {
             const container = document.getElementById('activitiesAccordionContainer');
             if (!container) return;
             container.innerHTML = '';
+            const visibleChildren = getVisibleChildren();
 
             activities.forEach((actText, actIdx) => {
                 const card = document.createElement('div');
-                card.className = 'bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow';
-                
+                card.className = 'bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm';
                 let header = `
-                    <div class="bg-slate-900 border-b border-slate-700 p-3.5 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 cursor-pointer select-none" onclick="toggleAccordion(${actIdx})">
+                    <div class="bg-slate-50 border-b border-slate-100 p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 cursor-pointer select-none hover:bg-slate-100/70 transition" onclick="toggleAccordion(${actIdx})">
                         <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs sm:text-sm shadow shrink-0">
-                                ${actIdx + 1}
-                            </div>
-                            <h3 class="font-semibold text-white text-xs sm:text-sm md:text-base leading-snug">${actText}</h3>
+                            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-bold flex items-center justify-center text-xs sm:text-sm shadow-md shrink-0">${actIdx + 1}</div>
+                            <h3 class="font-bold text-slate-800 text-xs sm:text-sm md:text-base leading-snug">${actText}</h3>
                         </div>
                         <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                            <button onclick="event.stopPropagation(); saveActivityRow(${actIdx})" class="text-[11px] bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5" title="Simpan baris ini">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Baris
-                            </button>
-                            <span class="text-[11px] text-slate-400 flex items-center gap-1">
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </span>
+                            <button onclick="event.stopPropagation(); saveActivityRow(${actIdx})" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-600 hover:text-white px-3 py-1.5 rounded-xl transition font-bold flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan</button>
+                            <span class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-down"></i></span>
                         </div>
-                    </div>
-                `;
-
-                let body = `<div id="acc-body-${actIdx}" class="accordion-body p-3.5 sm:p-4 bg-slate-800/50 space-y-3.5 hidden">`;
-                const visibleChildren = window.getVisibleChildren();
-
-                body += `
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-700 text-xs">
-                        <span class="text-slate-400 font-medium">STATUS PER ANAK (${visibleChildren.length} Orang):</span>
+                    </div>`;
+                let body = `<div id="acc-body-${actIdx}" class="accordion-body p-4 sm:p-5 bg-white space-y-3.5 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 text-xs">
+                        <span class="text-slate-500 font-bold">STATUS (${visibleChildren.length} Anak Tersortir):</span>
                         <div class="flex items-center gap-1 flex-wrap">
-                            <span class="text-slate-500 mr-1 text-[11px]">Set:</span>
-                            <button onclick="setAllForActivity(${actIdx}, 'sesuai')" class="px-2 py-1 rounded bg-slate-700 hover:bg-emerald-700 text-slate-200 text-[11px] transition">Sesuai</button>
-                            <button onclick="setAllForActivity(${actIdx}, 'arahan')" class="px-2 py-1 rounded bg-slate-700 hover:bg-amber-700 text-slate-200 text-[11px] transition">Arahan</button>
-                            <button onclick="setAllForActivity(${actIdx}, 'terlambat')" class="px-2 py-1 rounded bg-slate-700 hover:bg-orange-700 text-slate-200 text-[11px] transition">Terlambat</button>
-                            <button onclick="setAllForActivity(${actIdx}, 'tidak')" class="px-2 py-1 rounded bg-slate-700 hover:bg-rose-700 text-slate-200 text-[11px] transition">Tidak</button>
-                            <button onclick="setAllForActivity(${actIdx}, 'tidak_ada')" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 text-[11px] transition">Libur</button>
+                            <button onclick="setAllForActivity(${actIdx}, 'sesuai')" class="px-2.5 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] font-bold transition">Sesuai</button>
+                            <button onclick="setAllForActivity(${actIdx}, 'arahan')" class="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-[11px] font-bold transition">Arahan</button>
+                            <button onclick="setAllForActivity(${actIdx}, 'terlambat')" class="px-2.5 py-1.5 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-800 text-[11px] font-bold transition">Terlambat</button>
+                            <button onclick="setAllForActivity(${actIdx}, 'tidak')" class="px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 text-[11px] font-bold transition">Tidak</button>
+                            <button onclick="setAllForActivity(${actIdx}, 'tidak_ada')" class="px-2.5 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-[11px] font-bold transition">Libur</button>
                         </div>
-                    </div>
-                `;
-
-                body += `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">`;
+                    </div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">`;
 
                 visibleChildren.forEach(child => {
                     if (!stateData[actIdx]) stateData[actIdx] = {};
-                    if (!stateData[actIdx][child.id]) stateData[actIdx][child.id] = 'sesuai';
+                    if (!stateData[actIdx][child.id]) {
+                        const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
+                        stateData[actIdx][child.id] = isActivityActive(actIdx, selectedDate, child) ? 'sesuai' : 'tidak_ada';
+                    }
                     const currentStatus = stateData[actIdx][child.id];
-
                     body += `
-                        <div class="bg-slate-900 border border-slate-700/80 rounded-lg p-3 flex flex-col justify-between gap-2.5 shadow-inner">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">
-                                    ${child.initial}
-                                </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 shadow-sm">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0 shadow">${child.initial}</div>
                                 <div class="overflow-hidden">
-                                    <h4 class="text-xs font-bold text-white truncate">${child.name}</h4>
-                                    <span class="text-[10px] text-emerald-400 font-medium truncate block"><i class="fa-solid fa-location-dot mr-1"></i>${child.asal}</span>
+                                    <h4 class="text-xs font-bold text-slate-800 truncate">${child.name}</h4>
+                                    <span class="text-[10px] text-sky-600 font-semibold truncate block"><i class="fa-solid fa-venus-mars mr-1"></i>${child.jk} | ${child.jurusan} | Angkatan ${child.angkatan}</span>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-1 text-[11px]">
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'sesuai')" class="py-1.5 px-2 rounded font-medium transition border ${currentStatus === 'sesuai' ? 'bg-emerald-600 border-emerald-500 text-white shadow' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}">Sesuai</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'arahan')" class="py-1.5 px-2 rounded font-medium transition border ${currentStatus === 'arahan' ? 'bg-amber-600 border-amber-500 text-white shadow' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}">Arahan</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'terlambat')" class="py-1.5 px-2 rounded font-medium transition border ${currentStatus === 'terlambat' ? 'bg-orange-600 border-orange-500 text-white shadow' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}">Terlambat</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak')" class="py-1.5 px-2 rounded font-medium transition border ${currentStatus === 'tidak' ? 'bg-rose-600 border-rose-500 text-white shadow' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}">Tidak</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak_ada')" class="py-1.5 px-2 rounded font-medium transition border col-span-2 ${currentStatus === 'tidak_ada' ? 'bg-slate-600 border-slate-500 text-white shadow' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}">Tidak Ada Kegiatan / Libur</button>
+                            <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                                <button onclick="setStatus(${actIdx}, '${child.id}', 'sesuai')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'sesuai' ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Sesuai</button>
+                                <button onclick="setStatus(${actIdx}, '${child.id}', 'arahan')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'arahan' ? 'bg-amber-600 border-amber-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Arahan</button>
+                                <button onclick="setStatus(${actIdx}, '${child.id}', 'terlambat')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'terlambat' ? 'bg-orange-600 border-orange-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Terlambat</button>
+                                <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'tidak' ? 'bg-rose-600 border-rose-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Tidak</button>
+                                <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak_ada')" class="py-1.5 px-2 rounded-lg font-bold transition border col-span-2 ${currentStatus === 'tidak_ada' ? 'bg-slate-700 border-slate-600 text-white shadow-md' : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-100'}">Tidak Ada / Libur</button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
-
                 body += `</div></div>`;
-                card.innerHTML = header + body;
-                container.appendChild(card);
+                card.innerHTML = header + body; container.appendChild(card);
             });
-
-            const countEl = document.getElementById('totalAnakCount');
-            if (countEl) countEl.innerText = children.length;
-
-            window.renderDashboardTable();
-            window.renderCetakSelect();
+            const countEl = document.getElementById('totalAnakCount'); if (countEl) countEl.innerText = children.length;
+            renderDashboardTable(); renderCetakSelect(); renderSummaryAnakSelect();
         }
 
-        window.toggleAccordion = function(actIdx) {
-            const body = document.getElementById(`acc-body-${actIdx}`);
-            if (body) body.classList.toggle('hidden');
-        }
+        function toggleAccordion(actIdx) { const body = document.getElementById(`acc-body-${actIdx}`); if (body) body.classList.toggle('hidden'); }
+        function setStatus(actIdx, childId, status) { if (!stateData[actIdx]) stateData[actIdx] = {}; stateData[actIdx][childId] = status; renderActivities(); const body = document.getElementById(`acc-body-${actIdx}`); if (body) body.classList.remove('hidden'); }
+        function setAllForActivity(actIdx, status) { if (!stateData[actIdx]) stateData[actIdx] = {}; getVisibleChildren().forEach(child => { stateData[actIdx][child.id] = status; }); renderActivities(); const body = document.getElementById(`acc-body-${actIdx}`); if (body) body.classList.remove('hidden'); }
 
-        window.setStatus = function(actIdx, childId, status) {
-            if (!stateData[actIdx]) stateData[actIdx] = {};
-            stateData[actIdx][childId] = status;
-            window.renderActivities();
-            const body = document.getElementById(`acc-body-${actIdx}`);
-            if (body) body.classList.remove('hidden');
-        }
-
-        window.setAllForActivity = function(actIdx, status) {
-            if (!stateData[actIdx]) stateData[actIdx] = {};
-            const visibleChildren = window.getVisibleChildren();
-            visibleChildren.forEach(child => {
-                stateData[actIdx][child.id] = status;
-            });
-            window.renderActivities();
-            const body = document.getElementById(`acc-body-${actIdx}`);
-            if (body) body.classList.remove('hidden');
-        }
-
-        window.saveActivityRow = async function(actIdx) {
-            if (!currentUser) {
-                window.showNotification("Sistem belum siap, tunggu sebentar...");
-                return;
-            }
-            const date = document.getElementById('reportDate').value;
-            const visibleChildren = window.getVisibleChildren();
-
-            window.showNotification(`Menyimpan baris kegiatan #${actIdx + 1}...`);
-            
-            if (!db) {
-                let localLogs = JSON.parse(localStorage.getItem('semarak_logs') || '{}');
-                if (!localLogs[date]) localLogs[date] = { date: date, records: {} };
-                
-                visibleChildren.forEach(child => {
-                    if (!localLogs[date].records[child.id]) localLogs[date].records[child.id] = {};
-                    localLogs[date].records[child.id][actIdx] = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                });
-                
-                localStorage.setItem('semarak_logs', JSON.stringify(localLogs));
-                window.showNotification(`Berhasil menyimpan baris kegiatan #${actIdx + 1} (Offline)!`);
-                await window.fetchAllLogsForDashboard();
-                return;
-            }
-
+        async function saveActivityRow(actIdx) {
+            const url = getSavedUrl(); const date = document.getElementById('reportDate').value; const actText = activities[actIdx]; const visibleChildren = getVisibleChildren();
+            const items = visibleChildren.map(child => ({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: actIdx, activityText: actText, status: stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai' }));
             try {
-                const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-                const docRef = doc(logsRef, date);
-                
-                const docSnap = await getDoc(docRef);
-                let dayData = docSnap.exists() ? docSnap.data() : { date: date, records: {} };
-                
-                visibleChildren.forEach(child => {
-                    if (!dayData.records[child.id]) dayData.records[child.id] = {};
-                    dayData.records[child.id][actIdx] = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                });
-
-                await setDoc(docRef, dayData);
-                window.showNotification(`Berhasil menyimpan baris kegiatan #${actIdx + 1}!`);
-                await window.fetchAllLogsForDashboard();
-            } catch (err) {
-                console.warn("Gagal simpan:", err);
-                window.showNotification("Gagal menyimpan ke Firestore. Periksa koneksi.");
-            }
+                showNotification(`Menyimpan baris kegiatan #${actIdx + 1}...`);
+                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: date, items: items }) });
+                showNotification(`Berhasil memperbarui baris kegiatan #${actIdx + 1}!`); await fetchAllLogsForDashboard();
+            } catch (err) { showNotification("Gagal menyimpan ke Spreadsheet."); }
         }
 
-        window.saveAllGranular = async function() {
-            if (!currentUser) return;
-            const date = document.getElementById('reportDate').value;
-            const visibleChildren = window.getVisibleChildren();
-
-            window.showNotification(`Menyinkronkan seluruh data...`);
-            
-            if (!db) {
-                let localLogs = JSON.parse(localStorage.getItem('semarak_logs') || '{}');
-                let dayData = { date: date, records: {} };
-                
-                visibleChildren.forEach(child => {
-                    dayData.records[child.id] = {};
-                    activities.forEach((_, actIdx) => {
-                        dayData.records[child.id][actIdx] = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                    });
-                });
-                
-                localLogs[date] = dayData;
-                localStorage.setItem('semarak_logs', JSON.stringify(localLogs));
-                window.showNotification(`Berhasil menyinkronkan seluruh data (Offline)!`);
-                await window.fetchAllLogsForDashboard();
-                return;
-            }
-
+        async function saveAllGranular() {
+            const url = getSavedUrl(); const date = document.getElementById('reportDate').value; const visibleChildren = getVisibleChildren();
+            let allItems = [];
+            activities.forEach((actText, actIdx) => { visibleChildren.forEach(child => { allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: actIdx, activityText: actText, status: stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai' }); }); });
             try {
-                const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-                const docRef = doc(logsRef, date);
-                
-                let dayData = { date: date, records: {} };
-                
-                visibleChildren.forEach(child => {
-                    dayData.records[child.id] = {};
-                    activities.forEach((_, actIdx) => {
-                        dayData.records[child.id][actIdx] = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                    });
-                });
-
-                await setDoc(docRef, dayData);
-                window.showNotification(`Berhasil menyinkronkan seluruh data ke Database!`);
-                await window.fetchAllLogsForDashboard();
-            } catch (err) {
-                console.warn("Gagal simpan semua:", err);
-                window.showNotification("Gagal menyimpan ke Firestore.");
-            }
+                showNotification(`Menyinkronkan seluruh data ke Spreadsheet...`);
+                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: date, items: allItems }) });
+                showNotification(`Berhasil menyinkronkan seluruh data!`); await fetchAllLogsForDashboard();
+            } catch (err) { showNotification("Gagal menyimpan ke Spreadsheet."); }
         }
 
-        window.fetchAllLogsForDashboard = async function() {
-            if (!currentUser) return;
-            
-            if (!db) {
-                const localLogs = JSON.parse(localStorage.getItem('semarak_logs') || '{}');
-                globalAccumulatedLogs = Object.values(localLogs);
-                window.renderDashboardTable();
-                return;
-            }
-            
-            try {
-                const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-                const snapshot = await getDocs(logsRef);
-                
-                globalAccumulatedLogs = [];
-                snapshot.forEach(doc => {
-                    globalAccumulatedLogs.push(doc.data());
-                });
-                window.renderDashboardTable();
-            } catch (err) {
-                console.warn("Gagal ambil log dashboard:", err);
-            }
-        }
-
-        window.loadSavedLogsForCurrentDate = async function() {
-            const selectedDate = document.getElementById('reportDate').value;
-            
-            window.initAppState();
-            window.applyAutomaticHolidayRules(selectedDate);
-
-            if (!currentUser) {
-                window.renderActivities();
-                window.renderDashboardTable();
-                return;
-            }
-
-            let dayData = null;
-            let hasDataForDate = false;
-
-            if (!db) {
-                window.showNotification(`Memuat data tanggal ${selectedDate} (Offline)...`);
-                const localLogs = JSON.parse(localStorage.getItem('semarak_logs') || '{}');
-                if (localLogs[selectedDate]) {
-                    hasDataForDate = true;
-                    dayData = localLogs[selectedDate];
-                }
-            } else {
+        async function fetchAllLogsForDashboard() {
+            const url = getSavedUrl();
+            if (url) {
                 try {
-                    window.showNotification(`Memuat data tanggal ${selectedDate} dari Database...`);
-                    const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-                    const docRef = doc(logsRef, selectedDate);
-                    const docSnap = await getDoc(docRef);
-
-                    if (docSnap.exists()) {
-                        hasDataForDate = true;
-                        dayData = docSnap.data();
-                    }
-                } catch (err) {
-                    console.warn("Gagal memuat log harian:", err);
-                }
+                    const response = await fetch(url + "?action=logs"); const text = await response.text(); const data = JSON.parse(text);
+                    if (Array.isArray(data) && data.length > 1) globalAccumulatedLogs = data;
+                } catch (err) {}
             }
-
-            let filledActs = new Set();
-            let unfilledIndices = [];
-
-            if (hasDataForDate && dayData) {
-                children.forEach(child => {
-                    if (dayData.records && dayData.records[child.id]) {
-                        activities.forEach((_, actIdx) => {
-                            if (dayData.records[child.id][actIdx]) {
-                                stateData[actIdx][child.id] = dayData.records[child.id][actIdx];
-                                filledActs.add(actIdx);
-                            }
-                        });
-                    }
-                });
-            }
-            
-            window.renderActivities();
-            window.renderDashboardTable();
-
-            for (let i = 0; i < activities.length; i++) {
-                if (!filledActs.has(i)) unfilledIndices.push(i + 1);
-            }
-
-            if (!hasDataForDate || filledActs.size === 0) {
-                window.showModalInfo("Status Input Harian", `Pada hari ini (${selectedDate}) belum ada kegiatan yang diinput ke dalam sistem.`);
-            } else if (unfilledIndices.length > 0) {
-                window.showModalInfo(
-                    "Input Belum Lengkap!", 
-                    `Sebagian data telah tersimpan, namun masih ada kegiatan yang belum terisi pada tanggal ${selectedDate}.\n\nKegiatan yang belum diinput:\nKegiatan No. ${unfilledIndices.join(', ')}`
-                );
-            } else {
-                window.showNotification(`Data tanggal ${selectedDate} berhasil dimuat secara lengkap.`);
-            }
+            renderDashboardTable(); renderSummaryAnak();
         }
 
-        window.normalizeDateStr = function(val) {
+        async function loadSavedLogsForCurrentDate() {
+            const url = getSavedUrl(); const selectedDate = document.getElementById('reportDate').value;
+            initAppState(); applyAutomaticHolidayRules(selectedDate);
+            if (!url) { renderActivities(); renderDashboardTable(); return; }
+            try {
+                showNotification(`Memuat data tanggal ${selectedDate}...`);
+                const response = await fetch(url + "?action=logs"); const text = await response.text();
+                let logs; try { logs = JSON.parse(text); } catch (e) { renderActivities(); renderDashboardTable(); return; }
+
+                let hasDataForDate = false; let filledActs = new Set(); let unfilledIndices = [];
+                if (Array.isArray(logs) && logs.length > 1) {
+                    globalAccumulatedLogs = logs;
+                    for (let i = 1; i < logs.length; i++) {
+                        const row = logs[i]; const logDate = normalizeDateStr(row[1]); const rName = String(row[3] || "").trim();
+                        if (logDate === selectedDate) {
+                            hasDataForDate = true; const child = children.find(c => normalizeStr(c.name) === normalizeStr(rName));
+                            for (let actIdx = 0; actIdx < activities.length; actIdx++) {
+                                const rawStatus = String(row[5 + actIdx] || "").trim();
+                                if (rawStatus !== "") { filledActs.add(actIdx); if (child) stateData[actIdx][child.id] = normalizeStatus(rawStatus); }
+                            }
+                        }
+                    }
+                }
+                renderActivities(); renderDashboardTable(); renderSummaryAnak();
+                for (let i = 0; i < activities.length; i++) { if (!filledActs.has(i)) unfilledIndices.push(i + 1); }
+                if (!hasDataForDate || filledActs.size === 0) { showModalInfo("Status Input Harian", `Pada hari ini (${selectedDate}) belum ada kegiatan diinput.`); }
+                else if (unfilledIndices.length > 0) { showModalInfo("Input Belum Lengkap!", `Sebagian data tersimpan, kegiatan belum diinput: No. ${unfilledIndices.join(', ')}`); }
+                else { showNotification(`Data tanggal ${selectedDate} berhasil dimuat.`); }
+            } catch (err) { renderActivities(); renderDashboardTable(); }
+        }
+
+        function normalizeDateStr(val) {
             if (!val) return "";
-            if (val instanceof Date) {
-                const y = val.getFullYear();
-                const m = String(val.getMonth() + 1).padStart(2, '0');
-                const d = String(val.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
-            }
+            if (val instanceof Date) return formatDateLocal(val);
             let s = String(val).trim();
             if (s.includes('T')) s = s.split('T')[0];
             if (s.includes(' ')) s = s.split(' ')[0];
             return s;
         }
 
-        window.onDateChanged = async function() {
-            const dateEl = document.getElementById('reportDate');
-            const dateVal = dateEl ? dateEl.value : "2026-09-10";
-            
-            const optHarian = document.getElementById('optHarian');
-            if (optHarian) optHarian.innerText = `Tanggal Terpilih (${dateVal})`;
-
+        async function onDateChanged() {
+            const dateEl = document.getElementById('reportDate'); const dateVal = dateEl ? dateEl.value : formatDateLocal(new Date());
+            const optHarian = document.getElementById('optHarian'); if (optHarian) optHarian.innerText = `Tanggal Terpilih (${dateVal})`;
             const optBulanan = document.getElementById('optBulanan');
-            if (optBulanan) {
-                const d = new Date(dateVal);
-                if (!isNaN(d)) {
-                    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                    optBulanan.innerText = `Akumulasi Bulan (${monthNames[d.getMonth()]} ${d.getFullYear()})`;
-                }
-            }
-
-            await window.loadSavedLogsForCurrentDate();
-            window.updateRaportPreview();
+            if (optBulanan) { const d = new Date(dateVal); if (!isNaN(d)) { const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"]; optBulanan.innerText = `Bulan (${monthNames[d.getMonth()]} ${d.getFullYear()})`; } }
+            await loadSavedLogsForCurrentDate(); updateRaportPreview();
         }
 
-        window.renderDashboardTable = function() {
-            const tbody = document.getElementById('dashboardTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            const scopeSelect = document.getElementById('dashboardScopeSelect');
-            const scope = scopeSelect ? scopeSelect.value : 'akumulasi';
-            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : "2026-09-10";
+        function renderDashboardTable() {
+            const tbody = document.getElementById('dashboardTableBody'); if (!tbody) return; tbody.innerHTML = '';
+            const scopeSelect = document.getElementById('dashboardScopeSelect'); const scope = scopeSelect ? scopeSelect.value : 'akumulasi';
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
             const selectedMonth = selectedDate.substring(0, 7);
-
             let totalSesuaiAll = 0, totalArahanAll = 0, totalTerlambatAll = 0, totalTidakAll = 0, totalTidakAdaAll = 0, totalChecksCount = 0;
             const totalActs = activities.length;
+            let pillarTotals = { "Waringkas": { sesuai: 0, total: 0 }, "Berseka": { sesuai: 0, total: 0 }, "Motekar": { sesuai: 0, total: 0 }, "Calakan": { sesuai: 0, total: 0 }, "Berehan": { sesuai: 0, total: 0 } };
+            let dateSeriesMap = {};
 
             children.forEach((child, idx) => {
                 let sesuaiCount = 0, arahanCount = 0, terlambatCount = 0, tidakCount = 0, tidakAdaCount = 0;
                 let childTotalChecks = 0;
-
-                if ((scope === 'akumulasi' || scope === 'bulanan') && globalAccumulatedLogs.length > 0) {
-                    globalAccumulatedLogs.forEach(dayData => {
-                        const rDate = dayData.date;
-                        if (scope === 'bulanan' && !rDate.startsWith(selectedMonth)) return;
-                        
-                        if (dayData.records && dayData.records[child.id]) {
-                            activities.forEach((_, actIdx) => {
-                                const st = dayData.records[child.id][actIdx];
-                                if (st === 'sesuai') sesuaiCount++;
-                                else if (st === 'arahan') arahanCount++;
-                                else if (st === 'terlambat') terlambatCount++;
-                                else if (st === 'tidak') tidakCount++;
-                                else if (st === 'tidak_ada') tidakAdaCount++;
+                if ((scope === 'akumulasi' || scope === 'bulanan') && globalAccumulatedLogs.length > 1) {
+                    for (let i = 1; i < globalAccumulatedLogs.length; i++) {
+                        const row = globalAccumulatedLogs[i]; const rDate = normalizeDateStr(row[1]); const rName = String(row[3] || "").trim().toLowerCase();
+                        if (rName === child.name.toLowerCase()) {
+                            if (scope === 'bulanan' && !rDate.startsWith(selectedMonth)) continue;
+                            if (!dateSeriesMap[rDate]) dateSeriesMap[rDate] = { sesuai: 0, total: 0 };
+                            activities.forEach((act, actIdx) => {
+                                const rStatusStr = String(row[5 + actIdx] || "").trim();
+                                if (rStatusStr !== "") {
+                                    const st = normalizeStatus(rStatusStr);
+                                    if (st === 'sesuai') { sesuaiCount++; dateSeriesMap[rDate].sesuai++; dateSeriesMap[rDate].total++; }
+                                    else if (st === 'arahan') { arahanCount++; dateSeriesMap[rDate].total++; }
+                                    else if (st === 'terlambat') { terlambatCount++; dateSeriesMap[rDate].total++; }
+                                    else if (st === 'tidak') { tidakCount++; dateSeriesMap[rDate].total++; }
+                                    else if (st === 'tidak_ada') { tidakAdaCount++; }
+                                    for (const [pKey, pVal] of Object.entries(pillarMapping)) { if (pVal.indices.includes(actIdx)) { if (st !== 'tidak_ada') { pillarTotals[pKey].total++; if (st === 'sesuai') pillarTotals[pKey].sesuai++; } } }
+                                }
                             });
                         }
-                    });
+                    }
                     childTotalChecks = sesuaiCount + arahanCount + terlambatCount + tidakCount + tidakAdaCount;
-                    
-                } else if (scope === 'harian' && globalAccumulatedLogs.length > 0) {
-                    const todayData = globalAccumulatedLogs.find(d => d.date === selectedDate);
-                    activities.forEach((_, actIdx) => {
-                        let st = 'sesuai';
-                        if (todayData && todayData.records && todayData.records[child.id] && todayData.records[child.id][actIdx]) {
-                            st = todayData.records[child.id][actIdx];
-                        } else {
-                            st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                } else if (scope === 'harian' && globalAccumulatedLogs.length > 1) {
+                    let foundStatus = null;
+                    activities.forEach((act, actIdx) => {
+                        foundStatus = null;
+                        for (let i = 1; i < globalAccumulatedLogs.length; i++) {
+                            const row = globalAccumulatedLogs[i]; const rDate = normalizeDateStr(row[1]); const rName = String(row[3] || "").trim().toLowerCase();
+                            if (rDate === selectedDate && rName === child.name.toLowerCase()) { const rStatus = String(row[5 + actIdx] || "").trim(); if (rStatus !== "") foundStatus = normalizeStatus(rStatus); break; }
                         }
-                        
-                        if (st === 'sesuai') sesuaiCount++;
-                        else if (st === 'arahan') arahanCount++;
-                        else if (st === 'terlambat') terlambatCount++;
-                        else if (st === 'tidak') tidakCount++;
-                        else if (st === 'tidak_ada') tidakAdaCount++;
+                        const st = foundStatus || (stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai');
+                        if (st === 'sesuai') sesuaiCount++; else if (st === 'arahan') arahanCount++; else if (st === 'terlambat') terlambatCount++; else if (st === 'tidak') tidakCount++; else if (st === 'tidak_ada') tidakAdaCount++;
+                        for (const [pKey, pVal] of Object.entries(pillarMapping)) { if (pVal.indices.includes(actIdx)) { if (st !== 'tidak_ada') { pillarTotals[pKey].total++; if (st === 'sesuai') pillarTotals[pKey].sesuai++; } } }
                     });
                     childTotalChecks = totalActs;
                 } else {
                     activities.forEach((_, actIdx) => {
                         const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                        if(st === 'sesuai') sesuaiCount++;
-                        else if(st === 'arahan') arahanCount++;
-                        else if(st === 'terlambat') terlambatCount++;
-                        else if(st === 'tidak') tidakCount++;
-                        else if(st === 'tidak_ada') tidakAdaCount++;
+                        if(st === 'sesuai') sesuaiCount++; else if(st === 'arahan') arahanCount++; else if(st === 'terlambat') terlambatCount++; else if(st === 'tidak') tidakCount++; else if(st === 'tidak_ada') tidakAdaCount++;
+                        for (const [pKey, pVal] of Object.entries(pillarMapping)) { if (pVal.indices.includes(actIdx)) { if (st !== 'tidak_ada') { pillarTotals[pKey].total++; if (st === 'sesuai') pillarTotals[pKey].sesuai++; } } }
                     });
                     childTotalChecks = totalActs;
                 }
-
-                totalSesuaiAll += sesuaiCount;
-                totalArahanAll += arahanCount;
-                totalTerlambatAll += terlambatCount;
-                totalTidakAll += tidakCount;
-                totalTidakAdaAll += tidakAdaCount;
-                totalChecksCount += childTotalChecks;
-
-                const effectiveTotal = childTotalChecks - tidakAdaCount;
-                const score = effectiveTotal > 0 ? Math.round((sesuaiCount / effectiveTotal) * 100) : (childTotalChecks > 0 ? 100 : 0);
-
+                totalSesuaiAll += sesuaiCount; totalArahanAll += arahanCount; totalTerlambatAll += terlambatCount; totalTidakAll += tidakCount; totalTidakAdaAll += tidakAdaCount; totalChecksCount += childTotalChecks;
+                const effectiveTotal = childTotalChecks - tidakAdaCount; const score = effectiveTotal > 0 ? Math.round((sesuaiCount / effectiveTotal) * 100) : (childTotalChecks > 0 ? 100 : 0);
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-700/30 transition">
-                        <td class="p-2.5 sm:p-3 text-slate-400">${idx + 1}</td>
-                        <td class="p-2.5 sm:p-3 font-medium text-white flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-emerald-600/30 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0">${child.initial}</span>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
+                        <td class="p-3 font-bold text-slate-800 flex items-center gap-2.5">
+                            <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">${child.initial}</span>
                             <span class="truncate">${child.name}</span>
                         </td>
-                        <td class="p-2.5 sm:p-3 text-slate-300">${child.asal}</td>
-                        <td class="p-2.5 sm:p-3 text-center text-emerald-400 font-semibold">${sesuaiCount}</td>
-                        <td class="p-2.5 sm:p-3 text-center text-amber-400 font-semibold">${arahanCount}</td>
-                        <td class="p-2.5 sm:p-3 text-center text-orange-400 font-semibold">${terlambatCount}</td>
-                        <td class="p-2.5 sm:p-3 text-center text-rose-400 font-semibold">${tidakCount + tidakAdaCount}</td>
-                        <td class="p-2.5 sm:p-3 text-center">
-                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${score >= 80 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : (score > 0 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-500/20 text-slate-400 border border-slate-500/30')}">
-                                ${score}%
-                            </span>
-                        </td>
-                    </tr>
-                `;
+                        <td class="p-3 text-slate-600 font-semibold">${child.asal}</td>
+                        <td class="p-3 text-center text-emerald-600 font-bold">${sesuaiCount}</td>
+                        <td class="p-3 text-center text-amber-600 font-bold">${arahanCount}</td>
+                        <td class="p-3 text-center text-orange-600 font-bold">${terlambatCount}</td>
+                        <td class="p-3 text-center text-rose-600 font-bold">${tidakCount}</td>
+                        <td class="p-3 text-center"><span class="px-3 py-1 rounded-full text-xs font-black ${score >= 80 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : (score > 0 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-200 text-slate-600 border border-slate-300')}">${score}%</span></td>
+                    </tr>`;
             });
 
             if (totalChecksCount > 0) {
@@ -1019,479 +966,533 @@
                 const pctSesuai = effectiveTotalAll > 0 ? ((totalSesuaiAll / effectiveTotalAll) * 100).toFixed(1) : "0.0";
                 const pctArahan = effectiveTotalAll > 0 ? ((totalArahanAll / effectiveTotalAll) * 100).toFixed(1) : "0.0";
                 const pctTerlambat = effectiveTotalAll > 0 ? ((totalTerlambatAll / effectiveTotalAll) * 100).toFixed(1) : "0.0";
-                const pctTidak = effectiveTotalAll > 0 ? (((totalTidakAll + totalTidakAdaAll) / totalChecksCount) * 100).toFixed(1) : "0.0";
-
-                const elSesuai = document.getElementById('dashAvgSesuai');
-                const elArahan = document.getElementById('dashAvgArahan');
-                const elTerlambat = document.getElementById('dashAvgTerlambat');
-                const elTidak = document.getElementById('dashAvgTidak');
-
-                if (elSesuai) elSesuai.innerText = pctSesuai + '%';
-                if (elArahan) elArahan.innerText = pctArahan + '%';
-                if (elTerlambat) elTerlambat.innerText = pctTerlambat + '%';
-                if (elTidak) elTidak.innerText = pctTidak + '%';
+                const pctTidak = effectiveTotalAll > 0 ? ((totalTidakAll / effectiveTotalAll) * 100).toFixed(1) : "0.0";
+                const setDash = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val + '%'; };
+                setDash('dashAvgSesuai', pctSesuai); setDash('dashAvgArahan', pctArahan); setDash('dashAvgTerlambat', pctTerlambat); setDash('dashAvgTidak', pctTidak);
             }
+
+            const pillarCardsContainer = document.getElementById('dashPillarCardsContainer');
+            if (pillarCardsContainer) {
+                let pHtml = '';
+                Object.keys(pillarMapping).forEach(pKey => {
+                    const pData = pillarTotals[pKey]; const pScore = pData.total > 0 ? Math.round((pData.sesuai / pData.total) * 100) : 100;
+                    pHtml += `<div class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl shadow-sm">
+                            <div class="text-[10px] font-black text-indigo-800 uppercase tracking-wider">${pKey}</div>
+                            <div class="text-lg font-black text-indigo-600 my-0.5">${pScore}%</div>
+                            <div class="text-[10px] text-slate-600 font-semibold">${pData.sesuai}/${pData.total} Tepat</div>
+                        </div>`;
+                });
+                pillarCardsContainer.innerHTML = pHtml;
+            }
+            renderTrendChart(dateSeriesMap, scope);
         }
 
-        window.renderCetakSelect = function() {
-            const select = document.getElementById('selectAnakCetak');
-            if (!select) return;
-            select.innerHTML = '';
-            children.forEach(child => {
-                select.innerHTML += `<option value="${child.id}">${child.name} (${child.asal})</option>`;
+        function renderTrendChart(dateSeriesMap, scope) {
+            const canvasEl = document.getElementById('performanceTrendChart'); const labelEl = document.getElementById('chartPeriodLabel'); if (!canvasEl) return;
+            if (labelEl) labelEl.innerText = scope === 'bulanan' ? 'Tren Bulanan' : (scope === 'harian' ? 'Tren Harian (Tanggal Terpilih)' : 'Tren Akumulasi Waktu Ke Waktu');
+            const sortedDates = Object.keys(dateSeriesMap).sort(); const chartLabels = sortedDates;
+            const chartDataValues = sortedDates.map(date => { const entry = dateSeriesMap[date]; return entry.total > 0 ? Math.round((entry.sesuai / entry.total) * 100) : 100; });
+            if (trendChartInstance) trendChartInstance.destroy();
+            const ctx = canvasEl.getContext('2d');
+            trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: { labels: chartLabels.length > 0 ? chartLabels : ['Belum Ada Data'], datasets: [{ label: 'Persentase Kepatuhan Sesuai (%)', data: chartDataValues.length > 0 ? chartDataValues : [100], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', borderWidth: 3, fill: true, tension: 0.35, pointBackgroundColor: '#4f46e5', pointRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }, plugins: { legend: { display: false } } }
             });
-            select.onchange = window.updateRaportPreview;
         }
 
-        window.fetchAccumulatedLogsAndPrint = async function() {
-            const reportType = document.getElementById('selectReportType').value;
-            if (reportType === 'akumulasi') {
-                await window.fetchAllLogsForDashboard();
+        function renderSummaryAnakSelect() {
+            const select = document.getElementById('selectSummaryAnak'); if (!select) return; const currentVal = select.value; select.innerHTML = '';
+            children.forEach(child => { select.innerHTML += `<option value="${child.id}">${child.name} (${child.asal})</option>`; });
+            if (currentVal && children.find(c => c.id === currentVal)) select.value = currentVal;
+        }
+
+        function renderSummaryAnak() {
+            const selectEl = document.getElementById('selectSummaryAnak'); if (!selectEl || children.length === 0) return;
+            const childId = selectEl.value || children[0].id; const child = children.find(c => c.id === childId) || children[0]; if (!child) return;
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            setText('sumNama', child.name); setText('sumMeta', `${child.jk === 'L' ? 'Laki-laki (L)' : (child.jk === 'P' ? 'Perempuan (P)' : '-')} | ${child.jurusan || '-'}`);
+            setText('sumAsal', child.asal); setText('sumAngkatan', child.angkatan || '2026');
+            const avatarEl = document.getElementById('sumAvatar'); if (avatarEl) avatarEl.innerText = child.initial || 'AN';
+
+            let totalSesuai = 0, totalArahan = 0, totalTerlambat = 0, totalTidak = 0, totalLibur = 0;
+            let actStats = {}; activities.forEach(act => { actStats[act] = { sesuai: 0, arahan: 0, terlambat: 0, tidak: 0, tidak_ada: 0, total: 0 }; });
+
+            if (globalAccumulatedLogs.length > 1) {
+                for (let i = 1; i < globalAccumulatedLogs.length; i++) {
+                    const row = globalAccumulatedLogs[i]; const rName = String(row[3] || "").trim().toLowerCase();
+                    if (rName === child.name.toLowerCase()) {
+                        activities.forEach((act, actIdx) => {
+                            const stStr = String(row[5 + actIdx] || "").trim();
+                            if (stStr !== "") { const st = normalizeStatus(stStr); actStats[act][st]++; actStats[act].total++; if (st === 'sesuai') totalSesuai++; else if (st === 'arahan') totalArahan++; else if (st === 'terlambat') totalTerlambat++; else if (st === 'tidak') totalTidak++; else if (st === 'tidak_ada') totalLibur++; }
+                        });
+                    }
+                }
+            } else {
+                activities.forEach((act, actIdx) => {
+                    const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                    actStats[act][st] = 1; actStats[act].total = 1;
+                    if (st === 'sesuai') totalSesuai++; else if (st === 'arahan') totalArahan++; else if (st === 'terlambat') totalTerlambat++; else if (st === 'tidak') totalTidak++; else if (st === 'tidak_ada') totalLibur++;
+                });
             }
-            window.updateRaportPreview();
-            window.print();
+
+            const totalChecks = totalSesuai + totalArahan + totalTerlambat + totalTidak + totalLibur;
+            const effectiveTotal = totalChecks - totalLibur;
+            const finalScore = effectiveTotal > 0 ? Math.round((totalSesuai / effectiveTotal) * 100) : (totalChecks > 0 ? 100 : 0);
+
+            setText('sumSesuaiCount', totalSesuai); setText('sumSesuaiPct', effectiveTotal > 0 ? ((totalSesuai / effectiveTotal) * 100).toFixed(1) + '%' : '0.0%');
+            setText('sumArahanCount', totalArahan); setText('sumArahanPct', effectiveTotal > 0 ? ((totalArahan / effectiveTotal) * 100).toFixed(1) + '%' : '0.0%');
+            setText('sumTerlambatCount', totalTerlambat); setText('sumTerlambatPct', effectiveTotal > 0 ? ((totalTerlambat / effectiveTotal) * 100).toFixed(1) + '%' : '0.0%');
+            setText('sumTidakCount', totalTidak); setText('sumTidakPct', effectiveTotal > 0 ? ((totalTidak / effectiveTotal) * 100).toFixed(1) + '%' : '0.0%');
+            setText('sumFinalScore', finalScore + '%');
+
+            let pillarCardsHtml = '';
+            Object.keys(pillarMapping).forEach(pKey => {
+                const indices = pillarMapping[pKey].indices; let pSesuai = 0, pTotal = 0;
+                indices.forEach(idx => { const s = actStats[activities[idx]]; const eff = s.total - s.tidak_ada; pSesuai += s.sesuai; pTotal += (eff > 0 ? eff : 0); });
+                const pScore = pTotal > 0 ? Math.round((pSesuai / pTotal) * 100) : 100;
+                pillarCardsHtml += `<div class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl shadow-sm">
+                        <div class="text-[10px] font-black text-indigo-800 uppercase tracking-wider">${pKey}</div>
+                        <div class="text-lg font-black text-indigo-600 my-0.5">${pScore}%</div>
+                        <div class="text-[10px] text-slate-600 font-semibold">${pSesuai}/${pTotal} Tepat</div>
+                    </div>`;
+            });
+            const sumPillarCardsContainer = document.getElementById('sumPillarCardsContainer'); if (sumPillarCardsContainer) sumPillarCardsContainer.innerHTML = pillarCardsHtml;
+
+            let tbodyHtml = '';
+            activities.forEach((actText, actIdx) => {
+                const s = actStats[actText]; const eff = s.total - s.tidak_ada; const pct = eff > 0 ? Math.round((s.sesuai / eff) * 100) : 100;
+                tbodyHtml += `<tr class="hover:bg-slate-50 transition">
+                        <td class="p-2.5 text-slate-500 font-bold">${actIdx + 1}</td><td class="p-2.5 font-medium text-slate-800">${actText}</td>
+                        <td class="p-2.5 text-center font-bold text-emerald-600">${s.sesuai}</td><td class="p-2.5 text-center font-bold text-amber-600">${s.arahan}</td>
+                        <td class="p-2.5 text-center font-bold text-orange-600">${s.terlambat}</td><td class="p-2.5 text-center font-bold text-rose-600">${s.tidak}</td>
+                        <td class="p-2.5 text-center font-bold text-slate-500">${s.tidak_ada}</td>
+                        <td class="p-2.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${pct >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${pct}%</span></td>
+                    </tr>`;
+            });
+            const sumActivityTableBody = document.getElementById('sumActivityTableBody'); if (sumActivityTableBody) sumActivityTableBody.innerHTML = tbodyHtml;
         }
 
-        window.updateRaportPreview = function() {
-            const selectEl = document.getElementById('selectAnakCetak');
-            const selectId = selectEl && selectEl.value ? selectEl.value : (children[0] ? children[0].id : 'A01');
-            const child = children.find(c => c.id === selectId) || children[0];
-            const dateEl = document.getElementById('reportDate');
-            const date = dateEl ? dateEl.value : '2026-09-10';
-            const reportType = document.getElementById('selectReportType').value;
+        function renderCetakSelect() {
+            const select = document.getElementById('selectAnakCetak'); if (!select) return; select.innerHTML = '';
+            children.forEach(child => { select.innerHTML += `<option value="${child.id}">${child.name} (${child.asal})</option>`; });
+            select.onchange = updateRaportPreview;
+        }
 
-            if (!child) return;
+        async function fetchAccumulatedLogsAndPrint() {
+            const reportType = document.getElementById('selectReportType').value; const url = getSavedUrl();
+            if (reportType === 'akumulasi' && url) {
+                try { showNotification("Mengambil data akumulasi sebelum mencetak..."); const response = await fetch(url + "?action=logs"); const text = await response.text(); const data = JSON.parse(text); if (Array.isArray(data)) globalAccumulatedLogs = data; } catch (err) {}
+            }
+            updateRaportPreview(); window.print();
+        }
 
-            const nameEl = document.getElementById('previewNama');
-            if (nameEl) nameEl.innerText = child.name;
-            const asalEl = document.getElementById('previewAsal');
-            if (asalEl) asalEl.innerText = child.asal;
-            
-            const jkEl = document.getElementById('previewJK');
-            if (jkEl) jkEl.innerText = child.jk === 'L' ? 'Laki-laki (L)' : (child.jk === 'P' ? 'Perempuan (P)' : '-');
-            
-            const jurusanEl = document.getElementById('previewJurusan');
-            if (jurusanEl) jurusanEl.innerText = child.jurusan || '-';
-            
-            const periodeContainer = document.getElementById('previewPeriodeContainer');
-            const badgeEl = document.getElementById('previewRaportBadge');
-            const tableContainer = document.getElementById('tableWrapperContainer');
-            const summaryCardsContainer = document.getElementById('pillarSummaryCards');
+        function updateRaportPreview() {
+            const selectEl = document.getElementById('selectAnakCetak'); const selectId = selectEl && selectEl.value ? selectEl.value : (children[0] ? children[0].id : 'A01');
+            const child = children.find(c => c.id === selectId) || children[0]; const dateEl = document.getElementById('reportDate'); const date = dateEl ? dateEl.value : formatDateLocal(new Date());
+            const reportType = document.getElementById('selectReportType').value; if (!child) return;
 
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            setText('previewNama', child.name); setText('previewAsal', child.asal); setText('previewJK', child.jk === 'L' ? 'Laki-laki (L)' : (child.jk === 'P' ? 'Perempuan (P)' : '-'));
+            setText('previewJurusan', child.jurusan); setText('previewAngkatan', child.angkatan || '2026');
+            
+            const periodeContainer = document.getElementById('previewPeriodeContainer'); const badgeEl = document.getElementById('previewRaportBadge');
+            const tableContainer = document.getElementById('tableWrapperContainer'); const summaryCardsContainer = document.getElementById('pillarSummaryCards');
             if (!tableContainer || !summaryCardsContainer) return;
 
             let pillarScores = {};
-
             if (reportType === 'harian') {
-                if (badgeEl) badgeEl.innerText = "RAPORT HARIAN";
-                if (periodeContainer) periodeContainer.innerHTML = `<strong>Tanggal:</strong> <span>${date}</span>`;
-                if (document.getElementById('ttdTanggal')) document.getElementById('ttdTanggal').innerText = date;
-
+                if (badgeEl) badgeEl.innerText = "RAPORT HARIAN"; if (periodeContainer) periodeContainer.innerHTML = `<strong>Tanggal:</strong> <span>${date}</span>`; setText('ttdTanggal', date);
                 Object.keys(pillarMapping).forEach(pillarKey => {
-                    const indices = pillarMapping[pillarKey].indices;
-                    let sesuai = 0, tidakAdaCount = 0;
-                    indices.forEach(idx => {
-                        const st = stateData[idx] && stateData[idx][child.id] ? stateData[idx][child.id] : 'sesuai';
-                        if (st === 'sesuai') sesuai++;
-                        else if (st === 'tidak_ada') tidakAdaCount++;
-                    });
-                    const effectiveTotal = indices.length - tidakAdaCount;
-                    const pct = effectiveTotal > 0 ? Math.round((sesuai / effectiveTotal) * 100) : 100;
+                    const indices = pillarMapping[pillarKey].indices; let sesuai = 0, tidakAdaCount = 0;
+                    indices.forEach(idx => { const st = stateData[idx] && stateData[idx][child.id] ? stateData[idx][child.id] : 'sesuai'; if (st === 'sesuai') sesuai++; else if (st === 'tidak_ada') tidakAdaCount++; });
+                    const effectiveTotal = indices.length - tidakAdaCount; const pct = effectiveTotal > 0 ? Math.round((sesuai / effectiveTotal) * 100) : (indices.length > 0 ? 100 : 0);
                     pillarScores[pillarKey] = { score: pct, sesuai, total: effectiveTotal };
                 });
-
                 let cardsHtml = '';
                 Object.keys(pillarMapping).forEach(pillarKey => {
-                    const p = pillarScores[pillarKey];
-                    cardsHtml += `
-                        <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
-                            <div class="text-[10px] font-bold text-slate-700 uppercase">${pillarKey}</div>
-                            <div class="text-base font-bold text-emerald-700 my-0.5">${p.score}%</div>
-                            <div class="text-[9px] text-slate-500">${p.sesuai}/${p.total} Sesuai</div>
-                        </div>
-                    `;
+                    const p = pillarScores[pillarKey]; cardsHtml += `<div class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl shadow-sm"><div class="text-[10px] font-black text-indigo-800 uppercase tracking-wider">${pillarKey}</div><div class="text-lg font-black text-indigo-600 my-0.5">${p.score}%</div><div class="text-[10px] text-slate-600 font-semibold">${p.sesuai}/${p.total} Sesuai</div></div>`;
                 });
                 summaryCardsContainer.innerHTML = cardsHtml;
-
                 let html = '';
                 Object.keys(pillarMapping).forEach(pillarKey => {
                     const pInfo = pillarMapping[pillarKey];
-                    html += `
-                        <div class="mb-4">
-                            <div class="bg-slate-200 px-3 py-1.5 font-bold text-slate-800 text-xs rounded-t-md border border-slate-300 flex justify-between items-center">
-                                <span>Pilar: ${pillarKey}</span>
-                                <span class="text-[11px] text-emerald-800 font-semibold">${pillarScores[pillarKey].score}%</span>
-                            </div>
-                            <table class="w-full text-left border-collapse text-xs mb-2">
-                                <thead>
-                                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
-                                        <th class="p-1.5 border border-slate-300 w-8 text-center">No</th>
-                                        <th class="p-1.5 border border-slate-300">Uraian Kegiatan</th>
-                                        <th class="p-1.5 border border-slate-300 w-32 text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
-
+                    html += `<div class="mb-4"><div class="bg-indigo-100 text-indigo-900 px-3.5 py-2 font-bold text-xs rounded-t-xl border border-indigo-200 flex justify-between items-center shadow-sm"><span>Pilar: ${pillarKey}</span><span class="text-xs text-indigo-700 font-bold">${pillarScores[pillarKey].score}%</span></div><table class="w-full text-left border-collapse text-xs mb-2 bg-white border border-slate-200 rounded-b-xl overflow-hidden shadow-sm"><thead><tr class="bg-slate-100 text-slate-700 border-b border-slate-200"><th class="p-2 border-r border-slate-200 w-10 text-center font-bold">No</th><th class="p-2 border-r border-slate-200 font-bold">Uraian Kegiatan</th><th class="p-2 w-32 text-center font-bold">Status</th></tr></thead><tbody>`;
                     pInfo.indices.forEach((actIdx, subIdx) => {
-                        const actText = activities[actIdx];
-                        const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                        let statusBadge = '';
-                        if(st === 'sesuai') statusBadge = '<span class="text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.5 rounded">Sesuai</span>';
-                        else if(st === 'arahan') statusBadge = '<span class="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Arahan</span>';
-                        else if(st === 'terlambat') statusBadge = '<span class="text-orange-700 font-bold bg-orange-100 px-1.5 py-0.5 rounded">Terlambat</span>';
-                        else if(st === 'tidak') statusBadge = '<span class="text-rose-700 font-bold bg-rose-100 px-1.5 py-0.5 rounded">Tidak</span>';
-                        else if(st === 'tidak_ada') statusBadge = '<span class="text-slate-600 font-bold bg-slate-200 px-1.5 py-0.5 rounded">Libur</span>';
-
-                        html += `
-                            <tr class="border-b border-slate-200">
-                                <td class="p-1.5 border border-slate-300 text-center">${subIdx + 1}</td>
-                                <td class="p-1.5 border border-slate-300">${actText}</td>
-                                <td class="p-1.5 border border-slate-300 text-center">${statusBadge}</td>
-                            </tr>
-                        `;
-                    });
-
-                    html += `</tbody></table></div>`;
-                });
-
-                tableContainer.innerHTML = html;
-
+                        const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai'; let badge = '';
+                        if(st === 'sesuai') badge = '<span class="text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">Sesuai</span>'; else if(st === 'arahan') badge = '<span class="text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded">Arahan</span>'; else if(st === 'terlambat') badge = '<span class="text-orange-700 font-bold bg-orange-100 px-2 py-0.5 rounded">Terlambat</span>'; else if(st === 'tidak') badge = '<span class="text-rose-700 font-bold bg-rose-100 px-2 py-0.5 rounded">Tidak</span>'; else if(st === 'tidak_ada') badge = '<span class="text-slate-600 font-bold bg-slate-200 px-2 py-0.5 rounded">Libur</span>';
+                        html += `<tr class="border-b border-slate-100 hover:bg-slate-50"><td class="p-2 border-r border-slate-200 text-center text-slate-500 font-semibold">${subIdx + 1}</td><td class="p-2 border-r border-slate-200 text-slate-800 font-medium">${activities[actIdx]}</td><td class="p-2 text-center">${badge}</td></tr>`;
+                    }); html += `</tbody></table></div>`;
+                }); tableContainer.innerHTML = html;
             } else {
-                if (badgeEl) badgeEl.innerText = "RAPORT AKUMULASI";
-                if (periodeContainer) periodeContainer.innerHTML = `<strong>Periode:</strong> <span>Semua Riwayat</span>`;
-
-                let stats = {};
-                activities.forEach(act => {
-                    stats[act] = { sesuai: 0, arahan: 0, terlambat: 0, tidak: 0, tidak_ada: 0, total: 0 };
+                if (badgeEl) badgeEl.innerText = "RAPORT AKUMULASI"; if (periodeContainer) periodeContainer.innerHTML = `<strong>Periode:</strong> <span>Semua Riwayat</span>`;
+                let stats = {}; activities.forEach(act => { stats[act] = { sesuai: 0, arahan: 0, terlambat: 0, tidak: 0, tidak_ada: 0, total: 0 }; });
+                if (globalAccumulatedLogs.length > 1) {
+                    for (let i = 1; i < globalAccumulatedLogs.length; i++) {
+                        const row = globalAccumulatedLogs[i]; const rName = String(row[3] || "").trim().toLowerCase();
+                        if (rName === child.name.toLowerCase()) { activities.forEach((act, actIdx) => { const stStr = String(row[5 + actIdx] || "").trim(); if (stStr !== "") { stats[act][normalizeStatus(stStr)]++; stats[act].total++; } }); }
+                    }
+                } else { activities.forEach((act, actIdx) => { const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai'; stats[act][st] = 1; stats[act].total = 1; }); }
+                Object.keys(pillarMapping).forEach(pillarKey => {
+                    const indices = pillarMapping[pillarKey].indices; let pSesuai = 0, pTotal = 0;
+                    indices.forEach(idx => { const s = stats[activities[idx]]; const eff = s.total - s.tidak_ada; pSesuai += s.sesuai; pTotal += (eff > 0 ? eff : 0); });
+                    pillarScores[pillarKey] = { score: pTotal > 0 ? Math.round((pSesuai / pTotal) * 100) : 100, sesuai: pSesuai, total: pTotal };
                 });
+                let cardsHtml = '';
+                Object.keys(pillarMapping).forEach(pillarKey => { const p = pillarScores[pillarKey]; cardsHtml += `<div class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl shadow-sm"><div class="text-[10px] font-black text-indigo-800 uppercase tracking-wider">${pillarKey}</div><div class="text-lg font-black text-indigo-600 my-0.5">${p.score}%</div><div class="text-[10px] text-slate-600 font-semibold">Akumulasi</div></div>`; });
+                summaryCardsContainer.innerHTML = cardsHtml;
+                let html = '';
+                Object.keys(pillarMapping).forEach(pillarKey => {
+                    const pInfo = pillarMapping[pillarKey];
+                    html += `<div class="mb-4"><div class="bg-indigo-100 text-indigo-900 px-3.5 py-2 font-bold text-xs rounded-t-xl border border-indigo-200 flex justify-between items-center shadow-sm"><span>Pilar: ${pillarKey}</span><span class="text-xs text-indigo-700 font-bold">${pillarScores[pillarKey].score}%</span></div><table class="w-full text-left border-collapse text-xs mb-2 bg-white border border-slate-200 rounded-b-xl overflow-hidden shadow-sm"><thead><tr class="bg-slate-100 text-slate-700 border-b border-slate-200"><th class="p-2 border-r border-slate-200 w-10 text-center font-bold">No</th><th class="p-2 border-r border-slate-200 font-bold">Uraian Kegiatan</th><th class="p-2 border-r border-slate-200 w-12 text-center font-bold">Sesuai</th><th class="p-2 border-r border-slate-200 w-12 text-center font-bold">Arahan</th><th class="p-2 border-r border-slate-200 w-12 text-center font-bold">Telat</th><th class="p-2 border-r border-slate-200 w-12 text-center font-bold text-rose-700">Tidak</th><th class="p-2 border-r border-slate-200 w-12 text-center font-bold text-slate-600">Libur</th><th class="p-2 w-16 text-center font-bold">Skor</th></tr></thead><tbody>`;
+                    pInfo.indices.forEach((actIdx, subIdx) => {
+                        const s = stats[activities[actIdx]]; const eff = s.total - s.tidak_ada; const pct = eff > 0 ? Math.round((s.sesuai / eff) * 100) : 100;
+                        html += `<tr class="border-b border-slate-100 hover:bg-slate-50"><td class="p-2 border-r border-slate-200 text-center text-slate-500 font-semibold">${subIdx + 1}</td><td class="p-2 border-r border-slate-200 text-slate-800 font-medium">${activities[actIdx]}</td><td class="p-2 border-r border-slate-200 text-center font-bold text-emerald-600">${s.sesuai}</td><td class="p-2 border-r border-slate-200 text-center font-bold text-amber-600">${s.arahan}</td><td class="p-2 border-r border-slate-200 text-center font-bold text-orange-600">${s.terlambat}</td><td class="p-2 border-r border-slate-200 text-center font-bold text-rose-600">${s.tidak}</td><td class="p-2 border-r border-slate-200 text-center font-bold text-slate-500">${s.tidak_ada}</td><td class="p-2 text-center font-extrabold text-indigo-600">${pct}%</td></tr>`;
+                    }); html += `</tbody></table></div>`;
+                }); tableContainer.innerHTML = html;
+            }
+            generateAutoNotes(child, pillarScores, reportType);
+        }
 
-                if (globalAccumulatedLogs.length > 0) {
-                    globalAccumulatedLogs.forEach(dayData => {
-                        if (dayData.records && dayData.records[child.id]) {
-                            activities.forEach((act, actIdx) => {
-                                const st = dayData.records[child.id][actIdx];
-                                if (st) {
-                                    stats[act][st]++;
-                                    stats[act].total++;
-                                }
-                            });
+        function generateAutoNotes(child, pillarScores, reportType) {
+            const sortedPillars = Object.keys(pillarScores).sort((a, b) => pillarScores[b].score - pillarScores[a].score);
+            const avgScore = Math.round(Object.values(pillarScores).reduce((acc, p) => acc + p.score, 0) / 5);
+            let text = `Berdasarkan evaluasi ${reportType === 'harian' ? 'harian' : 'akumulasi'}, ${child.name} menunjukkan kedisiplinan yang ${avgScore >= 80 ? 'sangat baik' : 'cukup baik'} (rata-rata ${avgScore}%). Pencapaian tertinggi pada pilar ${sortedPillars[0]}.`;
+            let rec = `1. Mempertahankan kebiasaan positif.\n2. Pembinaan lanjutan pada pilar ${sortedPillars[sortedPillars.length-1]}.`;
+            const catEl = document.getElementById('catatanPerilaku'), recEl = document.getElementById('rekomendasiTindakLanjut');
+            if (catEl) catEl.value = text; if (recEl) recEl.value = rec;
+        }
+
+        function openAppsScriptModal() { document.getElementById('appsScriptModal').classList.remove('hidden'); document.getElementById('appsScriptUrlInput').value = getSavedUrl(); }
+        function closeAppsScriptModal() { document.getElementById('appsScriptModal').classList.add('hidden'); }
+        async function saveAndReloadAppsScript() { localStorage.setItem('pps_apps_script_url', document.getElementById('appsScriptUrlInput').value.trim() || DEFAULT_APPS_SCRIPT_URL); closeAppsScriptModal(); await fetchChildrenFromAppsScript(); }
+        
+        function openRangeGenerateModal() { document.getElementById('rangeGenerateModal').classList.remove('hidden'); const td = formatDateLocal(new Date()); document.getElementById('genEndDate').value = td; document.getElementById('lblTodayRange').innerText = td; }
+        function closeRangeGenerateModal() { document.getElementById('rangeGenerateModal').classList.add('hidden'); }
+        async function executeDateRangeGeneration() {
+            const start = new Date(document.getElementById('genStartDate').value); const end = new Date(document.getElementById('genEndDate').value);
+            if (start > end) return showModalInfo("Perhatian", "Tanggal mulai tidak boleh lebih besar dari tanggal selesai.");
+            let dateList = []; let curr = new Date(start);
+            while (curr <= end) { dateList.push(formatDateLocal(curr)); curr.setDate(curr.getDate() + 1); }
+            const total = dateList.length; document.getElementById('generateProgressBarContainer').classList.remove('hidden'); document.getElementById('btnExecuteGenerate').disabled = true;
+            const url = getSavedUrl(); let successCount = 0;
+            for (let i = 0; i < total; i++) {
+                const targetDate = dateList[i]; document.getElementById('genProgressStatus').innerText = `Memproses tanggal: ${targetDate}`; document.getElementById('genProgressCount').innerText = `${i + 1} / ${total}`; document.getElementById('genProgressBar').style.width = `${Math.round(((i + 1) / total) * 100)}%`;
+                let allItems = [];
+                activities.forEach((txt, actIdx) => {
+                    children.forEach(c => {
+                        let st = 'sesuai';
+                        if (!isActivityActive(actIdx, targetDate, c)) {
+                            st = 'tidak_ada';
+                        } else {
+                            const rnd = Math.random();
+                            if (rnd < 0.70) st = 'sesuai';
+                            else if (rnd < 0.85) st = 'arahan';
+                            else if (rnd < 0.95) st = 'terlambat';
+                            else st = 'tidak';
                         }
+                        allItems.push({ childId: c.id, childName: c.name, childAsal: c.asal, activityIndex: actIdx, activityText: txt, status: st });
                     });
-                } else {
-                    activities.forEach((act, actIdx) => {
-                        const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
-                        stats[act][st] = 1;
-                        stats[act].total = 1;
-                    });
+                });
+                try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: targetDate, items: allItems }) }); successCount++; } catch (err) {}
+                await new Promise(r => setTimeout(r, 40));
+            }
+            document.getElementById('genProgressStatus').innerText = `Berhasil generate ${successCount} hari untuk semua anak.`; document.getElementById('btnExecuteGenerate').disabled = false;
+            await fetchAllLogsForDashboard(); setTimeout(closeRangeGenerateModal, 2000);
+        }
+
+        // ================= FITUR INPUT MINGGUAN (PER ANAK) =================
+        function openWeeklyInputModal() {
+            document.getElementById('weeklyInputModal').classList.remove('hidden');
+            renderWeeklySelects();
+            renderWeeklyTable();
+        }
+        function closeWeeklyInputModal() { document.getElementById('weeklyInputModal').classList.add('hidden'); }
+
+        function renderWeeklySelects() {
+            const selectWeek = document.getElementById('weeklySelectWeek');
+            const selectChild = document.getElementById('weeklySelectChild');
+            
+            const curChild = selectChild.value;
+            selectChild.innerHTML = '';
+            children.forEach(c => { selectChild.innerHTML += `<option value="${c.id}">${c.name} (${c.asal})</option>`; });
+            if(curChild && children.find(c => c.id === curChild)) selectChild.value = curChild;
+
+            const curWeek = selectWeek.value;
+            selectWeek.innerHTML = '';
+            weeklyTargetDatesCache = [];
+            
+            let startDate = new Date("2026-06-24T00:00:00");
+            let today = new Date();
+            let weekCount = 1;
+            
+            while(startDate <= today) {
+                let weekDates = [];
+                let endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 6);
+                
+                for(let i=0; i<7; i++) {
+                    let d = new Date(startDate); d.setDate(d.getDate() + i);
+                    weekDates.push(formatDateLocal(d));
+                }
+                
+                let optText = `Minggu ke-${weekCount} (${formatDateLocal(startDate)} s/d ${formatDateLocal(endDate)})`;
+                selectWeek.innerHTML += `<option value="${weekCount-1}">${optText}</option>`;
+                weeklyTargetDatesCache.push(weekDates);
+                
+                startDate.setDate(startDate.getDate() + 7);
+                weekCount++;
+            }
+            if(curWeek && weeklyTargetDatesCache[curWeek]) selectWeek.value = curWeek;
+            else selectWeek.value = weeklyTargetDatesCache.length - 1;
+        }
+
+        function renderWeeklyTable() {
+            const tbody = document.getElementById('weeklyTableBody');
+            const weekIdx = document.getElementById('weeklySelectWeek').value;
+            const childId = document.getElementById('weeklySelectChild').value;
+            const child = children.find(c => c.id === childId);
+            if(!tbody || !weeklyTargetDatesCache[weekIdx] || !child) return;
+            
+            const targetDates = weeklyTargetDatesCache[weekIdx];
+            tbody.innerHTML = '';
+
+            activities.forEach((act, actIdx) => {
+                let liburWajib = 0;
+                targetDates.forEach(d => { if(!isActivityActive(actIdx, d, child)) liburWajib++; });
+                
+                const maxAktif = 7 - liburWajib;
+                const isFullLibur = liburWajib === 7;
+                
+                tbody.innerHTML += `
+                    <tr id="w-row-${actIdx}" class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-2 text-center text-slate-500 font-bold">${actIdx + 1}</td>
+                        <td class="p-2 font-medium text-slate-800">
+                            ${act}
+                            ${liburWajib > 0 ? `<div class="text-[10px] text-rose-500 font-bold mt-0.5"><i class="fa-solid fa-circle-info"></i> ${liburWajib} Hari Libur Terjadwal</div>` : ''}
+                        </td>
+                        <td class="p-2"><input type="number" min="0" max="${maxAktif}" value="${isFullLibur?0:maxAktif}" onchange="recalcTotal(${actIdx})" id="w-sesuai-${actIdx}" class="w-12 text-center border border-emerald-300 rounded focus:outline-none text-emerald-700 font-bold" ${isFullLibur?'disabled':''}></td>
+                        <td class="p-2"><input type="number" min="0" max="${maxAktif}" value="0" onchange="recalcTotal(${actIdx})" id="w-arahan-${actIdx}" class="w-12 text-center border border-amber-300 rounded focus:outline-none text-amber-700 font-bold" ${isFullLibur?'disabled':''}></td>
+                        <td class="p-2"><input type="number" min="0" max="${maxAktif}" value="0" onchange="recalcTotal(${actIdx})" id="w-telat-${actIdx}" class="w-12 text-center border border-orange-300 rounded focus:outline-none text-orange-700 font-bold" ${isFullLibur?'disabled':''}></td>
+                        <td class="p-2"><input type="number" min="0" max="${maxAktif}" value="0" onchange="recalcTotal(${actIdx})" id="w-tidak-${actIdx}" class="w-12 text-center border border-rose-300 rounded focus:outline-none text-rose-700 font-bold" ${isFullLibur?'disabled':''}></td>
+                        <td class="p-2"><input type="number" min="${liburWajib}" max="7" value="${liburWajib}" onchange="recalcTotal(${actIdx})" id="w-libur-${actIdx}" class="w-12 text-center border border-slate-300 rounded focus:outline-none text-slate-600 font-bold bg-slate-100" readonly></td>
+                        <td class="p-2 text-center font-black text-slate-700" id="w-total-${actIdx}">7</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function recalcTotal(actIdx) {
+            const vSesuai = parseInt(document.getElementById(`w-sesuai-${actIdx}`).value) || 0;
+            const vArahan = parseInt(document.getElementById(`w-arahan-${actIdx}`).value) || 0;
+            const vTelat = parseInt(document.getElementById(`w-telat-${actIdx}`).value) || 0;
+            const vTidak = parseInt(document.getElementById(`w-tidak-${actIdx}`).value) || 0;
+            const vLibur = parseInt(document.getElementById(`w-libur-${actIdx}`).value) || 0;
+            const total = vSesuai + vArahan + vTelat + vTidak + vLibur;
+            
+            const row = document.getElementById(`w-row-${actIdx}`);
+            const totalEl = document.getElementById(`w-total-${actIdx}`);
+            totalEl.innerText = total;
+
+            if(total !== 7) { row.classList.add('invalid-row'); totalEl.classList.add('text-rose-600'); }
+            else { row.classList.remove('invalid-row'); totalEl.classList.remove('text-rose-600'); }
+        }
+
+        async function executeWeeklyDistribution() {
+            const childId = document.getElementById('weeklySelectChild').value;
+            const child = children.find(c => c.id === childId);
+            const weekIdx = document.getElementById('weeklySelectWeek').value;
+            const targetDates = weeklyTargetDatesCache[weekIdx];
+            if(!child || !targetDates) return;
+
+            let isInvalid = false;
+            let actData = [];
+            
+            for(let i=0; i<activities.length; i++) {
+                const total = parseInt(document.getElementById(`w-total-${i}`).innerText);
+                if(total !== 7) isInvalid = true;
+                actData.push({
+                    sesuai: parseInt(document.getElementById(`w-sesuai-${i}`).value)||0,
+                    arahan: parseInt(document.getElementById(`w-arahan-${i}`).value)||0,
+                    telat: parseInt(document.getElementById(`w-telat-${i}`).value)||0,
+                    tidak: parseInt(document.getElementById(`w-tidak-${i}`).value)||0
+                });
+            }
+
+            if(isInvalid) return showModalInfo("Validasi Gagal", "Pastikan total hari pada setiap kegiatan berjumlah tepat 7 hari (termasuk hari libur). Baris merah menandakan jumlah kurang/lebih dari 7.");
+
+            const url = getSavedUrl();
+            const barContainer = document.getElementById('weeklyProgressBarContainer');
+            const statText = document.getElementById('weeklyProgressStatus');
+            const countText = document.getElementById('weeklyProgressCount');
+            const pBar = document.getElementById('weeklyProgressBar');
+            barContainer.classList.remove('hidden');
+            
+            let successCount = 0;
+            for(let d=0; d<targetDates.length; d++) {
+                const dateStr = targetDates[d];
+                statText.innerText = `Mengirim: ${dateStr}`;
+                countText.innerText = `${d+1} / 7`;
+                pBar.style.width = `${Math.round(((d+1)/7)*100)}%`;
+
+                let allItems = [];
+                for(let i=0; i<activities.length; i++) {
+                    let st = 'sesuai';
+                    if(!isActivityActive(i, dateStr, child)) {
+                        st = 'tidak_ada';
+                    } else {
+                        if(actData[i].sesuai > 0) { st = 'sesuai'; actData[i].sesuai--; }
+                        else if(actData[i].arahan > 0) { st = 'arahan'; actData[i].arahan--; }
+                        else if(actData[i].telat > 0) { st = 'terlambat'; actData[i].telat--; }
+                        else if(actData[i].tidak > 0) { st = 'tidak'; actData[i].tidak--; }
+                    }
+                    allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: i, activityText: activities[i], status: st });
                 }
 
-                Object.keys(pillarMapping).forEach(pillarKey => {
-                    const indices = pillarMapping[pillarKey].indices;
-                    let pillarSesuai = 0, pillarTotal = 0;
-                    indices.forEach(idx => {
-                        const actText = activities[idx];
-                        const s = stats[actText];
-                        const effectiveTot = s.total - s.tidak_ada;
-                        pillarSesuai += s.sesuai;
-                        pillarTotal += (effectiveTot > 0 ? effectiveTot : 0);
-                    });
-                    const pct = pillarTotal > 0 ? Math.round((pillarSesuai / pillarTotal) * 100) : 100;
-                    pillarScores[pillarKey] = { score: pct, sesuai: pillarSesuai, total: pillarTotal };
-                });
-
-                let cardsHtml = '';
-                Object.keys(pillarMapping).forEach(pillarKey => {
-                    const p = pillarScores[pillarKey];
-                    cardsHtml += `
-                        <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
-                            <div class="text-[10px] font-bold text-slate-700 uppercase">${pillarKey}</div>
-                            <div class="text-base font-bold text-emerald-700 my-0.5">${p.score}%</div>
-                            <div class="text-[9px] text-slate-500">Akumulasi</div>
-                        </div>
-                    `;
-                });
-                summaryCardsContainer.innerHTML = cardsHtml;
-
-                let html = '';
-                Object.keys(pillarMapping).forEach(pillarKey => {
-                    const pInfo = pillarMapping[pillarKey];
-                    html += `
-                        <div class="mb-4">
-                            <div class="bg-slate-200 px-3 py-1.5 font-bold text-slate-800 text-xs rounded-t-md border border-slate-300 flex justify-between items-center">
-                                <span>Pilar: ${pillarKey}</span>
-                                <span class="text-[11px] text-emerald-800 font-semibold">${pillarScores[pillarKey].score}%</span>
-                            </div>
-                            <table class="w-full text-left border-collapse text-xs mb-2">
-                                <thead>
-                                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
-                                        <th class="p-1.5 border border-slate-300 w-8 text-center">No</th>
-                                        <th class="p-1.5 border border-slate-300">Uraian Kegiatan</th>
-                                        <th class="p-1.5 border border-slate-300 w-12 text-center">Sesuai</th>
-                                        <th class="p-1.5 border border-slate-300 w-12 text-center">Arahan</th>
-                                        <th class="p-1.5 border border-slate-300 w-12 text-center">Terlambat</th>
-                                        <th class="p-1.5 border border-slate-300 w-12 text-center">Tidak</th>
-                                        <th class="p-1.5 border border-slate-300 w-12 text-center">Libur</th>
-                                        <th class="p-1.5 border border-slate-300 w-14 text-center">Skor</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
-
-                    pInfo.indices.forEach((actIdx, subIdx) => {
-                        const actText = activities[actIdx];
-                        const s = stats[actText];
-                        const effectiveTot = s.total - s.tidak_ada;
-                        const pct = effectiveTot > 0 ? Math.round((s.sesuai / effectiveTot) * 100) : 100;
-
-                        html += `
-                            <tr class="border-b border-slate-200">
-                                <td class="p-1.5 border border-slate-300 text-center">${subIdx + 1}</td>
-                                <td class="p-1.5 border border-slate-300">${actText}</td>
-                                <td class="p-1.5 border border-slate-300 text-center font-semibold text-emerald-700">${s.sesuai}</td>
-                                <td class="p-1.5 border border-slate-300 text-center font-semibold text-amber-700">${s.arahan}</td>
-                                <td class="p-1.5 border border-slate-300 text-center font-semibold text-orange-700">${s.terlambat}</td>
-                                <td class="p-1.5 border border-slate-300 text-center font-semibold text-rose-700">${s.tidak}</td>
-                                <td class="p-1.5 border border-slate-300 text-center font-semibold text-slate-500">${s.tidak_ada}</td>
-                                <td class="p-1.5 border border-slate-300 text-center font-bold">${pct}%</td>
-                            </tr>
-                        `;
-                    });
-
-                    html += `</tbody></table></div>`;
-                });
-
-                tableContainer.innerHTML = html;
+                try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ date: dateStr, items: allItems }) }); successCount++; } catch(e){}
             }
 
-            window.generateAutoNotes(child, pillarScores, reportType);
+            statText.innerText = `Selesai (${successCount}/7 hari disimpan)`;
+            await fetchAllLogsForDashboard();
+            setTimeout(closeWeeklyInputModal, 1500);
         }
 
-        window.generateAutoNotes = function(child, pillarScores, reportType) {
-            const sortedPillars = Object.keys(pillarScores).sort((a, b) => pillarScores[b].score - pillarScores[a].score);
-            const bestPillar = sortedPillars[0];
-            const worstPillar = sortedPillars[sortedPillars.length - 1];
-            const avgScore = Math.round(Object.values(pillarScores).reduce((acc, p) => acc + p.score, 0) / 5);
-
-            let evaluasiText = `Berdasarkan evaluasi ${reportType === 'harian' ? 'harian' : 'akumulasi riwayat'} kegiatan di UPTD PPSGBR Lembang, ${child.name} (${child.asal}) menunjukkan kedisiplinan yang ${avgScore >= 80 ? 'sangat baik' : 'cukup baik'} dengan pencapaian rata-rata ${avgScore}%. `;
-            evaluasiText += `Pencapaian tertinggi pada pilar ${bestPillar} (${pillarScores[bestPillar].score}%). `;
-            if (pillarScores[worstPillar].score < 80) {
-                evaluasiText += `Pembinaan lanjutan disarankan untuk memperkuat pilar ${worstPillar} (${pillarScores[worstPillar].score}%).`;
-            } else {
-                evaluasiText += `Seluruh pilar karakter menunjukkan konsistensi yang sangat membanggakan.`;
-            }
-
-            let rekomendasiText = `1. Mempertahankan kebiasaan positif dan ibadah.\n`;
-            rekomendasiText += `2. Peran aktif keluarga pasca pelayanan esensial dalam penguatan keterampilan vokasional (Batik Ecoprint & Farming).\n`;
-            rekomendasiText += `3. Pendampingan berkala Pekerja Sosial untuk reintegrasi sosial ${child.name} di ${child.asal}.`;
-
-            const catatanEl = document.getElementById('catatanPerilaku');
-            const rekomendasiEl = document.getElementById('rekomendasiTindakLanjut');
-
-            if (catatanEl) catatanEl.value = evaluasiText;
-            if (rekomendasiEl) rekomendasiEl.value = rekomendasiText;
-        }
-
-        window.openRangeGenerateModal = function() {
-            const modal = document.getElementById('rangeGenerateModal');
-            if (modal) modal.classList.remove('hidden');
+        async function executeBulkSaveRangeToCurrent() {
+            let start = new Date("2026-06-24T00:00:00");
+            let end = new Date();
+            let targetDates = [];
             
-            const todayStr = new Date().toISOString().split('T')[0];
-            const endInput = document.getElementById('genEndDate');
-            if (endInput) endInput.value = todayStr;
-            const lblToday = document.getElementById('lblTodayRange');
-            if (lblToday) lblToday.innerText = todayStr;
-
-            document.getElementById('generateProgressBarContainer').classList.add('hidden');
-        }
-
-        window.closeRangeGenerateModal = function() {
-            const modal = document.getElementById('rangeGenerateModal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        window.executeDateRangeGeneration = async function() {
-            if (!currentUser || !db) return;
-            const startDateStr = document.getElementById('genStartDate').value;
-            const endDateStr = document.getElementById('genEndDate').value;
-
-            if (!startDateStr || !endDateStr) {
-                window.showModalInfo("Perhatian", "Harap tentukan tanggal mulai dan tanggal selesai dengan benar.");
-                return;
-            }
-
-            const start = new Date(startDateStr);
-            const end = new Date(endDateStr);
-
-            if (start > end) {
-                window.showModalInfo("Perhatian", "Tanggal mulai tidak boleh lebih besar dari tanggal selesai.");
-                return;
-            }
-
-            let dateList = [];
             let curr = new Date(start);
-            while (curr <= end) {
-                dateList.push(curr.toISOString().split('T')[0]);
-                curr.setDate(curr.getDate() + 1);
-            }
-
-            const totalDays = dateList.length;
-            const progressContainer = document.getElementById('generateProgressBarContainer');
-            const progressBar = document.getElementById('genProgressBar');
-            const progressStatus = document.getElementById('genProgressStatus');
-            const progressCount = document.getElementById('genProgressCount');
-            const btnExecute = document.getElementById('btnExecuteGenerate');
-
-            progressContainer.classList.remove('hidden');
-            btnExecute.disabled = true;
-            btnExecute.classList.add('opacity-50', 'cursor-not-allowed');
-
+            while(curr <= end) { targetDates.push(formatDateLocal(curr)); curr.setDate(curr.getDate() + 1); }
+            
+            const total = targetDates.length;
+            const url = getSavedUrl();
+            const barContainer = document.getElementById('weeklyProgressBarContainer');
+            const statText = document.getElementById('weeklyProgressStatus');
+            const countText = document.getElementById('weeklyProgressCount');
+            const pBar = document.getElementById('weeklyProgressBar');
+            
+            barContainer.classList.remove('hidden');
             let successCount = 0;
 
-            for (let i = 0; i < totalDays; i++) {
-                const targetDate = dateList[i];
-                progressStatus.innerText = `Memproses tanggal: ${targetDate}`;
-                progressCount.innerText = `${i + 1} / ${totalDays}`;
-                progressBar.style.width = `${Math.round(((i + 1) / totalDays) * 100)}%`;
+            for (let d = 0; d < total; d++) {
+                let dateStr = targetDates[d];
+                statText.innerText = `Menyimpan tgl ${dateStr}... (Semua Anak)`;
+                countText.innerText = `${d + 1} / ${total}`;
+                pBar.style.width = `${Math.round(((d + 1) / total) * 100)}%`;
 
-                let tempState = {};
-                activities.forEach((_, actIdx) => {
-                    tempState[actIdx] = {};
-                    children.forEach(child => {
-                        tempState[actIdx][child.id] = 'sesuai';
-                    });
-                });
-
-                const dObj = new Date(targetDate);
-                const dayOfWeek = dObj.getDay();
-                const month = dObj.getMonth();
-                const dateNum = dObj.getDate();
-                children.forEach(child => {
-                    if (dayOfWeek === 0 || dayOfWeek === 6) tempState[6][child.id] = 'tidak_ada';
-                    const isJuliActive = (month === 6 && dateNum >= 20 && dateNum <= 27);
-                    const isAgustusActive = (month === 7 && dateNum >= 24 && dateNum <= 31);
-                    if (!isJuliActive && !isAgustusActive) tempState[7][child.id] = 'tidak_ada';
-                    if (dayOfWeek !== 6) tempState[8][child.id] = 'tidak_ada';
-                    if (dayOfWeek !== 2 && dayOfWeek !== 4 && dayOfWeek !== 5) tempState[13][child.id] = 'tidak_ada';
-                    if (dayOfWeek === 0 || dayOfWeek === 6) tempState[9][child.id] = 'tidak_ada';
-                    if (dayOfWeek !== 1 && dayOfWeek !== 3) tempState[12][child.id] = 'tidak_ada';
-                });
-
-                let dayData = { date: targetDate, records: {} };
-                children.forEach(child => {
-                    dayData.records[child.id] = {};
-                    activities.forEach((_, actIdx) => {
-                        dayData.records[child.id][actIdx] = tempState[actIdx][child.id];
-                    });
-                });
-
-                if (!db) {
-                    let localLogs = JSON.parse(localStorage.getItem('semarak_logs') || '{}');
-                    localLogs[targetDate] = dayData;
-                    localStorage.setItem('semarak_logs', JSON.stringify(localLogs));
-                    successCount++;
-                } else {
-                    try {
-                        const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-                        const docRef = doc(logsRef, targetDate);
-                        await setDoc(docRef, dayData);
-                        successCount++;
-                    } catch (err) {
-                        console.warn(`Gagal generate tanggal ${targetDate}:`, err);
+                let allItems = [];
+                for (let c = 0; c < children.length; c++) {
+                    const child = children[c];
+                    for (let a = 0; a < activities.length; a++) {
+                        let st = 'sesuai';
+                        if (!isActivityActive(a, dateStr, child)) {
+                            st = 'tidak_ada';
+                        } else {
+                            let rnd = Math.random();
+                            if (rnd < 0.70) st = 'sesuai';
+                            else if (rnd < 0.85) st = 'arahan';
+                            else if (rnd < 0.95) st = 'terlambat';
+                            else st = 'tidak';
+                        }
+                        allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: a, activityText: activities[a], status: st });
                     }
                 }
+                try {
+                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: dateStr, items: allItems }) });
+                    successCount++;
+                } catch (err) {}
             }
 
-            progressStatus.innerText = `Selesai! Berhasil men-generate ${successCount} dari ${totalDays} hari.`;
-            btnExecute.disabled = false;
-            btnExecute.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            window.showNotification(`Berhasil generate rentang laporan (${successCount} hari)!`);
-            await window.fetchAllLogsForDashboard();
-            
-            setTimeout(() => {
-                window.closeRangeGenerateModal();
-            }, 2000);
+            statText.innerText = `Selesai (${successCount} hari tersimpan untuk semua anak).`;
+            await fetchAllLogsForDashboard();
+            setTimeout(closeWeeklyInputModal, 2000);
         }
 
-        window.fetchChildrenFromAppsScript = async function() {
-            if (!currentUser) return;
-            const titleEl = document.getElementById('dbStatusTitle');
-            const descEl = document.getElementById('dbStatusDesc');
-
-            if (!db) {
-                const localChildren = localStorage.getItem('semarak_children');
-                if (localChildren) {
-                    children = JSON.parse(localChildren);
-                } else {
-                    children = [...defaultChildren];
-                    localStorage.setItem('semarak_children', JSON.stringify(children));
-                }
-                
-                await window.loadSavedLogsForCurrentDate();
-                if (titleEl) titleEl.innerText = 'Database Offline (Local Storage):';
-                if (descEl) descEl.innerHTML = `Berhasil memuat data anak lokal. Total: <span class="font-bold">${children.length}</span> Orang.`;
-                window.showNotification(`Berhasil memuat ${children.length} anak dari Local Storage!`);
-                return;
-            }
-
+        async function fetchChildrenFromAppsScript() {
+            const url = getSavedUrl(), titleEl = document.getElementById('dbStatusTitle'), descEl = document.getElementById('dbStatusDesc');
             try {
-                window.showNotification("Memuat data anak dari Firestore...");
-                const childrenRef = collection(db, 'artifacts', appId, 'public', 'data', 'children');
-                const snapshot = await getDocs(childrenRef);
-                
-                if (!snapshot.empty) {
+                showNotification("Mengunduh data anak asuh dari Google Sheets...");
+                const response = await fetch(url);
+                const text = await response.text();
+                if (text.trim().startsWith('<')) throw new Error("Atur izin Deployment Apps Script ke 'Anyone'.");
+
+                let rows = JSON.parse(text);
+                if (Array.isArray(rows) && rows.length > 0) {
                     children = [];
-                    snapshot.forEach(doc => {
-                        children.push(doc.data());
-                    });
-                } else {
-                    // Seed initial data if empty
-                    console.log("No children found in Firestore, seeding defaults...");
-                    for (const child of defaultChildren) {
-                        const docRef = doc(childrenRef, child.id);
-                        await setDoc(docRef, child);
+                    
+                    let headerRowIdx = -1;
+                    let idxNama=-1, idxJk=-1, idxAsal=-1, idxJurusan=-1, idxAngkatan=-1;
+
+                    for (let r = 0; r < Math.min(15, rows.length); r++) {
+                        let rowTexts = rows[r].map(h => String(h).toLowerCase().trim());
+                        if (rowTexts.some(t => t.includes('nama'))) {
+                            headerRowIdx = r;
+                            idxNama = rowTexts.findIndex(h => h.includes('nama'));
+                            idxJk = rowTexts.findIndex(h => h.includes('jk') || h.includes('kelamin') || h.includes('jenis'));
+                            idxAsal = rowTexts.findIndex(h => h.includes('asal') || h.includes('daerah'));
+                            idxJurusan = rowTexts.findIndex(h => h.includes('jurusan') || h.includes('vokasi') || h.includes('keterampilan'));
+                            idxAngkatan = rowTexts.findIndex(h => h.includes('angkatan') || h.includes('gelombang') || h.includes('tahun'));
+                            break;
+                        }
                     }
-                    children = [...defaultChildren];
+
+                    if (idxNama === -1) idxNama = 1;
+                    if (idxJk === -1) idxJk = 2;
+                    if (idxAsal === -1) idxAsal = 3;
+                    if (idxJurusan === -1) idxJurusan = 4;
+                    if (idxAngkatan === -1) idxAngkatan = 5;
+
+                    let startRow = headerRowIdx !== -1 ? headerRowIdx + 1 : 1;
+
+                    for (let i = startRow; i < rows.length; i++) {
+                        let item = rows[i];
+                        if (!item || item.length === 0) continue;
+
+                        let name = String(item[idxNama] || "").trim();
+                        if (!name || name.toLowerCase() === 'nama anak asuh' || name.toLowerCase() === 'nama' || name.includes('Tanggal Lahir')) continue;
+
+                        let jk = String(item[idxJk] || "").trim().toUpperCase();
+                        if (jk.includes('LAKI') || jk === 'L') jk = 'L';
+                        else if (jk.includes('PEREMPUAN') || jk === 'P') jk = 'P';
+                        else jk = '-';
+
+                        let asal = String(item[idxAsal] || "Bandung").trim();
+                        let jurusan = String(item[idxJurusan] || "-").trim();
+                        let angkatan = String(item[idxAngkatan] || "2026").trim();
+
+                        const words = name.split(' ');
+                        children.push({
+                            id: `A${String(children.length + 1).padStart(2, '0')}`,
+                            name: name,
+                            asal: asal,
+                            initial: words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : words[0].substring(0, 2).toUpperCase(),
+                            jk: jk,
+                            jurusan: jurusan,
+                            angkatan: angkatan
+                        });
+                    }
+
+                    await loadSavedLogsForCurrentDate();
+                    titleEl.innerText = 'Database Terhubung (Google Sheets):';
+                    descEl.innerHTML = `Data Google Sheets berhasil dimuat. Total: <span class="font-bold">${children.length}</span> Anak.`;
+                    showNotification("Berhasil memuat data anak!");
                 }
-
-                await window.loadSavedLogsForCurrentDate();
-
-                if (titleEl) titleEl.innerText = 'Database Firestore Terhubung:';
-                if (descEl) descEl.innerHTML = `Berhasil memuat data anak. Total: <span class="font-bold">${children.length}</span> Orang.`;
-                window.showNotification(`Berhasil memuat ${children.length} anak dari Database Firestore!`);
-                
             } catch (err) {
-                console.warn("Gagal fetch:", err);
-                children = [...defaultChildren];
-                window.loadSavedLogsForCurrentDate();
-                if (titleEl) titleEl.innerText = 'Database (Gagal Terhubung):';
-                if (descEl) descEl.innerHTML = `<span class="text-rose-400">Error: ${err.message}</span>. Menggunakan data default.`;
-                window.showNotification("Gagal sinkronisasi data dari Firestore.");
+                titleEl.innerText = 'Gagal Terhubung:';
+                descEl.innerHTML = `<span class="text-rose-600 font-bold">${err.message}</span>. Periksa URL Setup Script.`;
+                showNotification("Gagal sinkronisasi data dari Spreadsheet.");
             }
         }
 
         window.onload = async function() {
             const dateEl = document.getElementById('reportDate');
             if (dateEl) {
-                const dateVal = dateEl.value;
-                const optHarian = document.getElementById('optHarian');
-                if (optHarian) optHarian.innerText = `Tanggal Terpilih (${dateVal})`;
-
-                const optBulanan = document.getElementById('optBulanan');
-                if (optBulanan) {
-                    const d = new Date(dateVal);
-                    if (!isNaN(d)) {
-                        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                        optBulanan.innerText = `Akumulasi Bulan (${monthNames[d.getMonth()]} ${d.getFullYear()})`;
-                    }
-                }
+                const today = formatDateLocal(new Date());
+                dateEl.value = today;
+                onDateChanged();
             }
-
-            await initFirebase();
-            if(currentUser) {
-                await window.fetchChildrenFromAppsScript(); // Still named this, but pulls from Firestore now
-            }
+            await fetchChildrenFromAppsScript();
         };
     </script>
 </body>
