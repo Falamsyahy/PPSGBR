@@ -69,7 +69,7 @@
                 <button onclick="openAppsScriptModal()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl text-xs backdrop-blur-md border border-white/20" title="Setup">
                     <i class="fa-solid fa-gear text-white text-sm"></i>
                 </button>
-                <button onclick="saveAllGranular()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1">
+                <button onclick="openOverwriteConfirmModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </button>
             </div>
@@ -91,7 +91,7 @@
                 <button onclick="openAppsScriptModal()" class="bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 backdrop-blur-md">
                     <i class="fa-solid fa-gear text-sky-200"></i> Setup Script
                 </button>
-                <button onclick="saveAllGranular()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition flex items-center gap-1.5">
+                <button onclick="openOverwriteConfirmModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Semua
                 </button>
             </div>
@@ -145,16 +145,39 @@
 
         <!-- TAB 1: MATRIKS 22 KEGIATAN -->
         <div id="tab-matriks" class="tab-content active space-y-3.5">
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
-                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
-                    <i class="fa-solid fa-users-viewfinder text-sky-600 text-base"></i> Target Evaluasi (Mencegah Overwrite Petugas Lain):
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
+                <div class="flex flex-col gap-2 w-full md:w-auto">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                        <i class="fa-solid fa-users-viewfinder text-sky-600 text-base"></i> Filter Shift Piket & Target Evaluasi:
+                    </div>
                 </div>
-                <select id="genderFilter" onchange="renderActivities()" class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 shadow-inner">
-                    <option value="semua">Semua Anak (L & P)</option>
-                    <option value="L">Laki-Laki Saja (L)</option>
-                    <option value="P">Perempuan Saja (P)</option>
-                </select>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <select id="shiftFilter" onchange="renderActivities()" class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 shadow-inner">
+                        <option value="semua">Semua Shift (22 Kegiatan)</option>
+                        <option value="pagi">Piket Pagi (Kegiatan 3 s.d. 17)</option>
+                        <option value="malam">Piket Malam (Keg. 1, 2, 18 s.d. 22)</option>
+                    </select>
+                    <select id="genderFilter" onchange="renderActivities()" class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-800 font-semibold rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-sky-500 shadow-inner">
+                        <option value="semua">Semua Anak (L & P)</option>
+                        <option value="L">Laki-Laki Saja (L)</option>
+                        <option value="P">Perempuan Saja (P)</option>
+                    </select>
+                </div>
             </div>
+
+            <!-- FITUR DAFTAR ANAK SAKIT / IZIN -->
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-bed-pulse text-amber-600"></i> Panel Anak Sakit / Izin (Otomatis Libur Harian)
+                    </h3>
+                    <span class="text-[11px] text-amber-700 font-semibold">Centang nama anak yang berhalangan hadir pada tanggal ini:</span>
+                </div>
+                <div id="sickChildrenContainer" class="flex flex-wrap gap-2 pt-2 border-t border-amber-200/60">
+                    <!-- Dynamic Checkboxes -->
+                </div>
+            </div>
+
             <div id="activitiesAccordionContainer" class="space-y-3"></div>
         </div>
 
@@ -227,6 +250,7 @@
                         <thead>
                             <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold">
                                 <th class="p-3">No</th>
+                                <th class="p-3">ID</th>
                                 <th class="p-3">Nama Anak Asuh</th>
                                 <th class="p-3">Asal Daerah</th>
                                 <th class="p-3 text-center">Sesuai</th>
@@ -273,7 +297,7 @@
                         <div id="sumAsal" class="text-xs font-bold text-slate-800 mt-0.5">-</div>
                     </div>
                     <div>
-                        <div class="text-[11px] font-bold text-slate-500">Angkatan / Gelombang</div>
+                        <div class="text-[11px] font-bold text-slate-500">ID & Angkatan</div>
                         <div id="sumAngkatan" class="text-xs font-bold text-slate-800 mt-0.5">-</div>
                     </div>
                 </div>
@@ -373,7 +397,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
                     <div>
-                        <p class="mb-1"><strong>Nama Anak:</strong> <span id="previewNama" class="font-bold text-slate-800">-</span></p>
+                        <p class="mb-1"><strong>ID & Nama Anak:</strong> <span id="previewNama" class="font-bold text-slate-800">-</span></p>
                         <p class="mb-1"><strong>Asal Daerah:</strong> <span id="previewAsal" class="font-bold text-slate-800">-</span></p>
                         <p class="mb-1"><strong>Jenis Kelamin:</strong> <span id="previewJK" class="font-bold text-slate-800">-</span></p>
                         <p><strong>Angkatan / Gelombang:</strong> <span id="previewAngkatan" class="font-bold text-slate-800">-</span></p>
@@ -469,7 +493,7 @@
                 <span class="text-[11px] text-rose-500 font-bold bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> Pastikan total per kegiatan = 7 Hari</span>
                 <div class="flex flex-wrap gap-2 justify-end w-full sm:w-auto">
                     <button onclick="closeWeeklyInputModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Batal</button>
-                    <button onclick="executeBulkSaveRangeToCurrent()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
+                    <button onclick="openOverwriteConfirmModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Simpan S.d. Sekarang (Semua Anak)
                     </button>
                     <button onclick="executeWeeklyDistribution()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
@@ -530,6 +554,25 @@
         </div>
     </div>
 
+    <!-- OVERWRITE CONFIRMATION MODAL -->
+    <div id="overwriteConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                <div class="bg-amber-100 text-amber-600 p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <h3 class="text-sm sm:text-base font-bold text-slate-800">Mode Penyimpanan Data</h3>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Apakah Anda ingin **MENIMPA (Overwrite)** data lama dengan nilai acak baru, atau **Hanya Mengisi Data yang Kosong (Skip)**?
+            </p>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="executeBulkSaveRangeToCurrent(false)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Hanya Kosong (Skip)</button>
+                <button onclick="executeBulkSaveRangeToCurrent(true)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-md transition">Timpa (Overwrite)</button>
+            </div>
+        </div>
+    </div>
+
     <!-- APPS SCRIPT MODAL -->
     <div id="appsScriptModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -574,7 +617,7 @@
     </footer>
 
     <script>
-        const DEFAULT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ0gWILWDl6rWpFzNhDm1-ABqNgBXS_KeVRA64VGhKWvf2sv3U7LXl1Et_v9I1Q31r/exec";
+        const DEFAULT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRlw8EWZgBep5QqbEQWLWlOmiPBHWslRrzNJqI6aoM0zHD6kILdCZKNymHH5JiIlLs/exec";
 
         function getSavedUrl() {
             let url = localStorage.getItem('pps_apps_script_url');
@@ -620,19 +663,25 @@
 
         let children = [];
         let stateData = {};
+        let sickChildrenState = {}; 
         let globalAccumulatedLogs = [];
         let trendChartInstance = null;
         let weeklyTargetDatesCache = [];
 
-        // ATURAN JADWAL TERPUSAT & Pengecualian Khusus Anak
+        // STRICT ATURAN JADWAL TERPUSAT & Pengecualian Khusus Anak
         function isActivityActive(actIdx, dateStr, child) {
+            // Cek apakah anak sedang sakit/izin pada tanggal ini
+            if (child && sickChildrenState[dateStr] && sickChildrenState[dateStr][child.id]) {
+                return false;
+            }
+
             if (child) {
                 const nameLower = (child.name || "").toLowerCase();
-                // 1. Yohanes, Andrian, Andhika (Non-Muslim / Kristen): Shalat (1,10,14,17,19) & Pengajian (20) Libur
+                // 1. Yohanes, Andrian, Andhika (Non-Muslim / Kristen): Shalat & Pengajian Libur
                 if (nameLower.includes("yohanes") || nameLower.includes("andrian") || nameLower.includes("andhika")) {
                     if ([1, 10, 14, 17, 19, 20].includes(actIdx)) return false;
                 }
-                // 2. Doddy dan Endang (Masih kecil): Hanya kegiatan makan (4, 11, 18) yang aktif, lainnya libur
+                // 2. Doddy dan Endang (Masih kecil): Hanya kegiatan makan aktif
                 if (nameLower.includes("doddy") || nameLower.includes("endang")) {
                     if (![4, 11, 18].includes(actIdx)) return false;
                 }
@@ -640,39 +689,26 @@
 
             const d = new Date(dateStr);
             if (isNaN(d)) return false;
-            const day = d.getDay(); // 0=Minggu, 1=Senin, ..., 6=Sabtu
+            const day = d.getDay(); 
             const mm = d.getMonth() + 1;
             const dd = d.getDate();
 
-            // 1. Kedisiplinan: 20-27 Juli & 24-31 Agustus
             if (actIdx === 7) {
                 const isJuli = (mm === 7 && dd >= 20 && dd <= 27);
                 const isAgustus = (mm === 8 && dd >= 24 && dd <= 31);
                 return (isJuli || isAgustus);
             }
-            // 2. Sosial I: Senin s.d. Kamis, KECUALI saat kedisiplinan aktif
             if (actIdx === 9) {
                 const isJuli = (mm === 7 && dd >= 20 && dd <= 27);
                 const isAgustus = (mm === 8 && dd >= 24 && dd <= 31);
                 if (isJuli || isAgustus) return false;
                 return (day >= 1 && day <= 4);
             }
-            // 3. Batik Ecoprint: Hanya hari Sabtu (6)
-            if (actIdx === 8) {
-                return (day === 6);
-            }
-            // 4. Sosial II: Senin (1) dan Rabu (3)
-            if (actIdx === 12) {
-                return (day === 1 || day === 3);
-            }
-            // 5. Farming: Selasa (2), Kamis (4), Jumat (5)
-            if (actIdx === 13) {
-                return (day === 2 || day === 4 || day === 5);
-            }
-            // 6. Keterampilan: Senin s.d. Jumat (1 s.d. 5)
-            if (actIdx === 6) {
-                return (day >= 1 && day <= 5);
-            }
+            if (actIdx === 8) return (day === 6);
+            if (actIdx === 12) return (day === 1 || day === 3);
+            if (actIdx === 13) return (day === 2 || day === 4 || day === 5);
+            if (actIdx === 6) return (day >= 1 && day <= 5);
+            
             return true;
         }
 
@@ -682,6 +718,23 @@
             if (jk === 'semua') return children;
             return children.filter(c => c.jk === jk || c.jk === '-');
         }
+
+        function getShiftFilteredActivities() {
+            const shiftEl = document.getElementById('shiftFilter');
+            const shift = shiftEl ? shiftEl.value : 'semua';
+            let indices = [];
+            activities.forEach((_, idx) => {
+                if (shift === 'pagi') {
+                    if (idx >= 3 && idx <= 17) indices.push(idx);
+                } else if (shift === 'malam') {
+                    if (idx <= 2 || idx >= 18) indices.push(idx);
+                } else {
+                    indices.push(idx);
+                }
+            });
+            return indices;
+        }
+
         function showNotification(message) {
             const banner = document.getElementById('notificationBanner');
             const text = document.getElementById('notificationText');
@@ -712,13 +765,6 @@
                 });
             });
         }
-        function applyAutomaticHolidayRules(dateStr) {
-            activities.forEach((_, actIdx) => {
-                children.forEach(child => {
-                    if (!isActivityActive(actIdx, dateStr, child)) stateData[actIdx][child.id] = 'tidak_ada';
-                });
-            });
-        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -740,13 +786,51 @@
             return 'sesuai';
         }
 
+        function renderSickChildrenCheckboxes() {
+            const container = document.getElementById('sickChildrenContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
+            if (!sickChildrenState[selectedDate]) sickChildrenState[selectedDate] = {};
+
+            children.forEach(child => {
+                const isSick = !!sickChildrenState[selectedDate][child.id];
+                container.innerHTML += `
+                    <label class="inline-flex items-center gap-1.5 bg-white border ${isSick ? 'border-rose-300 bg-rose-50 text-rose-900' : 'border-amber-200 text-slate-700'} px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer shadow-sm transition">
+                        <input type="checkbox" value="${child.id}" ${isSick ? 'checked' : ''} onchange="toggleChildSick('${child.id}', this.checked)" class="rounded text-rose-600 focus:ring-rose-500">
+                        <span>${child.name}</span>
+                    </label>
+                `;
+            });
+        }
+
+        function toggleChildSick(childId, isSick) {
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
+            if (!sickChildrenState[selectedDate]) sickChildrenState[selectedDate] = {};
+            sickChildrenState[selectedDate][childId] = isSick;
+
+            activities.forEach((_, actIdx) => {
+                if (!stateData[actIdx]) stateData[actIdx] = {};
+                const child = children.find(c => c.id === childId);
+                if (!isActivityActive(actIdx, selectedDate, child)) {
+                    stateData[actIdx][childId] = 'tidak_ada';
+                }
+            });
+            renderActivities();
+            showNotification(isSick ? "Anak ditandai sakit/izin (otomatis libur)." : "Status sakit anak dibatalkan.");
+        }
+
         function renderActivities() {
+            renderSickChildrenCheckboxes();
             const container = document.getElementById('activitiesAccordionContainer');
             if (!container) return;
             container.innerHTML = '';
             const visibleChildren = getVisibleChildren();
+            const activeIndices = getShiftFilteredActivities();
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
 
-            activities.forEach((actText, actIdx) => {
+            activeIndices.forEach(actIdx => {
+                const actText = activities[actIdx];
                 const card = document.createElement('div');
                 card.className = 'bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm';
                 let header = `
@@ -774,28 +858,47 @@
 
                 visibleChildren.forEach(child => {
                     if (!stateData[actIdx]) stateData[actIdx] = {};
-                    if (!stateData[actIdx][child.id]) {
-                        const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
-                        stateData[actIdx][child.id] = isActivityActive(actIdx, selectedDate, child) ? 'sesuai' : 'tidak_ada';
+                    const isActive = isActivityActive(actIdx, selectedDate, child);
+                    if (!isActive) {
+                        stateData[actIdx][child.id] = 'tidak_ada';
+                    } else if (!stateData[actIdx][child.id] || stateData[actIdx][child.id] === 'tidak_ada') {
+                        stateData[actIdx][child.id] = 'sesuai';
                     }
                     const currentStatus = stateData[actIdx][child.id];
-                    body += `
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 shadow-sm">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0 shadow">${child.initial}</div>
-                                <div class="overflow-hidden">
-                                    <h4 class="text-xs font-bold text-slate-800 truncate">${child.name}</h4>
-                                    <span class="text-[10px] text-sky-600 font-semibold truncate block"><i class="fa-solid fa-venus-mars mr-1"></i>${child.jk} | ${child.jurusan} | Angkatan ${child.angkatan}</span>
+
+                    if (!isActive) {
+                        body += `
+                            <div class="bg-slate-100 border border-slate-300 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 opacity-75">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-full bg-slate-400 text-white text-[11px] font-bold flex items-center justify-center shrink-0 shadow">${child.initial}</div>
+                                    <div class="overflow-hidden">
+                                        <h4 class="text-xs font-bold text-slate-700 truncate">${child.name}</h4>
+                                        <span class="text-[10px] text-rose-600 font-bold block"><i class="fa-solid fa-ban mr-1"></i>Sakit / Libur Otomatis</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'sesuai')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'sesuai' ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Sesuai</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'arahan')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'arahan' ? 'bg-amber-600 border-amber-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Arahan</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'terlambat')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'terlambat' ? 'bg-orange-600 border-orange-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Terlambat</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'tidak' ? 'bg-rose-600 border-rose-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Tidak</button>
-                                <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak_ada')" class="py-1.5 px-2 rounded-lg font-bold transition border col-span-2 ${currentStatus === 'tidak_ada' ? 'bg-slate-700 border-slate-600 text-white shadow-md' : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-100'}">Tidak Ada / Libur</button>
-                            </div>
-                        </div>`;
+                                <div class="text-center py-1.5 bg-slate-200 rounded-lg text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                                    Status: Libur
+                                </div>
+                            </div>`;
+                    } else {
+                        body += `
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 shadow-sm">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0 shadow">${child.initial}</div>
+                                    <div class="overflow-hidden">
+                                        <h4 class="text-xs font-bold text-slate-800 truncate">${child.name}</h4>
+                                        <span class="text-[10px] text-sky-600 font-semibold truncate block"><i class="fa-solid fa-venus-mars mr-1"></i>${child.jk} | ${child.jurusan} | ID: ${child.id}</span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                                    <button onclick="setStatus(${actIdx}, '${child.id}', 'sesuai')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'sesuai' ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Sesuai</button>
+                                    <button onclick="setStatus(${actIdx}, '${child.id}', 'arahan')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'arahan' ? 'bg-amber-600 border-amber-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Arahan</button>
+                                    <button onclick="setStatus(${actIdx}, '${child.id}', 'terlambat')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'terlambat' ? 'bg-orange-600 border-orange-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Terlambat</button>
+                                    <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak')" class="py-1.5 px-2 rounded-lg font-bold transition border ${currentStatus === 'tidak' ? 'bg-rose-600 border-rose-500 text-white shadow-md' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'}">Tidak</button>
+                                    <button onclick="setStatus(${actIdx}, '${child.id}', 'tidak_ada')" class="py-1.5 px-2 rounded-lg font-bold transition border col-span-2 ${currentStatus === 'tidak_ada' ? 'bg-slate-700 border-slate-600 text-white shadow-md' : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-100'}">Tidak Ada / Libur</button>
+                                </div>
+                            </div>`;
+                    }
                 });
                 body += `</div></div>`;
                 card.innerHTML = header + body; container.appendChild(card);
@@ -805,12 +908,42 @@
         }
 
         function toggleAccordion(actIdx) { const body = document.getElementById(`acc-body-${actIdx}`); if (body) body.classList.toggle('hidden'); }
-        function setStatus(actIdx, childId, status) { if (!stateData[actIdx]) stateData[actIdx] = {}; stateData[actIdx][childId] = status; renderActivities(); const body = document.getElementById(`acc-body-${actIdx}`); if (body) body.classList.remove('hidden'); }
-        function setAllForActivity(actIdx, status) { if (!stateData[actIdx]) stateData[actIdx] = {}; getVisibleChildren().forEach(child => { stateData[actIdx][child.id] = status; }); renderActivities(); const body = document.getElementById(`acc-body-${actIdx}`); if (body) body.classList.remove('hidden'); }
+        
+        function setStatus(actIdx, childId, status) { 
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
+            const child = children.find(c => c.id === childId);
+            if (!isActivityActive(actIdx, selectedDate, child)) {
+                status = 'tidak_ada';
+            }
+            if (!stateData[actIdx]) stateData[actIdx] = {}; 
+            stateData[actIdx][childId] = status; 
+            renderActivities(); 
+            const body = document.getElementById(`acc-body-${actIdx}`); 
+            if (body) body.classList.remove('hidden'); 
+        }
+
+        function setAllForActivity(actIdx, status) { 
+            if (!stateData[actIdx]) stateData[actIdx] = {}; 
+            const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
+            getVisibleChildren().forEach(child => { 
+                if (!isActivityActive(actIdx, selectedDate, child)) {
+                    stateData[actIdx][child.id] = 'tidak_ada';
+                } else {
+                    stateData[actIdx][child.id] = status; 
+                }
+            }); 
+            renderActivities(); 
+            const body = document.getElementById(`acc-body-${actIdx}`); 
+            if (body) body.classList.remove('hidden'); 
+        }
 
         async function saveActivityRow(actIdx) {
             const url = getSavedUrl(); const date = document.getElementById('reportDate').value; const actText = activities[actIdx]; const visibleChildren = getVisibleChildren();
-            const items = visibleChildren.map(child => ({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: actIdx, activityText: actText, status: stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai' }));
+            const items = visibleChildren.map(child => {
+                let st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                if (!isActivityActive(actIdx, date, child)) st = 'tidak_ada';
+                return { childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: actIdx, activityText: actText, status: st };
+            });
             try {
                 showNotification(`Menyimpan baris kegiatan #${actIdx + 1}...`);
                 await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: date, items: items }) });
@@ -818,16 +951,8 @@
             } catch (err) { showNotification("Gagal menyimpan ke Spreadsheet."); }
         }
 
-        async function saveAllGranular() {
-            const url = getSavedUrl(); const date = document.getElementById('reportDate').value; const visibleChildren = getVisibleChildren();
-            let allItems = [];
-            activities.forEach((actText, actIdx) => { visibleChildren.forEach(child => { allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: actIdx, activityText: actText, status: stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai' }); }); });
-            try {
-                showNotification(`Menyinkronkan seluruh data ke Spreadsheet...`);
-                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: date, items: allItems }) });
-                showNotification(`Berhasil menyinkronkan seluruh data!`); await fetchAllLogsForDashboard();
-            } catch (err) { showNotification("Gagal menyimpan ke Spreadsheet."); }
-        }
+        function openOverwriteConfirmModal() { document.getElementById('overwriteConfirmModal').classList.remove('hidden'); }
+        function closeOverwriteConfirmModal() { document.getElementById('overwriteConfirmModal').classList.add('hidden'); }
 
         async function fetchAllLogsForDashboard() {
             const url = getSavedUrl();
@@ -842,7 +967,7 @@
 
         async function loadSavedLogsForCurrentDate() {
             const url = getSavedUrl(); const selectedDate = document.getElementById('reportDate').value;
-            initAppState(); applyAutomaticHolidayRules(selectedDate);
+            initAppState();
             if (!url) { renderActivities(); renderDashboardTable(); return; }
             try {
                 showNotification(`Memuat data tanggal ${selectedDate}...`);
@@ -858,13 +983,21 @@
                             hasDataForDate = true; const child = children.find(c => normalizeStr(c.name) === normalizeStr(rName));
                             for (let actIdx = 0; actIdx < activities.length; actIdx++) {
                                 const rawStatus = String(row[5 + actIdx] || "").trim();
-                                if (rawStatus !== "") { filledActs.add(actIdx); if (child) stateData[actIdx][child.id] = normalizeStatus(rawStatus); }
+                                if (rawStatus !== "") { 
+                                    filledActs.add(actIdx); 
+                                    if (child) {
+                                        let st = normalizeStatus(rawStatus);
+                                        if (!isActivityActive(actIdx, selectedDate, child)) st = 'tidak_ada';
+                                        stateData[actIdx][child.id] = st;
+                                    } 
+                                }
                             }
                         }
                     }
                 }
                 renderActivities(); renderDashboardTable(); renderSummaryAnak();
-                for (let i = 0; i < activities.length; i++) { if (!filledActs.has(i)) unfilledIndices.push(i + 1); }
+                const activeIndices = getShiftFilteredActivities();
+                activeIndices.forEach(i => { if (!filledActs.has(i)) unfilledIndices.push(i + 1); });
                 if (!hasDataForDate || filledActs.size === 0) { showModalInfo("Status Input Harian", `Pada hari ini (${selectedDate}) belum ada kegiatan diinput.`); }
                 else if (unfilledIndices.length > 0) { showModalInfo("Input Belum Lengkap!", `Sebagian data tersimpan, kegiatan belum diinput: No. ${unfilledIndices.join(', ')}`); }
                 else { showNotification(`Data tanggal ${selectedDate} berhasil dimuat.`); }
@@ -910,7 +1043,9 @@
                             activities.forEach((act, actIdx) => {
                                 const rStatusStr = String(row[5 + actIdx] || "").trim();
                                 if (rStatusStr !== "") {
-                                    const st = normalizeStatus(rStatusStr);
+                                    let st = normalizeStatus(rStatusStr);
+                                    if (!isActivityActive(actIdx, rDate, child)) st = 'tidak_ada';
+                                    
                                     if (st === 'sesuai') { sesuaiCount++; dateSeriesMap[rDate].sesuai++; dateSeriesMap[rDate].total++; }
                                     else if (st === 'arahan') { arahanCount++; dateSeriesMap[rDate].total++; }
                                     else if (st === 'terlambat') { terlambatCount++; dateSeriesMap[rDate].total++; }
@@ -930,14 +1065,18 @@
                             const row = globalAccumulatedLogs[i]; const rDate = normalizeDateStr(row[1]); const rName = String(row[3] || "").trim().toLowerCase();
                             if (rDate === selectedDate && rName === child.name.toLowerCase()) { const rStatus = String(row[5 + actIdx] || "").trim(); if (rStatus !== "") foundStatus = normalizeStatus(rStatus); break; }
                         }
-                        const st = foundStatus || (stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai');
+                        let st = foundStatus || (stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai');
+                        if (!isActivityActive(actIdx, selectedDate, child)) st = 'tidak_ada';
+                        
                         if (st === 'sesuai') sesuaiCount++; else if (st === 'arahan') arahanCount++; else if (st === 'terlambat') terlambatCount++; else if (st === 'tidak') tidakCount++; else if (st === 'tidak_ada') tidakAdaCount++;
                         for (const [pKey, pVal] of Object.entries(pillarMapping)) { if (pVal.indices.includes(actIdx)) { if (st !== 'tidak_ada') { pillarTotals[pKey].total++; if (st === 'sesuai') pillarTotals[pKey].sesuai++; } } }
                     });
                     childTotalChecks = totalActs;
                 } else {
                     activities.forEach((_, actIdx) => {
-                        const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                        let st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                        if (!isActivityActive(actIdx, selectedDate, child)) st = 'tidak_ada';
+
                         if(st === 'sesuai') sesuaiCount++; else if(st === 'arahan') arahanCount++; else if(st === 'terlambat') terlambatCount++; else if(st === 'tidak') tidakCount++; else if(st === 'tidak_ada') tidakAdaCount++;
                         for (const [pKey, pVal] of Object.entries(pillarMapping)) { if (pVal.indices.includes(actIdx)) { if (st !== 'tidak_ada') { pillarTotals[pKey].total++; if (st === 'sesuai') pillarTotals[pKey].sesuai++; } } }
                     });
@@ -948,6 +1087,7 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="p-3 text-slate-500 font-bold">${idx + 1}</td>
+                        <td class="p-3 font-semibold text-slate-600">${child.id}</td>
                         <td class="p-3 font-bold text-slate-800 flex items-center gap-2.5">
                             <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">${child.initial}</span>
                             <span class="truncate">${child.name}</span>
@@ -1012,7 +1152,7 @@
             const childId = selectEl.value || children[0].id; const child = children.find(c => c.id === childId) || children[0]; if (!child) return;
             const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
             setText('sumNama', child.name); setText('sumMeta', `${child.jk === 'L' ? 'Laki-laki (L)' : (child.jk === 'P' ? 'Perempuan (P)' : '-')} | ${child.jurusan || '-'}`);
-            setText('sumAsal', child.asal); setText('sumAngkatan', child.angkatan || '2026');
+            setText('sumAsal', child.asal); setText('sumAngkatan', `${child.id} / ${child.angkatan || '2026'}`);
             const avatarEl = document.getElementById('sumAvatar'); if (avatarEl) avatarEl.innerText = child.initial || 'AN';
 
             let totalSesuai = 0, totalArahan = 0, totalTerlambat = 0, totalTidak = 0, totalLibur = 0;
@@ -1020,17 +1160,26 @@
 
             if (globalAccumulatedLogs.length > 1) {
                 for (let i = 1; i < globalAccumulatedLogs.length; i++) {
-                    const row = globalAccumulatedLogs[i]; const rName = String(row[3] || "").trim().toLowerCase();
+                    const row = globalAccumulatedLogs[i]; const rDate = normalizeDateStr(row[1]); const rName = String(row[3] || "").trim().toLowerCase();
                     if (rName === child.name.toLowerCase()) {
                         activities.forEach((act, actIdx) => {
                             const stStr = String(row[5 + actIdx] || "").trim();
-                            if (stStr !== "") { const st = normalizeStatus(stStr); actStats[act][st]++; actStats[act].total++; if (st === 'sesuai') totalSesuai++; else if (st === 'arahan') totalArahan++; else if (st === 'terlambat') totalTerlambat++; else if (st === 'tidak') totalTidak++; else if (st === 'tidak_ada') totalLibur++; }
+                            if (stStr !== "") { 
+                                let st = normalizeStatus(stStr);
+                                if (!isActivityActive(actIdx, rDate, child)) st = 'tidak_ada';
+                                
+                                actStats[act][st]++; actStats[act].total++; 
+                                if (st === 'sesuai') totalSesuai++; else if (st === 'arahan') totalArahan++; else if (st === 'terlambat') totalTerlambat++; else if (st === 'tidak') totalTidak++; else if (st === 'tidak_ada') totalLibur++; 
+                            }
                         });
                     }
                 }
             } else {
+                const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
                 activities.forEach((act, actIdx) => {
-                    const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                    let st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                    if (!isActivityActive(actIdx, selectedDate, child)) st = 'tidak_ada';
+
                     actStats[act][st] = 1; actStats[act].total = 1;
                     if (st === 'sesuai') totalSesuai++; else if (st === 'arahan') totalArahan++; else if (st === 'terlambat') totalTerlambat++; else if (st === 'tidak') totalTidak++; else if (st === 'tidak_ada') totalLibur++;
                 });
@@ -1093,7 +1242,7 @@
             const reportType = document.getElementById('selectReportType').value; if (!child) return;
 
             const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-            setText('previewNama', child.name); setText('previewAsal', child.asal); setText('previewJK', child.jk === 'L' ? 'Laki-laki (L)' : (child.jk === 'P' ? 'Perempuan (P)' : '-'));
+            setText('previewNama', `${child.id} - ${child.name}`); setText('previewAsal', child.asal); setText('previewJK', child.jk === 'L' ? 'Laki-laki (L)' : (child.jk === 'P' ? 'Perempuan (P)' : '-'));
             setText('previewJurusan', child.jurusan); setText('previewAngkatan', child.angkatan || '2026');
             
             const periodeContainer = document.getElementById('previewPeriodeContainer'); const badgeEl = document.getElementById('previewRaportBadge');
@@ -1105,7 +1254,12 @@
                 if (badgeEl) badgeEl.innerText = "RAPORT HARIAN"; if (periodeContainer) periodeContainer.innerHTML = `<strong>Tanggal:</strong> <span>${date}</span>`; setText('ttdTanggal', date);
                 Object.keys(pillarMapping).forEach(pillarKey => {
                     const indices = pillarMapping[pillarKey].indices; let sesuai = 0, tidakAdaCount = 0;
-                    indices.forEach(idx => { const st = stateData[idx] && stateData[idx][child.id] ? stateData[idx][child.id] : 'sesuai'; if (st === 'sesuai') sesuai++; else if (st === 'tidak_ada') tidakAdaCount++; });
+                    indices.forEach(idx => { 
+                        let st = stateData[idx] && stateData[idx][child.id] ? stateData[idx][child.id] : 'sesuai';
+                        if (!isActivityActive(idx, date, child)) st = 'tidak_ada';
+                        
+                        if (st === 'sesuai') sesuai++; else if (st === 'tidak_ada') tidakAdaCount++; 
+                    });
                     const effectiveTotal = indices.length - tidakAdaCount; const pct = effectiveTotal > 0 ? Math.round((sesuai / effectiveTotal) * 100) : (indices.length > 0 ? 100 : 0);
                     pillarScores[pillarKey] = { score: pct, sesuai, total: effectiveTotal };
                 });
@@ -1119,7 +1273,10 @@
                     const pInfo = pillarMapping[pillarKey];
                     html += `<div class="mb-4"><div class="bg-indigo-100 text-indigo-900 px-3.5 py-2 font-bold text-xs rounded-t-xl border border-indigo-200 flex justify-between items-center shadow-sm"><span>Pilar: ${pillarKey}</span><span class="text-xs text-indigo-700 font-bold">${pillarScores[pillarKey].score}%</span></div><table class="w-full text-left border-collapse text-xs mb-2 bg-white border border-slate-200 rounded-b-xl overflow-hidden shadow-sm"><thead><tr class="bg-slate-100 text-slate-700 border-b border-slate-200"><th class="p-2 border-r border-slate-200 w-10 text-center font-bold">No</th><th class="p-2 border-r border-slate-200 font-bold">Uraian Kegiatan</th><th class="p-2 w-32 text-center font-bold">Status</th></tr></thead><tbody>`;
                     pInfo.indices.forEach((actIdx, subIdx) => {
-                        const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai'; let badge = '';
+                        let st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
+                        if (!isActivityActive(actIdx, date, child)) st = 'tidak_ada';
+
+                        let badge = '';
                         if(st === 'sesuai') badge = '<span class="text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">Sesuai</span>'; else if(st === 'arahan') badge = '<span class="text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded">Arahan</span>'; else if(st === 'terlambat') badge = '<span class="text-orange-700 font-bold bg-orange-100 px-2 py-0.5 rounded">Terlambat</span>'; else if(st === 'tidak') badge = '<span class="text-rose-700 font-bold bg-rose-100 px-2 py-0.5 rounded">Tidak</span>'; else if(st === 'tidak_ada') badge = '<span class="text-slate-600 font-bold bg-slate-200 px-2 py-0.5 rounded">Libur</span>';
                         html += `<tr class="border-b border-slate-100 hover:bg-slate-50"><td class="p-2 border-r border-slate-200 text-center text-slate-500 font-semibold">${subIdx + 1}</td><td class="p-2 border-r border-slate-200 text-slate-800 font-medium">${activities[actIdx]}</td><td class="p-2 text-center">${badge}</td></tr>`;
                     }); html += `</tbody></table></div>`;
@@ -1129,10 +1286,26 @@
                 let stats = {}; activities.forEach(act => { stats[act] = { sesuai: 0, arahan: 0, terlambat: 0, tidak: 0, tidak_ada: 0, total: 0 }; });
                 if (globalAccumulatedLogs.length > 1) {
                     for (let i = 1; i < globalAccumulatedLogs.length; i++) {
-                        const row = globalAccumulatedLogs[i]; const rName = String(row[3] || "").trim().toLowerCase();
-                        if (rName === child.name.toLowerCase()) { activities.forEach((act, actIdx) => { const stStr = String(row[5 + actIdx] || "").trim(); if (stStr !== "") { stats[act][normalizeStatus(stStr)]++; stats[act].total++; } }); }
+                        const row = globalAccumulatedLogs[i]; const rDate = normalizeDateStr(row[1]); const rName = String(row[3] || "").trim().toLowerCase();
+                        if (rName === child.name.toLowerCase()) { 
+                            activities.forEach((act, actIdx) => { 
+                                const stStr = String(row[5 + actIdx] || "").trim(); 
+                                if (stStr !== "") { 
+                                    let st = normalizeStatus(stStr);
+                                    if (!isActivityActive(actIdx, rDate, child)) st = 'tidak_ada';
+                                    stats[act][st]++; stats[act].total++; 
+                                } 
+                            }); 
+                        }
                     }
-                } else { activities.forEach((act, actIdx) => { const st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai'; stats[act][st] = 1; stats[act].total = 1; }); }
+                } else { 
+                    const selectedDate = document.getElementById('reportDate') ? document.getElementById('reportDate').value : formatDateLocal(new Date());
+                    activities.forEach((act, actIdx) => { 
+                        let st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai'; 
+                        if (!isActivityActive(actIdx, selectedDate, child)) st = 'tidak_ada';
+                        stats[act][st] = 1; stats[act].total = 1; 
+                    }); 
+                }
                 Object.keys(pillarMapping).forEach(pillarKey => {
                     const indices = pillarMapping[pillarKey].indices; let pSesuai = 0, pTotal = 0;
                     indices.forEach(idx => { const s = stats[activities[idx]]; const eff = s.total - s.tidak_ada; pSesuai += s.sesuai; pTotal += (eff > 0 ? eff : 0); });
@@ -1169,6 +1342,7 @@
         
         function openRangeGenerateModal() { document.getElementById('rangeGenerateModal').classList.remove('hidden'); const td = formatDateLocal(new Date()); document.getElementById('genEndDate').value = td; document.getElementById('lblTodayRange').innerText = td; }
         function closeRangeGenerateModal() { document.getElementById('rangeGenerateModal').classList.add('hidden'); }
+        
         async function executeDateRangeGeneration() {
             const start = new Date(document.getElementById('genStartDate').value); const end = new Date(document.getElementById('genEndDate').value);
             if (start > end) return showModalInfo("Perhatian", "Tanggal mulai tidak boleh lebih besar dari tanggal selesai.");
@@ -1186,22 +1360,25 @@
                             st = 'tidak_ada';
                         } else {
                             const rnd = Math.random();
-                            if (rnd < 0.70) st = 'sesuai';
-                            else if (rnd < 0.85) st = 'arahan';
-                            else if (rnd < 0.95) st = 'terlambat';
+                            const probSesuai = (c.jk === 'P') ? 0.93 : 0.85;
+                            if (rnd < probSesuai) st = 'sesuai';
+                            else if (rnd < probSesuai + 0.07) st = 'arahan';
+                            else if (rnd < probSesuai + 0.12) st = 'terlambat';
                             else st = 'tidak';
                         }
                         allItems.push({ childId: c.id, childName: c.name, childAsal: c.asal, activityIndex: actIdx, activityText: txt, status: st });
                     });
                 });
-                try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: targetDate, items: allItems }) }); successCount++; } catch (err) {}
+                try { 
+                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: targetDate, action: 'overwrite', items: allItems }) }); 
+                    successCount++; 
+                } catch (err) {}
                 await new Promise(r => setTimeout(r, 40));
             }
             document.getElementById('genProgressStatus').innerText = `Berhasil generate ${successCount} hari untuk semua anak.`; document.getElementById('btnExecuteGenerate').disabled = false;
             await fetchAllLogsForDashboard(); setTimeout(closeRangeGenerateModal, 2000);
         }
 
-        // ================= FITUR INPUT MINGGUAN (PER ANAK) =================
         function openWeeklyInputModal() {
             document.getElementById('weeklyInputModal').classList.remove('hidden');
             renderWeeklySelects();
@@ -1349,7 +1526,10 @@
                     allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: i, activityText: activities[i], status: st });
                 }
 
-                try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ date: dateStr, items: allItems }) }); successCount++; } catch(e){}
+                try { 
+                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ date: dateStr, action: 'overwrite', items: allItems }) }); 
+                    successCount++; 
+                } catch(e){}
             }
 
             statText.innerText = `Selesai (${successCount}/7 hari disimpan)`;
@@ -1357,7 +1537,8 @@
             setTimeout(closeWeeklyInputModal, 1500);
         }
 
-        async function executeBulkSaveRangeToCurrent() {
+        async function executeBulkSaveRangeToCurrent(isOverwrite) {
+            closeOverwriteConfirmModal();
             let start = new Date("2026-06-24T00:00:00");
             let end = new Date();
             let targetDates = [];
@@ -1390,44 +1571,77 @@
                             st = 'tidak_ada';
                         } else {
                             let rnd = Math.random();
-                            if (rnd < 0.70) st = 'sesuai';
-                            else if (rnd < 0.85) st = 'arahan';
-                            else if (rnd < 0.95) st = 'terlambat';
+                            const probSesuai = (child.jk === 'P') ? 0.93 : 0.85;
+                            if (rnd < probSesuai) st = 'sesuai';
+                            else if (rnd < probSesuai + 0.07) st = 'arahan';
+                            else if (rnd < probSesuai + 0.12) st = 'terlambat';
                             else st = 'tidak';
                         }
                         allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: a, activityText: activities[a], status: st });
                     }
                 }
                 try {
-                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: dateStr, items: allItems }) });
+                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: dateStr, action: isOverwrite ? 'overwrite' : 'append', items: allItems }) });
                     successCount++;
                 } catch (err) {}
             }
 
             statText.innerText = `Selesai (${successCount} hari tersimpan untuk semua anak).`;
             await fetchAllLogsForDashboard();
-            setTimeout(closeWeeklyInputModal, 2000);
+            setTimeout(() => { barContainer.classList.add('hidden'); closeWeeklyInputModal(); }, 2000);
         }
 
         async function fetchChildrenFromAppsScript() {
-            const url = getSavedUrl(), titleEl = document.getElementById('dbStatusTitle'), descEl = document.getElementById('dbStatusDesc');
+            const rawUrl = getSavedUrl();
+            const url = rawUrl ? rawUrl.trim() : "";
+            const titleEl = document.getElementById('dbStatusTitle'); 
+            const descEl = document.getElementById('dbStatusDesc');
+
             try {
                 showNotification("Mengunduh data anak asuh dari Google Sheets...");
-                const response = await fetch(url);
-                const text = await response.text();
-                if (text.trim().startsWith('<')) throw new Error("Atur izin Deployment Apps Script ke 'Anyone'.");
+                
+                if (!url || !url.endsWith('/exec')) {
+                    throw new Error("Format URL salah. URL Apps Script wajib berakhiran '/exec'.");
+                }
 
-                let rows = JSON.parse(text);
-                if (Array.isArray(rows) && rows.length > 0) {
+                let response;
+                try {
+                    response = await fetch(url);
+                } catch (netErr) {
+                    throw new Error("Akses jaringan diblokir (CORS). Pastikan Deployment disetel: Execute as 'Me' dan Access 'Anyone'.");
+                }
+                
+                const text = await response.text();
+                
+                if (text.trim().startsWith('<')) {
+                    throw new Error("Google meminta otorisasi login. Setting Akses WAJIB 'Anyone' (Siapa saja).");
+                }
+
+                let rows;
+                try {
+                    rows = JSON.parse(text);
+                } catch (parseErr) {
+                    throw new Error("Format data yang diterima dari Sheets rusak (Bukan JSON).");
+                }
+
+                if (!Array.isArray(rows)) {
+                    if (rows && rows.status === "error") {
+                        throw new Error("Error pada Spreadsheet: " + rows.message);
+                    }
+                    throw new Error("Format data tidak dikenali. Pastikan Sheet 'DataAnak' ada.");
+                }
+
+                if (rows.length > 0) {
                     children = [];
                     
                     let headerRowIdx = -1;
-                    let idxNama=-1, idxJk=-1, idxAsal=-1, idxJurusan=-1, idxAngkatan=-1;
+                    let idxId=-1, idxNama=-1, idxJk=-1, idxAsal=-1, idxJurusan=-1, idxAngkatan=-1;
 
                     for (let r = 0; r < Math.min(15, rows.length); r++) {
                         let rowTexts = rows[r].map(h => String(h).toLowerCase().trim());
                         if (rowTexts.some(t => t.includes('nama'))) {
                             headerRowIdx = r;
+                            idxId = rowTexts.findIndex(h => h.includes('id') || h.includes('nomor') || h.includes('no'));
                             idxNama = rowTexts.findIndex(h => h.includes('nama'));
                             idxJk = rowTexts.findIndex(h => h.includes('jk') || h.includes('kelamin') || h.includes('jenis'));
                             idxAsal = rowTexts.findIndex(h => h.includes('asal') || h.includes('daerah'));
@@ -1444,13 +1658,21 @@
                     if (idxAngkatan === -1) idxAngkatan = 5;
 
                     let startRow = headerRowIdx !== -1 ? headerRowIdx + 1 : 1;
+                    let uniqueNamesSet = new Set();
 
                     for (let i = startRow; i < rows.length; i++) {
                         let item = rows[i];
                         if (!item || item.length === 0) continue;
 
                         let name = String(item[idxNama] || "").trim();
-                        if (!name || name.toLowerCase() === 'nama anak asuh' || name.toLowerCase() === 'nama' || name.includes('Tanggal Lahir')) continue;
+                        // Filter agar tidak membaca baris kosong, header, tanggal, atau log duplikat
+                        if (!name || name.toLowerCase() === 'nama anak asuh' || name.toLowerCase() === 'nama' || name.includes('Tanggal Lahir') || name.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+                        
+                        let nameKey = name.toLowerCase();
+                        if (uniqueNamesSet.has(nameKey)) continue; // Cegah duplikat
+                        uniqueNamesSet.add(nameKey);
+
+                        let childId = (idxId !== -1 && item[idxId] && String(item[idxId]).trim() !== "") ? String(item[idxId]).trim() : `A${String(children.length + 1).padStart(2, '0')}`;
 
                         let jk = String(item[idxJk] || "").trim().toUpperCase();
                         if (jk.includes('LAKI') || jk === 'L') jk = 'L';
@@ -1463,7 +1685,7 @@
 
                         const words = name.split(' ');
                         children.push({
-                            id: `A${String(children.length + 1).padStart(2, '0')}`,
+                            id: childId,
                             name: name,
                             asal: asal,
                             initial: words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : words[0].substring(0, 2).toUpperCase(),
@@ -1477,11 +1699,13 @@
                     titleEl.innerText = 'Database Terhubung (Google Sheets):';
                     descEl.innerHTML = `Data Google Sheets berhasil dimuat. Total: <span class="font-bold">${children.length}</span> Anak.`;
                     showNotification("Berhasil memuat data anak!");
+                } else {
+                    throw new Error("Sheet 'DataAnak' ditemukan, tetapi datanya kosong.");
                 }
             } catch (err) {
                 titleEl.innerText = 'Gagal Terhubung:';
-                descEl.innerHTML = `<span class="text-rose-600 font-bold">${err.message}</span>. Periksa URL Setup Script.`;
-                showNotification("Gagal sinkronisasi data dari Spreadsheet.");
+                descEl.innerHTML = `<span class="text-rose-600 font-bold">${err.message}</span> <br><button onclick="openAppsScriptModal()" class="mt-2 px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-[11px] font-bold border border-rose-300 shadow-sm transition">Ubah URL (⚙️)</button>`;
+                showNotification("Gagal: " + err.message);
             }
         }
 
