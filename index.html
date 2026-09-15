@@ -493,25 +493,12 @@
                 <span class="text-[11px] text-rose-500 font-bold bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> Pastikan total per kegiatan = 7 Hari</span>
                 <div class="flex flex-wrap gap-2 justify-end w-full sm:w-auto">
                     <button onclick="closeWeeklyInputModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Batal</button>
-                    <button onclick="openOverwriteConfirmModal('week')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition" title="Generate data acak 1 minggu penuh untuk semua anak">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Minggu Ini
+                    <button onclick="openOverwriteConfirmModal('all')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan S.d. Sekarang (Semua Anak)
                     </button>
-                    <button onclick="openOverwriteConfirmModal('all')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition" title="Simpan mulai dari 24 Juni s/d Hari ini">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan S.d. Sekarang
+                    <button onclick="openOverwriteConfirmModal('dist')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-paper-plane"></i> Simpan Minggu Ini
                     </button>
-                    <button onclick="executeWeeklyDistribution()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition" title="Simpan rincian tabel untuk 1 anak saja">
-                        <i class="fa-solid fa-paper-plane"></i> Simpan Individu
-                    </button>
-                </div>
-            </div>
-
-            <div id="weeklyProgressBarContainer" class="hidden space-y-1.5 pt-2 border-t border-slate-100">
-                <div class="flex justify-between text-[11px] text-slate-600 font-semibold">
-                    <span id="weeklyProgressStatus">Memproses tanggal...</span>
-                    <span id="weeklyProgressCount">0 / 0</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200 overflow-hidden shadow-inner">
-                    <div id="weeklyProgressBar" class="bg-blue-600 h-full w-0 transition-all duration-200"></div>
                 </div>
             </div>
         </div>
@@ -539,16 +526,7 @@
                     <input type="date" id="genEndDate" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 shadow-inner">
                 </div>
             </div>
-            <div id="generateProgressBarContainer" class="hidden space-y-1.5 pt-2">
-                <div class="flex justify-between text-[11px] text-slate-600 font-semibold">
-                    <span id="genProgressStatus">Memproses tanggal...</span>
-                    <span id="genProgressCount">0 / 0</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200 overflow-hidden shadow-inner">
-                    <div id="genProgressBar" class="bg-blue-600 h-full w-0 transition-all duration-200"></div>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+            <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 mt-2">
                 <button onclick="closeRangeGenerateModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Batal</button>
                 <button id="btnExecuteGenerate" onclick="executeDateRangeGeneration()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
                     <i class="fa-solid fa-play"></i> Mulai Generate
@@ -572,6 +550,18 @@
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="handleOverwriteConfirm(false)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Hanya Kosong (Skip)</button>
                 <button onclick="handleOverwriteConfirm(true)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-md transition">Timpa (Overwrite)</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- GLOBAL PROGRESS MODAL -->
+    <div id="globalProgressModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-500 to-indigo-500"></div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-800" id="globalProgressTitle">Memproses Data...</h3>
+            <p class="text-xs font-medium text-slate-500" id="globalProgressText">Mohon tunggu sebentar.</p>
+            <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200 overflow-hidden shadow-inner mt-4">
+                <div id="globalProgressBar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
             </div>
         </div>
     </div>
@@ -940,34 +930,85 @@
             if (body) body.classList.remove('hidden'); 
         }
 
-        async function saveActivityRow(actIdx) {
+        // ================= GLOBAL PROGRESS BAR HELPERS =================
+        function showGlobalProgress(title, text) {
+            document.getElementById('globalProgressTitle').innerText = title;
+            document.getElementById('globalProgressText').innerText = text;
+            document.getElementById('globalProgressBar').style.width = '0%';
+            document.getElementById('globalProgressModal').classList.remove('hidden');
+        }
+        
+        function updateGlobalProgress(percent, text) {
+            if (text) document.getElementById('globalProgressText').innerText = text;
+            document.getElementById('globalProgressBar').style.width = percent + '%';
+        }
+        
+        function hideGlobalProgress() {
+            document.getElementById('globalProgressModal').classList.add('hidden');
+        }
+
+        // ================= PENYIMPANAN BARIS (INDIVIDU) =================
+        function saveActivityRow(actIdx) {
+            const selectedDate = document.getElementById('reportDate').value;
+            let dataExists = false;
+            
+            // Cek apakah di tanggal ini sudah ada data (menghindari duplikasi diam-diam)
+            if (globalAccumulatedLogs.length > 1) {
+                for (let i = 1; i < globalAccumulatedLogs.length; i++) {
+                    if (normalizeDateStr(globalAccumulatedLogs[i][1]) === selectedDate) {
+                        dataExists = true;
+                        break;
+                    }
+                }
+            }
+
+            if (dataExists) {
+                // Munculkan Pop Up Overwrite
+                openOverwriteConfirmModal('row_' + actIdx);
+            } else {
+                // Belum ada data, simpan langsung
+                executeSaveActivityRow(actIdx, true); 
+            }
+        }
+
+        async function executeSaveActivityRow(actIdx, isOverwrite) {
             const url = getSavedUrl(); const date = document.getElementById('reportDate').value; const actText = activities[actIdx]; const visibleChildren = getVisibleChildren();
             const items = visibleChildren.map(child => {
                 let st = stateData[actIdx] && stateData[actIdx][child.id] ? stateData[actIdx][child.id] : 'sesuai';
                 if (!isActivityActive(actIdx, date, child)) st = 'tidak_ada';
                 return { childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: actIdx, activityText: actText, status: st };
             });
+            
+            showGlobalProgress('Menyimpan Kegiatan', `Menyimpan baris kegiatan #${actIdx + 1}...`);
+            updateGlobalProgress(40, 'Sedang mengirim data ke server...');
+
             try {
-                showNotification(`Menyimpan baris kegiatan #${actIdx + 1}...`);
-                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: date, action: 'overwrite', items: items }) });
-                showNotification(`Berhasil memperbarui baris kegiatan #${actIdx + 1}!`); 
+                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: date, action: isOverwrite ? 'overwrite' : 'skip', items: items }) });
+                updateGlobalProgress(100, `Berhasil memperbarui baris kegiatan #${actIdx + 1}!`);
                 await fetchAllLogsForDashboard();
-            } catch (err) { showNotification("Gagal menyimpan ke Spreadsheet."); }
+            } catch (err) { 
+                updateGlobalProgress(100, 'Gagal menyimpan data.');
+                showNotification("Gagal menyimpan ke Spreadsheet."); 
+            }
+            setTimeout(hideGlobalProgress, 1500);
         }
 
         let overwriteTargetAction = 'all';
-
-        function openOverwriteConfirmModal(actionType = 'all') {  
+        function openOverwriteConfirmModal(actionType = 'all') { 
             overwriteTargetAction = actionType;
             document.getElementById('overwriteConfirmModal').classList.remove('hidden'); 
         }
         function closeOverwriteConfirmModal() { document.getElementById('overwriteConfirmModal').classList.add('hidden'); }
 
         function handleOverwriteConfirm(isOverwrite) {
-            if (overwriteTargetAction === 'week') {
-                executeGenerateSelectedWeek(isOverwrite);
-            } else {
+            closeOverwriteConfirmModal();
+            if (overwriteTargetAction === 'all') {
                 executeBulkSaveRangeToCurrent(isOverwrite);
+            } else if (overwriteTargetAction === 'dist') {
+                executeWeeklyDistribution(isOverwrite);
+            } else if (String(overwriteTargetAction).startsWith('row_')) {
+                const actIdx = parseInt(overwriteTargetAction.split('_')[1]);
+                executeSaveActivityRow(actIdx, isOverwrite);
             }
         }
 
@@ -1396,6 +1437,7 @@
             await fetchAllLogsForDashboard(); setTimeout(closeRangeGenerateModal, 2000);
         }
 
+        // ================= FITUR INPUT MINGGUAN (PER ANAK) =================
         function openWeeklyInputModal() {
             document.getElementById('weeklyInputModal').classList.remove('hidden');
             renderWeeklySelects();
@@ -1554,57 +1596,6 @@
             setTimeout(closeWeeklyInputModal, 1500);
         }
 
-        async function executeGenerateSelectedWeek(isOverwrite) {
-            closeOverwriteConfirmModal();
-            const weekIdx = document.getElementById('weeklySelectWeek').value;
-            const targetDates = weeklyTargetDatesCache[weekIdx];
-            if(!targetDates) return;
-
-            const total = targetDates.length;
-            const url = getSavedUrl();
-            const barContainer = document.getElementById('weeklyProgressBarContainer');
-            const statText = document.getElementById('weeklyProgressStatus');
-            const countText = document.getElementById('weeklyProgressCount');
-            const pBar = document.getElementById('weeklyProgressBar');
-            
-            barContainer.classList.remove('hidden');
-            let successCount = 0;
-
-            for (let d = 0; d < total; d++) {
-                let dateStr = targetDates[d];
-                statText.innerText = `Generate tgl ${dateStr}... (Semua Anak)`;
-                countText.innerText = `${d + 1} / ${total}`;
-                pBar.style.width = `${Math.round(((d + 1) / total) * 100)}%`;
-
-                let allItems = [];
-                for (let c = 0; c < children.length; c++) {
-                    const child = children[c];
-                    for (let a = 0; a < activities.length; a++) {
-                        let st = 'sesuai';
-                        if (!isActivityActive(a, dateStr, child)) {
-                            st = 'tidak_ada';
-                        } else {
-                            let rnd = Math.random();
-                            const probSesuai = (child.jk === 'P') ? 0.93 : 0.85;
-                            if (rnd < probSesuai) st = 'sesuai';
-                            else if (rnd < probSesuai + 0.07) st = 'arahan';
-                            else if (rnd < probSesuai + 0.12) st = 'terlambat';
-                            else st = 'tidak';
-                        }
-                        allItems.push({ childId: child.id, childName: child.name, childAsal: child.asal, activityIndex: a, activityText: activities[a], status: st });
-                    }
-                }
-                try {
-                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: dateStr, action: isOverwrite ? 'overwrite' : 'skip', items: allItems }) });
-                    successCount++;
-                } catch (err) {}
-            }
-
-            statText.innerText = `Selesai (${successCount} hari ter-generate).`;
-            await fetchAllLogsForDashboard();
-            setTimeout(() => { barContainer.classList.add('hidden'); closeWeeklyInputModal(); }, 2000);
-        }
-
         async function executeBulkSaveRangeToCurrent(isOverwrite) {
             closeOverwriteConfirmModal();
             let start = new Date("2026-06-24T00:00:00");
@@ -1649,7 +1640,7 @@
                     }
                 }
                 try {
-                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: dateStr, action: isOverwrite ? 'overwrite' : 'skip', items: allItems }) });
+                    await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: dateStr, action: isOverwrite ? 'overwrite' : 'append', items: allItems }) });
                     successCount++;
                 } catch (err) {}
             }
@@ -1660,46 +1651,15 @@
         }
 
         async function fetchChildrenFromAppsScript() {
-            const rawUrl = getSavedUrl();
-            const url = rawUrl ? rawUrl.trim() : "";
-            const titleEl = document.getElementById('dbStatusTitle'); 
-            const descEl = document.getElementById('dbStatusDesc');
-
+            const url = getSavedUrl(), titleEl = document.getElementById('dbStatusTitle'), descEl = document.getElementById('dbStatusDesc');
             try {
                 showNotification("Mengunduh data anak asuh dari Google Sheets...");
-                
-                if (!url || !url.endsWith('/exec')) {
-                    throw new Error("Format URL salah. URL Apps Script wajib berakhiran '/exec'.");
-                }
-
-                let response;
-                try {
-                    response = await fetch(url);
-                } catch (netErr) {
-                    throw new Error("Akses jaringan diblokir (CORS). Pastikan Deployment disetel: Execute as 'Me' dan Access 'Anyone'.");
-                }
-                
+                const response = await fetch(url);
                 const text = await response.text();
-                
-                if (text.trim().startsWith('<')) {
-                    throw new Error("Google meminta otorisasi login. Setting Akses WAJIB 'Anyone' (Siapa saja).");
-                }
+                if (text.trim().startsWith('<')) throw new Error("Atur izin Deployment Apps Script ke 'Anyone'.");
 
-                let rows;
-                try {
-                    rows = JSON.parse(text);
-                } catch (parseErr) {
-                    throw new Error("Format data yang diterima dari Sheets rusak (Bukan JSON).");
-                }
-
-                if (!Array.isArray(rows)) {
-                    if (rows && rows.status === "error") {
-                        throw new Error("Error pada Spreadsheet: " + rows.message);
-                    }
-                    throw new Error("Format data tidak dikenali. Pastikan Sheet 'DataAnak' ada.");
-                }
-
-                if (rows.length > 0) {
+                let rows = JSON.parse(text);
+                if (Array.isArray(rows) && rows.length > 0) {
                     children = [];
                     
                     let headerRowIdx = -1;
@@ -1733,11 +1693,10 @@
                         if (!item || item.length === 0) continue;
 
                         let name = String(item[idxNama] || "").trim();
-                        // Filter agar tidak membaca baris kosong, header, tanggal, atau log duplikat
                         if (!name || name.toLowerCase() === 'nama anak asuh' || name.toLowerCase() === 'nama' || name.includes('Tanggal Lahir') || name.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
                         
                         let nameKey = name.toLowerCase();
-                        if (uniqueNamesSet.has(nameKey)) continue; // Cegah duplikat
+                        if (uniqueNamesSet.has(nameKey)) continue;
                         uniqueNamesSet.add(nameKey);
 
                         let childId = (idxId !== -1 && item[idxId] && String(item[idxId]).trim() !== "") ? String(item[idxId]).trim() : `A${String(children.length + 1).padStart(2, '0')}`;
@@ -1767,20 +1726,11 @@
                     titleEl.innerText = 'Database Terhubung (Google Sheets):';
                     descEl.innerHTML = `Data Google Sheets berhasil dimuat. Total: <span class="font-bold">${children.length}</span> Anak.`;
                     showNotification("Berhasil memuat data anak!");
-                } else {
-                    throw new Error("Sheet 'DataAnak' ditemukan, tetapi datanya kosong.");
                 }
             } catch (err) {
                 titleEl.innerText = 'Gagal Terhubung:';
-                let errorMsg = err.message;
-                
-                // Deteksi khusus jika yang terjadi adalah error CORS / Network Blocked
-                if (errorMsg.toLowerCase().includes('failed to fetch') || errorMsg.toLowerCase().includes('network error') || errorMsg.toLowerCase().includes('akses jaringan diblokir')) {
-                    errorMsg = "1. Pastikan URL di Setup (⚙️) sudah di-update.<br>2. Di Apps Script, pastikan <b>Execute as: Me</b> dan <b>Access: Anyone</b>.";
-                }
-                
-                descEl.innerHTML = `<span class="text-rose-600 font-bold">${errorMsg}</span> <br><button onclick="openAppsScriptModal()" class="mt-2 px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-[11px] font-bold border border-rose-300 shadow-sm transition">Ubah URL (⚙️)</button>`;
-                showNotification("Gagal: " + err.message);
+                descEl.innerHTML = `<span class="text-rose-600 font-bold">${err.message}</span>. Periksa URL Setup Script.`;
+                showNotification("Gagal sinkronisasi data dari Spreadsheet.");
             }
         }
 
