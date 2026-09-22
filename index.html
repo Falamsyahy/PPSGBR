@@ -1,146 +1,166 @@
-import React from 'react';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Layanan Sosial - UPTD PPSGBR</title>
+    
+    <!-- Tailwind CSS (via CDN) agar tidak perlu install apapun -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome untuk Ikon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col">
 
-const PortalGriyaBina = () => {
-  // Data aplikasi yang diekstrak dari HTML Anda
-  const apps = [
-    {
-      id: 'semarak',
-      title: 'SeMARAK',
-      subtitle: 'Sistem Monitoring & Raport Karakter',
-      description: 'Aplikasi pencatatan aktivitas harian anak asuh, evaluasi matriks 22 kegiatan kepelayanan, dan cetak raport karakter secara otomatis.',
-      icon: 'fa-clipboard-user',
-      gradient: 'from-emerald-500 to-teal-600',
-      bgLight: 'bg-emerald-50',
-      textColor: 'text-emerald-700',
-      features: ['Matriks 22 Kegiatan', 'Dashboard Rekap', 'Cetak Raport'],
-      url: './semarak.html', // Sesuaikan path lokasi file Anda
-      buttonText: 'Buka SeMARAK'
-    },
-    {
-      id: 'rekam-sosial',
-      title: 'Rekam Sosial',
-      subtitle: 'Sistem Manajemen Kasus Terpadu',
-      description: 'Aplikasi khusus Pekerja Sosial untuk mencatat asesmen Biopsikososial (BPSS), log intervensi, mutasi kasus, dan evaluasi terminasi.',
-      icon: 'fa-hands-holding-child',
-      gradient: 'from-blue-600 to-indigo-600',
-      bgLight: 'bg-blue-50',
-      textColor: 'text-blue-700',
-      features: ['Asesmen BPSS', 'Log Intervensi', 'Cetak Laporan Word/PDF'],
-      url: './rsa.html', // Sesuaikan path lokasi file Anda
-      buttonText: 'Buka Rekam Sosial'
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      
-      {/* Background Ornaments (Aesthetic) */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-900 to-slate-50 z-0"></div>
-      
-      <main className="relative z-10 max-w-5xl mx-auto px-4 py-12 sm:py-20">
+    <!-- Background Ornaments (Aesthetic) -->
+    <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-900 to-slate-50 z-0"></div>
+    
+    <main class="relative z-10 flex-grow max-w-5xl mx-auto px-4 py-12 sm:py-20 w-full">
         
-        {/* Header / Hero Section */}
-        <div className="text-center space-y-4 mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-xl mb-4">
-            <img 
-              src="https://cdn.phototourl.com/free/2026-09-10-3dcfc7e4-e08b-46d9-bb27-9ef7dc12a2c7.png" 
-              alt="Logo Jabar / UPTD" 
-              className="w-16 h-auto object-contain"
-              onError={(e) => {
-                e.target.onerror = null; 
-                e.target.outerHTML = '<i class="fa-solid fa-building-user text-4xl text-indigo-800"></i>';
-              }}
-            />
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Portal Layanan Sosial Terpadu
-          </h1>
-          <p className="text-indigo-100 font-medium text-lg max-w-2xl mx-auto">
-            UPTD Pusat Pelayanan Sosial Griya Bina Remaja
-          </p>
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-indigo-200 mt-2">
-            <span className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10">
-              <i className="fa-solid fa-location-dot mr-1.5"></i> Lembang, Jawa Barat
-            </span>
-          </div>
-        </div>
-
-        {/* Papan Pengumuman (Opsional, sangat berguna untuk portal publik) */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-md border border-slate-200 mb-10 flex items-start gap-4 animate-fade-in-up">
-          <div className="bg-amber-100 text-amber-600 p-3 rounded-xl shrink-0">
-            <i className="fa-solid fa-bullhorn text-xl"></i>
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800">Selamat Datang di Portal Terpadu</h3>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-              Pilih aplikasi di bawah ini sesuai dengan tugas Anda. Gunakan <b>SeMARAK</b> untuk pengisian <i>checklist</i> kegiatan harian anak asuh, dan gunakan <b>Rekam Sosial</b> untuk manajemen kasus dan asesmen bagi Pekerja Sosial.
-            </p>
-          </div>
-        </div>
-
-        {/* Grid Aplikasi (Katalog) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {apps.map((app) => (
-            <div 
-              key={app.id} 
-              className="group bg-white rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 flex flex-col h-full relative overflow-hidden"
-            >
-              {/* Efek Hover Background */}
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${app.gradient} opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150`}></div>
-
-              {/* Header Kartu */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${app.gradient} text-white flex items-center justify-center text-2xl shadow-lg shrink-0 transform group-hover:rotate-6 transition-transform`}>
-                  <i className={`fa-solid ${app.icon}`}></i>
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">{app.title}</h2>
-                  <p className={`text-xs font-bold ${app.textColor} mt-1`}>{app.subtitle}</p>
-                </div>
-              </div>
-
-              {/* Deskripsi */}
-              <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-grow">
-                {app.description}
-              </p>
-
-              {/* Fitur Utama (Badges) */}
-              <div className="mb-8">
-                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Fitur Utama</h4>
-                <div className="flex flex-wrap gap-2">
-                  {app.features.map((feature, idx) => (
-                    <span 
-                      key={idx} 
-                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${app.bgLight} ${app.textColor} border border-white/50`}
-                    >
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tombol Akses */}
-              <a 
-                href={app.url}
-                className={`w-full block text-center py-3.5 px-4 rounded-xl font-bold text-white shadow-md bg-gradient-to-r ${app.gradient} hover:shadow-lg transition-all focus:ring-4 focus:outline-none focus:ring-slate-300 mt-auto`}
-              >
-                {app.buttonText} <i className="fa-solid fa-arrow-right ml-1.5 opacity-70 group-hover:translate-x-1 transition-transform"></i>
-              </a>
+        <!-- Header / Hero Section -->
+        <div class="text-center space-y-4 mb-16">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-xl mb-4 p-2">
+                <img 
+                    src="https://cdn.phototourl.com/free/2026-09-10-3dcfc7e4-e08b-46d9-bb27-9ef7dc12a2c7.png" 
+                    alt="Logo Jabar / UPTD" 
+                    class="w-full h-full object-contain"
+                    onerror="this.onerror=null; this.outerHTML='<i class=\'fa-solid fa-building-user text-4xl text-indigo-800\'></i>';"
+                />
             </div>
-          ))}
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                Portal Layanan Sosial Terpadu
+            </h1>
+            <p class="text-indigo-100 font-medium text-base sm:text-lg max-w-2xl mx-auto px-4">
+                UPTD Pusat Pelayanan Sosial Griya Bina Remaja
+            </p>
+            <div class="flex items-center justify-center gap-2 text-xs font-semibold text-indigo-200 mt-3">
+                <span class="bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 flex items-center gap-1.5">
+                    <i class="fa-solid fa-location-dot"></i> Lembang, Jawa Barat
+                </span>
+            </div>
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="text-center py-8 text-xs font-medium text-slate-500 mt-auto relative z-10">
-        <p>&copy; {new Date().getFullYear()} UPTD PPSGBR Lembang - Dinas Sosial Jawa Barat.</p>
-        <p className="mt-1 opacity-75">Sistem Portal Aplikasi Internal.</p>
-      </footer>
+        <!-- Papan Pengumuman -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-md border border-slate-200 mb-10 flex items-start sm:items-center gap-4 transition-transform duration-300 hover:-translate-y-1">
+            <div class="bg-amber-100 text-amber-600 p-3.5 rounded-xl shrink-0">
+                <i class="fa-solid fa-bullhorn text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 mb-1">Selamat Datang di Portal Terpadu</h3>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Pilih aplikasi di bawah ini sesuai dengan tugas Anda. Gunakan <b>SeMARAK</b> untuk pengisian <i>checklist</i> kegiatan harian anak asuh, dan gunakan <b>Rekam Sosial</b> untuk manajemen kasus dan asesmen bagi Pekerja Sosial.
+                </p>
+            </div>
+        </div>
 
-      {/* Include FontAwesome (Krusial untuk menampilkan icon) */}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    </div>
-  );
-};
+        <!-- Grid Aplikasi (Katalog) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            
+            <!-- KARTU 1: SeMARAK -->
+            <div class="group bg-white rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-out border border-slate-200 flex flex-col h-full relative overflow-hidden">
+                <!-- Efek Hover Background -->
+                <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-150"></div>
 
-export default PortalGriyaBina;
+                <!-- Header Kartu -->
+                <div class="flex items-start gap-4 mb-4 relative z-10">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-2xl shadow-lg shrink-0 transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fa-solid fa-clipboard-user"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">SeMARAK</h2>
+                        <p class="text-xs font-bold text-emerald-600 mt-1 uppercase tracking-wide">Sistem Monitoring & Raport Karakter</p>
+                    </div>
+                </div>
+
+                <!-- Deskripsi -->
+                <p class="text-sm text-slate-600 leading-relaxed mb-6 flex-grow relative z-10">
+                    Aplikasi pencatatan aktivitas harian anak asuh, evaluasi matriks 22 kegiatan kepelayanan, dan cetak raport karakter secara otomatis.
+                </p>
+
+                <!-- Fitur Utama (Badges) -->
+                <div class="mb-8 relative z-10">
+                    <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Fitur Utama</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">Matriks 22 Kegiatan</span>
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">Dashboard Rekap</span>
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">Cetak Raport</span>
+                    </div>
+                </div>
+
+                <!-- Tombol Akses (Pastikan nama file HTML sama persis) -->
+                <a 
+                    href="./sistem_monitoring_semarak_final.html" 
+                    class="relative z-10 w-full block text-center py-3.5 px-4 rounded-xl font-bold text-white shadow-md bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-xl transition-all duration-300 focus:ring-4 focus:outline-none focus:ring-emerald-300 mt-auto"
+                >
+                    Buka SeMARAK <i class="fa-solid fa-arrow-right ml-1.5 opacity-70 group-hover:translate-x-1.5 transition-transform"></i>
+                </a>
+            </div>
+
+            <!-- KARTU 2: REKAM SOSIAL -->
+            <div class="group bg-white rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-out border border-slate-200 flex flex-col h-full relative overflow-hidden">
+                <!-- Efek Hover Background -->
+                <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-600 to-indigo-600 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-150"></div>
+
+                <!-- Header Kartu -->
+                <div class="flex items-start gap-4 mb-4 relative z-10">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-lg shrink-0 transform group-hover:-rotate-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fa-solid fa-hands-holding-child"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Rekam Sosial</h2>
+                        <p class="text-xs font-bold text-blue-600 mt-1 uppercase tracking-wide">Manajemen Kasus Terpadu</p>
+                    </div>
+                </div>
+
+                <!-- Deskripsi -->
+                <p class="text-sm text-slate-600 leading-relaxed mb-6 flex-grow relative z-10">
+                    Aplikasi khusus Pekerja Sosial untuk mencatat asesmen Biopsikososial (BPSS), log intervensi, mutasi kasus, dan evaluasi terminasi.
+                </p>
+
+                <!-- Fitur Utama (Badges) -->
+                <div class="mb-8 relative z-10">
+                    <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Fitur Utama</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 shadow-sm">Asesmen BPSS</span>
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 shadow-sm">Log Intervensi</span>
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 shadow-sm">Cetak PDF/Word</span>
+                    </div>
+                </div>
+
+                <!-- Tombol Akses (Pastikan nama file HTML sama persis) -->
+                <a 
+                    href="./sistem_rekam_sosial_anak (2).html" 
+                    class="relative z-10 w-full block text-center py-3.5 px-4 rounded-xl font-bold text-white shadow-md bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl transition-all duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 mt-auto"
+                >
+                    Buka Rekam Sosial <i class="fa-solid fa-arrow-right ml-1.5 opacity-70 group-hover:translate-x-1.5 transition-transform"></i>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-xs font-medium text-slate-500 mt-auto border-t border-slate-200 bg-white">
+        <p>&copy; 2026 UPTD PPSGBR Lembang - Dinas Sosial Jawa Barat.</p>
+        <p class="mt-1 text-slate-400">Sistem Portal Aplikasi Internal.</p>
+    </footer>
+
+</body>
+</html>
