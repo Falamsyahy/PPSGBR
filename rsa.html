@@ -51,6 +51,66 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative overflow-x-hidden">
 
+    <!-- Datalist untuk Editable Dropdown Angkatan -->
+    <datalist id="angkatan-list"></datalist>
+    
+    <datalist id="agama-list">
+        <option value="Islam"></option>
+        <option value="Kristen Protestan"></option>
+        <option value="Katolik"></option>
+        <option value="Hindu"></option>
+        <option value="Buddha"></option>
+        <option value="Konghucu"></option>
+    </datalist>
+    
+    <datalist id="pendidikan-list">
+        <option value="Tidak/Belum Sekolah"></option>
+        <option value="PAUD / TK"></option>
+        <option value="SD / Sederajat"></option>
+        <option value="SMP / Sederajat"></option>
+        <option value="SMA / Sederajat"></option>
+        <option value="Tamat SMA / Lulus"></option>
+    </datalist>
+    
+    <datalist id="pekerjaan-list">
+        <option value="Tidak Bekerja"></option>
+        <option value="Ibu Rumah Tangga"></option>
+        <option value="Buruh Harian / Kuli"></option>
+        <option value="Petani / Buruh Tani"></option>
+        <option value="Wiraswasta / Pedagang"></option>
+        <option value="Karyawan Swasta"></option>
+        <option value="PNS / TNI / Polri"></option>
+        <option value="Pekerja Informal (Pemulung, Pengamen, dll)"></option>
+    </datalist>
+    
+    <datalist id="bansos-list">
+        <option value="Tidak Ada Bantuan"></option>
+        <option value="PKH (Program Keluarga Harapan)"></option>
+        <option value="BPNT (Sembako)"></option>
+        <option value="KIP (Kartu Indonesia Pintar) / PIP"></option>
+        <option value="PBI-JK (KIS Gratis dari Pemerintah)"></option>
+        <option value="BLT / Bantuan Dana Desa"></option>
+    </datalist>
+    
+    <datalist id="layanan-list">
+        <option value="Konseling Individu (Casework)"></option>
+        <option value="Konseling Keluarga (Home Visit)"></option>
+        <option value="Bimbingan Sosial Kelompok (Group Work)"></option>
+        <option value="Terapi Psikososial / Trauma Healing"></option>
+        <option value="Pengantaran Rujukan Medis"></option>
+        <option value="Evaluasi Perkembangan"></option>
+    </datalist>
+
+    <datalist id="rujukan-instansi-list">
+        <option value="RSUD / Rumah Sakit Umum"></option>
+        <option value="Puskesmas Kecamatan"></option>
+        <option value="Psikiater / Psikolog Klinis"></option>
+        <option value="Sentra Terpadu Kemensos"></option>
+        <option value="Dinas Kependudukan (Disdukcapil)"></option>
+        <option value="LKSA / Panti Asuhan Lain"></option>
+        <option value="Kepolisian (UPPA)"></option>
+    </datalist>
+
     <!-- LAYER AUTHENTICATION -->
     <div id="auth-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
@@ -113,6 +173,11 @@
                         <!-- Panel Admin Button (Khusus Admin) -->
                         <button id="btn-admin-panel" onclick="openAdminPanel()" class="hidden items-center justify-center gap-1.5 rounded-md bg-rose-600 px-3 py-1.5 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-rose-500 transition-colors animate-pulse" title="Panel Mutasi Kasus">
                             <i class="fa-solid fa-user-shield"></i> Panel Admin
+                        </button>
+                        
+                        <!-- Global Dashboard Button -->
+                        <button onclick="openGlobalDashboard()" class="inline-flex items-center justify-center gap-1.5 rounded-md bg-cyan-600 px-3 py-1.5 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-cyan-500 transition-colors" title="Lihat Data Anak Global (Semua Peksos)">
+                            <i class="fa-solid fa-users-viewfinder"></i> <span class="hidden md:inline">Data Semua Anak</span>
                         </button>
 
                         <!-- Filter Angkatan -->
@@ -209,6 +274,9 @@
                         <button onclick="switchTab('tab-intervensi')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300" data-target="tab-intervensi">
                             <i class="fa-solid fa-hand-holding-heart mr-2"></i>Rencana & Log Intervensi
                         </button>
+                        <button onclick="switchTab('tab-layanan')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300" data-target="tab-layanan">
+                            <i class="fa-solid fa-box-open mr-2"></i>Penyediaan Layanan
+                        </button>
                         <button onclick="switchTab('tab-evaluasi')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300" data-target="tab-evaluasi">
                             <i class="fa-solid fa-flag-checkered mr-2"></i>Evaluasi Akhir
                         </button>
@@ -270,7 +338,7 @@
                             <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-indigo-50/20">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Angkatan / Kelompok Masuk</label>
-                                    <input type="text" id="form-biodata-angkatan" placeholder="Misal: Angkatan 1 - 2026" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm font-bold">
+                                    <input type="text" id="form-biodata-angkatan" list="angkatan-list" placeholder="Misal: Angkatan 1 - 2026" autocomplete="off" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm font-bold">
                                 </div>
                                 <div class="md:col-span-3 border-t border-indigo-100 pt-4 mt-2">
                                     <label class="block text-sm font-bold text-rose-700 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Tingkat Risiko & Kedaruratan Anak (Red Flag)</label>
@@ -322,7 +390,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Agama</label>
-                                    <input type="text" id="form-biodata-agama" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                    <input type="text" id="form-biodata-agama" list="agama-list" placeholder="Pilih atau ketik..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm cursor-pointer">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Orang Tua / Wali</label>
@@ -360,7 +428,18 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Pendidikan Terakhir / Saat Ini</label>
-                                    <input type="text" id="form-biodata-pendidikan" placeholder="Misal: Kelas 5 SD" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                    <input type="text" id="form-biodata-pendidikan" list="pendidikan-list" placeholder="Misal: Kelas 5 SD" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Jurusan Keterampilan / Minat</label>
+                                    <div class="flex gap-2">
+                                        <select id="form-biodata-jurusan" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm cursor-pointer font-semibold text-brand-700">
+                                            <option value="">- Pilih Jurusan -</option>
+                                        </select>
+                                        <button type="button" onclick="openModal('modal-manage-jurusan')" class="rounded-md bg-slate-100 px-2.5 py-1.5 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-200 transition-colors" title="Kelola Daftar Jurusan">
+                                            <i class="fa-solid fa-gear"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Riwayat Putus Sekolah?</label>
@@ -386,7 +465,7 @@
                             <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-emerald-50/10">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Pekerjaan Utama Orang Tua/Wali</label>
-                                    <input type="text" id="form-biodata-pekerjaanOrangTua" placeholder="Buruh harian, Petani..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-emerald-500 sm:text-sm">
+                                    <input type="text" id="form-biodata-pekerjaanOrangTua" list="pekerjaan-list" placeholder="Buruh harian, Petani..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-emerald-500 sm:text-sm cursor-pointer">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Estimasi Penghasilan Keluarga (Rp/Bln)</label>
@@ -406,7 +485,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Bantuan Sosial Diterima</label>
-                                    <input type="text" id="form-biodata-bantuan" placeholder="PKH, BPNT, KIP, dsb..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-emerald-500 sm:text-sm">
+                                    <input type="text" id="form-biodata-bantuan" list="bansos-list" placeholder="PKH, BPNT, KIP, dsb..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-emerald-500 sm:text-sm cursor-pointer">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Riwayat Tinggal di Jalanan?</label>
@@ -510,7 +589,7 @@
                         </div>
                     </div>
 
-                    <!-- TAB BARANG BAWAAN (TAB BARU) -->
+                    <!-- TAB BARANG BAWAAN -->
                     <div id="tab-barang" class="tab-content">
                         <div class="bg-white rounded-lg border border-slate-200 mb-8 overflow-hidden shadow-sm p-6">
                             <div>
@@ -706,7 +785,7 @@
                                         </div>
                                         <div class="md:col-span-3">
                                             <label class="block text-xs font-medium text-slate-700 mb-1">Tindakan / Topik Sesi Konseling</label>
-                                            <input type="text" id="input-intervensi-deskripsi" placeholder="Tindakan konkrit pekerja sosial hari ini (Wawancara mendalam, terapi kelompok...)" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                            <input type="text" id="input-intervensi-deskripsi" list="layanan-list" placeholder="Tindakan konkrit pekerja sosial hari ini (Wawancara mendalam, terapi kelompok...)" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm cursor-pointer">
                                         </div>
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-3 items-end">
@@ -722,6 +801,93 @@
                                 <div class="flow-root">
                                     <ul id="list-intervensi" role="list" class="divide-y divide-slate-200 border-t border-b border-slate-200 mt-2">
                                     </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB PENYEDIAAN LAYANAN -->
+                    <div id="tab-layanan" class="tab-content">
+                        <div class="space-y-8">
+                            <!-- Frame Sandang -->
+                            <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm p-6">
+                                <h3 class="text-lg font-semibold leading-6 text-slate-900 flex items-center gap-2 mb-4 border-b pb-2">
+                                    <i class="fa-solid fa-shirt text-brand-600"></i> Bantuan Sandang / Kebutuhan Dasar
+                                </h3>
+                                <div class="flex flex-wrap gap-3 mb-4 items-end bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                    <div class="flex-1 min-w-[200px]">
+                                        <label class="block text-xs font-medium text-slate-700 mb-1">Nama Barang</label>
+                                        <input type="text" id="input-sandang-nama" placeholder="Contoh: Seragam, Sepatu, Alat Mandi..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                    </div>
+                                    <div class="w-24">
+                                        <label class="block text-xs font-medium text-slate-700 mb-1">Jumlah</label>
+                                        <input type="number" id="input-sandang-jumlah" value="1" min="1" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                    </div>
+                                    <div class="w-40">
+                                        <label class="block text-xs font-medium text-slate-700 mb-1">Tanggal Diberikan</label>
+                                        <input type="date" id="input-sandang-tanggal" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                    </div>
+                                    <button onclick="addSandang()" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 whitespace-nowrap">
+                                        <i class="fa-solid fa-plus mr-1"></i> Tambah
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto rounded-md border border-slate-200">
+                                    <table class="min-w-full divide-y divide-slate-300">
+                                        <thead class="bg-slate-100">
+                                            <tr>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900 w-12">No</th>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900 w-32">Tanggal</th>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900">Nama Barang</th>
+                                                <th scope="col" class="py-2.5 px-4 text-center text-xs font-bold text-slate-900 w-24">Jumlah</th>
+                                                <th scope="col" class="py-2.5 px-4 text-center text-xs font-bold text-slate-900 w-20">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="list-sandang" class="divide-y divide-slate-200 bg-white">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Frame Rujukan -->
+                            <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm p-6">
+                                <h3 class="text-lg font-semibold leading-6 text-slate-900 flex items-center gap-2 mb-4 border-b pb-2">
+                                    <i class="fa-solid fa-truck-medical text-rose-500"></i> Pelayanan Rujukan (Kesehatan, Psikologi, Sosial)
+                                </h3>
+                                <div class="flex flex-wrap gap-3 mb-4 items-end bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                    <div class="w-40">
+                                        <label class="block text-xs font-medium text-slate-700 mb-1">Tanggal</label>
+                                        <input type="date" id="input-rujukan-tanggal" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                    </div>
+                                    <div class="w-48">
+                                        <label class="block text-xs font-medium text-slate-700 mb-1">Jenis Rujukan</label>
+                                        <select id="input-rujukan-jenis" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                            <option value="Kesehatan">Kesehatan</option>
+                                            <option value="Psikologi">Psikologi</option>
+                                            <option value="Sosial">Sosial</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex-1 min-w-[200px]">
+                                        <label class="block text-xs font-medium text-slate-700 mb-1">Keterangan / Lembaga Tujuan</label>
+                                        <input type="text" id="input-rujukan-ket" list="rujukan-instansi-list" placeholder="Misal: RSUD Cibabat, Psikolog A..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm cursor-pointer">
+                                    </div>
+                                    <button onclick="addRujukan()" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 whitespace-nowrap">
+                                        <i class="fa-solid fa-plus mr-1"></i> Tambah
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto rounded-md border border-slate-200">
+                                    <table class="min-w-full divide-y divide-slate-300">
+                                        <thead class="bg-slate-100">
+                                            <tr>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900 w-12">No</th>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900 w-32">Tanggal</th>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900 w-32">Jenis</th>
+                                                <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900">Keterangan</th>
+                                                <th scope="col" class="py-2.5 px-4 text-center text-xs font-bold text-slate-900 w-20">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="list-rujukan" class="divide-y divide-slate-200 bg-white">
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -762,7 +928,7 @@
                                     <div id="form-referal-details" class="bg-amber-100/50 p-3 border border-amber-200 rounded hidden">
                                         <p class="text-xs font-bold text-amber-800 mb-2"><i class="fa-solid fa-truck-medical mr-1"></i> Detail Follow-Up Rujukan (Jika Status Referal)</p>
                                         <div class="space-y-2">
-                                            <input type="text" id="form-terminasi-lembaga" placeholder="Nama Lembaga Tujuan Rujukan..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-amber-300 focus:ring-2 focus:ring-amber-600 sm:text-sm">
+                                            <input type="text" id="form-terminasi-lembaga" list="rujukan-instansi-list" placeholder="Nama Lembaga Tujuan Rujukan..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-amber-300 focus:ring-2 focus:ring-amber-600 sm:text-sm cursor-pointer">
                                             <input type="text" id="form-terminasi-cp" placeholder="Contact Person (CP) di Lembaga Tujuan..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-amber-300 focus:ring-2 focus:ring-amber-600 sm:text-sm">
                                         </div>
                                     </div>
@@ -815,6 +981,57 @@
         </main>
     </div> <!-- /MAIN APP -->
 
+    <!-- Modal: Global Dashboard -->
+    <div id="modal-global-dashboard" class="relative z-50 hidden no-print" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl">
+                    <div class="bg-cyan-600 px-6 py-4 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-viewfinder mr-2"></i>Data Global Anak Binaan (Seluruh Peksos)</h3>
+                        <button onclick="closeModal('modal-global-dashboard')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-sm text-slate-600 mb-4">Gunakan panel ini untuk mengecek apakah seorang anak sudah terdaftar di bawah Pekerja Sosial lain untuk mencegah penginputan data ganda (double data).</p>
+                        
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-3 gap-3">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1">
+                                <div class="relative w-full sm:w-80">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+                                    </div>
+                                    <input type="text" id="global-search-input" placeholder="Cari berdasarkan Nama atau ID..." class="w-full text-sm border-slate-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 py-2 pl-9 pr-3" onkeyup="renderGlobalDashboard()">
+                                </div>
+                                <select id="global-filter-angkatan" class="w-full sm:w-48 text-sm border-slate-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 py-2 px-3 font-medium" onchange="renderGlobalDashboard()">
+                                    <option value="">Semua Angkatan</option>
+                                </select>
+                            </div>
+                            <span id="global-dashboard-count" class="text-xs font-bold text-slate-600 bg-slate-200 px-3 py-1.5 rounded-full whitespace-nowrap">Menghitung...</span>
+                        </div>
+                        
+                        <div class="overflow-x-auto rounded-md border border-slate-300 bg-white">
+                            <table class="min-w-full divide-y divide-slate-300">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th scope="col" class="py-2.5 px-3 text-left text-xs font-bold text-slate-900 w-12">No</th>
+                                        <th scope="col" class="py-2.5 px-3 text-left text-xs font-bold text-slate-900">Nama Lengkap</th>
+                                        <th scope="col" class="py-2.5 px-3 text-left text-xs font-bold text-slate-900">ID Anak</th>
+                                        <th scope="col" class="py-2.5 px-3 text-left text-xs font-bold text-slate-900">Angkatan</th>
+                                        <th scope="col" class="py-2.5 px-3 text-left text-xs font-bold text-slate-900">Status Terakhir</th>
+                                        <th scope="col" class="py-2.5 px-3 text-left text-xs font-bold text-slate-900">Pekerja Sosial (Email)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="global-dashboard-list" class="divide-y divide-slate-200 bg-white">
+                                    <!-- Terisi oleh JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Add New Client -->
     <div id="modal-add-client" class="relative z-50 hidden no-print" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"></div>
@@ -842,7 +1059,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Angkatan / Gelombang Masuk</label>
-                                        <input type="text" id="new-client-angkatan" placeholder="Misal: Angkatan 1 - 2026" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm font-bold">
+                                        <input type="text" id="new-client-angkatan" list="angkatan-list" placeholder="Misal: Angkatan 1 - 2026" autocomplete="off" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm font-bold">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Tempat Lahir</label>
@@ -888,34 +1105,56 @@
         <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"></div>
         <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl">
                     <div class="bg-rose-600 px-6 py-4 flex justify-between items-center">
                         <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-user-shield mr-2"></i>Dashboard Administratif (Mutasi Kasus)</h3>
                         <button onclick="closeModal('modal-admin-panel')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="p-6 space-y-4">
                         <p class="text-sm text-slate-600 mb-2">Gunakan panel ini untuk memindahtugaskan (*handover*) klien/anak binaan dari satu Pekerja Sosial ke Pekerja Sosial lainnya.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 border border-slate-200 rounded-lg">
-                            <div>
-                                <label class="block text-sm font-bold text-slate-800 mb-1">Pilih Anak yang Akan Dipindah:</label>
-                                <label class="text-xs text-brand-600 font-bold cursor-pointer hover:underline mb-1 inline-block">
-                                    <input type="checkbox" onchange="toggleAllAdminCbs(this)" class="mr-1 rounded text-brand-600">Pilih Semua
-                                </label>
-                                <div id="admin-client-checklist" class="h-64 overflow-y-auto border border-slate-300 bg-white p-2 rounded-md shadow-inner text-sm space-y-1">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-4 border border-slate-200 rounded-lg">
+                            <div class="md:col-span-2 flex flex-col">
+                                <label class="block text-sm font-bold text-slate-800 mb-2">Pilih Anak yang Akan Dipindah:</label>
+                                
+                                <!-- Search & Filter Options -->
+                                <div class="flex flex-col sm:flex-row gap-3 mb-3">
+                                    <div class="relative flex-1">
+                                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+                                        </div>
+                                        <input type="text" id="admin-search-client" placeholder="Cari nama atau ID..." class="w-full text-sm border-slate-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500 py-2 pl-9 pr-3" onkeyup="filterAdminClientList()">
+                                    </div>
+                                    <div class="flex-1">
+                                        <select id="admin-filter-angkatan" class="w-full text-sm border-slate-300 rounded-md shadow-sm focus:ring-rose-500 focus:border-rose-500 py-2 px-3 font-medium" onchange="filterAdminClientList()">
+                                            <option value="">Semua Angkatan</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="text-sm text-brand-600 font-bold cursor-pointer hover:underline inline-block">
+                                        <input type="checkbox" id="admin-check-all" onchange="toggleAllAdminCbs(this)" class="mr-1.5 rounded text-brand-600 focus:ring-brand-500">Pilih Semua yg Tampil
+                                    </label>
+                                    <span id="admin-client-count" class="text-xs font-bold text-slate-600 bg-slate-200 px-2 py-1 rounded">0 anak</span>
+                                </div>
+                                
+                                <div id="admin-client-checklist" class="h-[28rem] overflow-y-auto border border-slate-300 bg-white p-2 rounded-md shadow-inner text-sm space-y-1">
                                     <!-- Terisi otomatis -->
                                 </div>
                             </div>
-                            <div class="flex flex-col justify-between">
+                            <div class="flex flex-col justify-start bg-white p-5 border border-slate-200 rounded-md shadow-sm h-fit">
                                 <div>
                                     <label class="block text-sm font-bold text-slate-800 mb-1">Transfer ke Pekerja Sosial:</label>
-                                    <select id="admin-target-peksos" class="w-full border-slate-300 rounded-md text-sm shadow-sm focus:ring-rose-500 focus:border-rose-500 py-2 px-3">
+                                    <select id="admin-target-peksos" class="w-full border-slate-300 rounded-md text-sm shadow-sm focus:ring-rose-500 focus:border-rose-500 py-2 px-3 font-medium">
                                         <option value="">-- Memuat Peksos --</option>
                                     </select>
-                                    <p class="text-[10px] text-slate-500 mt-2">Data ini ditarik secara real-time dari database *Users*.</p>
+                                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">Data ini ditarik secara real-time dari database *Users*.</p>
                                 </div>
-                                <button onclick="executeHandover()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-4 rounded-md shadow transition-colors mt-4">
-                                    <i class="fa-solid fa-right-left mr-1"></i> Jalankan Mutasi Kasus
-                                </button>
+                                <div class="mt-6 border-t border-slate-200 pt-5">
+                                    <button onclick="executeHandover()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-md shadow transition-colors flex flex-col items-center justify-center gap-1">
+                                        <span class="flex items-center gap-2"><i class="fa-solid fa-right-left"></i> Jalankan Mutasi Kasus</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1089,6 +1328,40 @@
         </div>
     </div>
 
+    <!-- Modal: Kelola Daftar Jurusan -->
+    <div id="modal-manage-jurusan" class="relative z-50 hidden no-print" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+                    <div class="bg-brand-600 px-6 py-4 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Master Data Jurusan</h3>
+                        <button onclick="closeModal('modal-manage-jurusan')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-xs text-slate-500 mb-4">Tambahkan atau hapus program keterampilan yang tersedia di panti/lembaga Anda. Perubahan ini otomatis tersimpan secara permanen di akun Anda.</p>
+                        
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="input-new-jurusan" placeholder="Ketik nama jurusan baru..." class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm font-semibold focus:ring-brand-500 focus:border-brand-500">
+                            <button onclick="addJurusan()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-md text-sm font-bold shadow-sm transition-colors whitespace-nowrap">
+                                <i class="fa-solid fa-plus mr-1"></i> Tambah
+                            </button>
+                        </div>
+                        
+                        <div class="border border-slate-200 rounded-md overflow-hidden shadow-inner">
+                            <ul id="list-manage-jurusan" class="divide-y divide-slate-200 bg-slate-50 max-h-60 overflow-y-auto">
+                                <!-- Terisi otomatis -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-slate-100 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button onclick="closeModal('modal-manage-jurusan')" class="inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-sm border border-slate-300 hover:bg-slate-50 sm:w-auto">Tutup Selesai</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Firebase Config -->
     <div id="modal-firebase-config" class="relative z-50 hidden no-print" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"></div>
@@ -1129,6 +1402,16 @@
         const POOL_EMAIL = 'Belum memiliki manajer kasus (Pool Data)';
         const KOP_SURAT_URL = "https://cdn.phototourl.com/free/2026-09-10-3dcfc7e4-e08b-46d9-bb27-9ef7dc12a2c7.png";
         
+        const jawaBaratRegions = [
+            "Kabupaten Bandung", "Kabupaten Bandung Barat", "Kabupaten Bekasi", "Kabupaten Bogor",
+            "Kabupaten Ciamis", "Kabupaten Cianjur", "Kabupaten Cirebon", "Kabupaten Garut",
+            "Kabupaten Indramayu", "Kabupaten Karawang", "Kabupaten Kuningan", "Kabupaten Majalengka",
+            "Kabupaten Pangandaran", "Kabupaten Purwakarta", "Kabupaten Subang", "Kabupaten Sukabumi",
+            "Kabupaten Sumedang", "Kabupaten Tasikmalaya", "Kota Bandung", "Kota Banjar",
+            "Kota Bekasi", "Kota Bogor", "Kota Cimahi", "Kota Cirebon",
+            "Kota Depok", "Kota Sukabumi", "Kota Tasikmalaya"
+        ];
+
         const DEFAULT_FIREBASE_CONFIG = {
             apiKey: "AIzaSyDqdr3CGqm7I3RA4m7Rk5Jpf_2ouxw3iEQ",
             authDomain: "semarakppsgbr.firebaseapp.com",
@@ -1147,23 +1430,16 @@
         let db = null; 
         let currentRegionFilter = '';
         let currentAngkatanFilter = '';
+        window.globalClients = []; // Cache untuk Global Dashboard
 
-        const jawaBaratRegions = [
-            "Kabupaten Bandung", "Kabupaten Bandung Barat", "Kabupaten Bekasi", "Kabupaten Bogor",
-            "Kabupaten Ciamis", "Kabupaten Cianjur", "Kabupaten Cirebon", "Kabupaten Garut",
-            "Kabupaten Indramayu", "Kabupaten Karawang", "Kabupaten Kuningan", "Kabupaten Majalengka",
-            "Kabupaten Pangandaran", "Kabupaten Purwakarta", "Kabupaten Subang", "Kabupaten Sukabumi",
-            "Kabupaten Sumedang", "Kabupaten Tasikmalaya", "Kota Bandung", "Kota Banjar",
-            "Kota Bekasi", "Kota Bogor", "Kota Cimahi", "Kota Cirebon",
-            "Kota Depok", "Kota Sukabumi", "Kota Tasikmalaya"
-        ];
+        let appJurusan = ["Otomotif (Sepeda Motor)", "Tata Boga / Memasak", "Menjahit / Tata Busana", "Teknisi Komputer", "Pengelasan (Welding)", "Salon / Tata Rias", "Pertanian / Peternakan"];
 
         // Definisi ID Form dan Field tanpa barang bawaan (karena dipindah ke array dinamis)
         const formInputIds = [
             'form-seleksi-biologis', 'form-seleksi-psikologis', 'form-seleksi-sosial', 'form-seleksi-keputusan',
             'form-biodata-angkatan',
             'form-biodata-kabupatenKota', 'form-biodata-tempatLahir', 'form-biodata-tanggalLahir', 'form-biodata-agama',
-            'form-biodata-pendidikan', 'form-biodata-alamat', 'form-biodata-namaWali', 'form-biodata-kontakWali',
+            'form-biodata-pendidikan', 'form-biodata-jurusan', 'form-biodata-alamat', 'form-biodata-namaWali', 'form-biodata-kontakWali',
             'form-biodata-statusIdentitas', 'form-biodata-noIdentitas', 'form-biodata-pekerjaanOrangTua', 'form-biodata-penghasilanBulanan',
             'form-biodata-desil', 'form-biodata-bantuan', 'form-biodata-putusSekolah',
             'form-biodata-tinggalJalan', 'form-biodata-kondisiPendidikan',
@@ -1184,7 +1460,7 @@
             'seleksiBiologis', 'seleksiPsikologis', 'seleksiSosial', 'seleksiKeputusan',
             'angkatan',
             'kabupatenKota', 'tempatLahir', 'tanggalLahir', 'agama',
-            'pendidikan', 'alamat', 'namaWali', 'kontakWali',
+            'pendidikan', 'jurusan', 'alamat', 'namaWali', 'kontakWali',
             'statusIdentitas', 'noIdentitas', 'pekerjaanOrangTua', 'penghasilanBulanan',
             'desil', 'bantuan', 'putusSekolah',
             'tinggalJalan', 'kondisiPendidikan',
@@ -1213,8 +1489,11 @@
         /* === INISIALISASI SISTEM & FIREBASE === */
         window.onload = function() {
             populateRegionDropdowns();
+            renderJurusanDropdowns();
             document.getElementById('input-tanggal-layanan').valueAsDate = new Date();
             document.getElementById('input-intervensi-tanggal').valueAsDate = new Date();
+            document.getElementById('input-sandang-tanggal').valueAsDate = new Date();
+            document.getElementById('input-rujukan-tanggal').valueAsDate = new Date();
 
             initFirebaseSystem();
 
@@ -1384,9 +1663,14 @@
                     document.getElementById('edit-profile-spv-name').value = data.namaSupervisor || "";
                     document.getElementById('edit-profile-spv-nip').value = data.nipSupervisor || "";
                     document.getElementById('edit-profile-spv-title').value = data.jabatanSupervisor || "";
+                    
+                    if(data.customJurusan && Array.isArray(data.customJurusan)) {
+                        appJurusan = data.customJurusan;
+                        renderJurusanDropdowns();
+                    }
                 } else {
                     await db.collection('users').doc(currentUser.email).set({
-                        email: currentUser.email, nama: currentUser.email.split('@')[0], nip: '', jabatan: '', namaSupervisor: '', nipSupervisor: '', jabatanSupervisor: ''
+                        email: currentUser.email, nama: currentUser.email.split('@')[0], nip: '', jabatan: '', namaSupervisor: '', nipSupervisor: '', jabatanSupervisor: '', customJurusan: appJurusan
                     });
                 }
             } catch(e) { console.error("Gagal tarik profil", e); }
@@ -1403,13 +1687,78 @@
             
             try {
                 await db.collection('users').doc(currentUser.email).set({
-                    email: currentUser.email, nama: nm, nip: nip, jabatan: jabatan, namaSupervisor: sNm, nipSupervisor: sNip, jabatanSupervisor: sTitle
+                    email: currentUser.email, nama: nm, nip: nip, jabatan: jabatan, namaSupervisor: sNm, nipSupervisor: sNip, jabatanSupervisor: sTitle, customJurusan: appJurusan
                 }, {merge: true});
                 document.getElementById('display-peksos-name').textContent = nm || currentUser.email;
                 showToast("Profil tersimpan di Cloud.");
                 closeModal('modal-edit-profile');
             } catch(e) { showToast("Gagal menyimpan profil", "error"); }
         }
+
+        // --- MANAJEMEN MASTER DATA JURUSAN ---
+        function renderJurusanDropdowns() {
+            const sel = document.getElementById('form-biodata-jurusan');
+            if(!sel) return;
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="">- Pilih Jurusan / Belum Ditentukan -</option>';
+            
+            appJurusan.forEach(j => sel.add(new Option(j, j)));
+            
+            // Pertahankan value sebelumnya meskipun sedang diedit
+            let found = false;
+            for(let i=0; i<sel.options.length; i++) {
+                if(sel.options[i].value === currentVal) { sel.selectedIndex = i; found = true; break; }
+            }
+            if(currentVal && !found) {
+                sel.add(new Option(`${currentVal} (Nonaktif)`, currentVal));
+                sel.value = currentVal;
+            }
+            
+            renderJurusanManagerList();
+        }
+
+        function renderJurusanManagerList() {
+            const list = document.getElementById('list-manage-jurusan');
+            if(!list) return;
+            list.innerHTML = '';
+            appJurusan.forEach((j, i) => {
+                list.innerHTML += `
+                    <li class="flex justify-between items-center px-4 py-2.5 text-sm border-b border-slate-200 last:border-0 hover:bg-white transition-colors">
+                        <span class="font-bold text-slate-800"><i class="fa-solid fa-caret-right text-brand-400 mr-2"></i> ${j}</span> 
+                        <button onclick="removeJurusan(${i})" class="text-slate-400 hover:text-rose-600 p-1.5 rounded transition-colors" title="Hapus Jurusan"><i class="fa-solid fa-trash-can"></i></button>
+                    </li>`;
+            });
+            if(appJurusan.length === 0) list.innerHTML = '<li class="p-4 text-center text-sm text-slate-500 italic">Belum ada jurusan. Silakan tambah baru.</li>';
+        }
+
+        async function addJurusan() {
+            const input = document.getElementById('input-new-jurusan');
+            const v = input.value.trim();
+            if(v) {
+                if(appJurusan.map(x => x.toLowerCase()).includes(v.toLowerCase())) return showToast("Jurusan tersebut sudah ada!", "error");
+                appJurusan.push(v);
+                input.value = '';
+                await syncJurusanToCloud();
+            }
+        }
+
+        async function removeJurusan(i) {
+            if(confirm(`Apakah Anda yakin ingin menghapus jurusan "${appJurusan[i]}" dari daftar pilihan? (Data anak yang sudah terlanjur menggunakan jurusan ini tidak akan rusak).`)) {
+                appJurusan.splice(i, 1);
+                await syncJurusanToCloud();
+            }
+        }
+
+        async function syncJurusanToCloud() {
+            renderJurusanDropdowns();
+            if(currentUser && db) {
+                try {
+                    await db.collection('users').doc(currentUser.email).set({ customJurusan: appJurusan }, {merge: true});
+                    showToast("Daftar jurusan berhasil diperbarui & disinkronisasi.", "success");
+                } catch(e) { showToast("Gagal menyimpan jurusan ke Cloud", "error"); }
+            }
+        }
+        // --- END MANAJEMEN JURUSAN ---
 
         async function fetchFirestoreData() {
             if (!currentUser || !db) return;
@@ -1466,6 +1815,7 @@
 
         function populateAngkatanDropdown() {
             const filterAngkatan = document.getElementById('filter-angkatan');
+            const dataListAngkatan = document.getElementById('angkatan-list');
             const angkatanSet = new Set();
             Object.values(appState.clients).forEach(c => {
                 if(c.formData && c.formData.angkatan && c.formData.angkatan.trim() !== '') {
@@ -1474,10 +1824,18 @@
             });
             const uniq = Array.from(angkatanSet).sort();
             filterAngkatan.innerHTML = '<option value="">Semua Angkatan</option>';
+            if (dataListAngkatan) dataListAngkatan.innerHTML = '';
+            
             uniq.forEach(a => {
                 const opt = new Option(a, a);
                 if(a === currentAngkatanFilter) opt.selected = true;
                 filterAngkatan.add(opt);
+
+                if (dataListAngkatan) {
+                    const dOpt = document.createElement('option');
+                    dOpt.value = a;
+                    dataListAngkatan.appendChild(dOpt);
+                }
             });
         }
 
@@ -1534,7 +1892,23 @@
         function refreshUI() {
             const c = appState.clients[appState.currentClientId];
             if (!c) return;
+            
+            // Logic to hide Seleksi tab if not Calon Klien
+            const stTxt = c.status || 'Kasus Aktif';
+            const seleksiTabBtn = document.querySelector('.tab-btn[data-target="tab-seleksi"]');
+            if (seleksiTabBtn) {
+                if (stTxt === 'Calon Klien (Proses Seleksi)') {
+                    seleksiTabBtn.style.display = '';
+                } else {
+                    seleksiTabBtn.style.display = 'none';
+                    if (document.getElementById('tab-seleksi').classList.contains('active')) {
+                        switchTab('tab-profil');
+                    }
+                }
+            }
+
             renderProfileCard(); renderPenyakit(); renderPelayanan(); renderIntervensi(); renderBarang();
+            renderSandang(); renderRujukan();
             populateFormFields();
             
             const stat = document.getElementById('form-terminasi-status').value;
@@ -1556,7 +1930,12 @@
             formInputIds.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
             ['penyakit', 'pelayanan', 'intervensi'].forEach(x => document.getElementById(`list-${x}`).innerHTML = `<li class="p-4 text-center text-sm text-slate-500 italic" id="empty-${x}">Kosong.</li>`);
             document.getElementById('list-barang').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada barang dicatat.</td></tr>`;
+            document.getElementById('list-sandang').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada bantuan sandang dicatat.</td></tr>`;
+            document.getElementById('list-rujukan').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada pelayanan rujukan dicatat.</td></tr>`;
             document.getElementById('print-content').innerHTML = '<p class="text-center text-slate-500 font-sans italic py-10">Kosong.</p>';
+            
+            const seleksiTabBtn = document.querySelector('.tab-btn[data-target="tab-seleksi"]');
+            if (seleksiTabBtn) seleksiTabBtn.style.display = '';
         }
 
         function renderProfileCard() {
@@ -1659,6 +2038,7 @@
                 id: newId, nama: nama, umur: calculateAge(tgl), gender: document.getElementById('new-client-gender').value,
                 status: statAwal || "Calon Klien (Proses Seleksi)", peksosEmail: currentUser.email, 
                 riwayatPenyakit: [], layananDiberikan: [], pelaksanaanIntervensi: [], barangBawaan: [],
+                bantuanSandang: [], layananRujukan: [],
                 formData: {
                     kabupatenKota: kab, angkatan: ang,
                     tempatLahir: document.getElementById('new-client-tempat-lahir').value.trim(), tanggalLahir: tgl,
@@ -1706,6 +2086,64 @@
             } else {
                 c.barangBawaan.forEach((b,i) => {
                     l.innerHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="py-2.5 px-4 text-sm text-slate-500">${i+1}</td><td class="py-2.5 px-4 text-sm font-semibold text-slate-800">${b.nama}</td><td class="py-2.5 px-4 text-sm text-center text-slate-700">${b.jumlah}</td><td class="py-2.5 px-4 text-sm text-slate-600">${b.keterangan || '-'}</td><td class="py-2.5 px-4 text-center"><button onclick="removeBarang(${i})" class="text-slate-400 hover:text-rose-600 transition-colors" title="Hapus"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+                });
+            }
+        }
+
+        // Logic for Sandang
+        function addSandang() {
+            const nama = document.getElementById('input-sandang-nama').value.trim();
+            const jumlah = document.getElementById('input-sandang-jumlah').value;
+            const tanggal = document.getElementById('input-sandang-tanggal').value;
+            if(nama && jumlah && tanggal && appState.currentClientId) {
+                const c = appState.clients[appState.currentClientId]; 
+                if(!c.bantuanSandang) c.bantuanSandang=[];
+                c.bantuanSandang.push({nama, jumlah, tanggal}); 
+                document.getElementById('input-sandang-nama').value=''; 
+                document.getElementById('input-sandang-jumlah').value='1'; 
+                renderSandang();
+            }
+        }
+        function removeSandang(i) { appState.clients[appState.currentClientId].bantuanSandang.splice(i,1); renderSandang(); }
+        function renderSandang() {
+            const c = appState.clients[appState.currentClientId]; const l = document.getElementById('list-sandang');
+            l.innerHTML = '';
+            if(!c || !c.bantuanSandang || c.bantuanSandang.length===0) { 
+                l.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada bantuan sandang dicatat.</td></tr>`;
+            } else {
+                c.bantuanSandang.forEach((b,i) => {
+                    l.innerHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="py-2.5 px-4 text-sm text-slate-500">${i+1}</td><td class="py-2.5 px-4 text-sm text-slate-700">${b.tanggal}</td><td class="py-2.5 px-4 text-sm font-semibold text-slate-800">${b.nama}</td><td class="py-2.5 px-4 text-sm text-center text-slate-700">${b.jumlah}</td><td class="py-2.5 px-4 text-center"><button onclick="removeSandang(${i})" class="text-slate-400 hover:text-rose-600 transition-colors" title="Hapus"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+                });
+            }
+        }
+
+        // Logic for Rujukan
+        function addRujukan() {
+            const jenis = document.getElementById('input-rujukan-jenis').value;
+            const tanggal = document.getElementById('input-rujukan-tanggal').value;
+            const keterangan = document.getElementById('input-rujukan-ket').value.trim();
+            if(jenis && tanggal && keterangan && appState.currentClientId) {
+                const c = appState.clients[appState.currentClientId]; 
+                if(!c.layananRujukan) c.layananRujukan=[];
+                c.layananRujukan.push({jenis, tanggal, keterangan}); 
+                document.getElementById('input-rujukan-ket').value=''; 
+                renderRujukan();
+            }
+        }
+        function removeRujukan(i) { appState.clients[appState.currentClientId].layananRujukan.splice(i,1); renderRujukan(); }
+        function renderRujukan() {
+            const c = appState.clients[appState.currentClientId]; const l = document.getElementById('list-rujukan');
+            l.innerHTML = '';
+            if(!c || !c.layananRujukan || c.layananRujukan.length===0) { 
+                l.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada pelayanan rujukan dicatat.</td></tr>`;
+            } else {
+                c.layananRujukan.forEach((b,i) => {
+                    let badge = '';
+                    if (b.jenis === 'Kesehatan') badge = '<span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded text-[10px] font-bold">Kesehatan</span>';
+                    else if (b.jenis === 'Psikologi') badge = '<span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-bold">Psikologi</span>';
+                    else badge = '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-bold">Sosial</span>';
+
+                    l.innerHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="py-2.5 px-4 text-sm text-slate-500">${i+1}</td><td class="py-2.5 px-4 text-sm text-slate-700">${b.tanggal}</td><td class="py-2.5 px-4">${badge}</td><td class="py-2.5 px-4 text-sm font-semibold text-slate-800">${b.keterangan}</td><td class="py-2.5 px-4 text-center"><button onclick="removeRujukan(${i})" class="text-slate-400 hover:text-rose-600 transition-colors" title="Hapus"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
                 });
             }
         }
@@ -1829,15 +2267,75 @@
                     if(ud.email !== ADMIN_EMAIL) uSel.innerHTML += `<option value="${ud.email}">${ud.nama || ud.email} (${ud.email})</option>`;
                 });
                 
-                const l = document.getElementById('admin-client-checklist'); l.innerHTML = '';
+                // Populate Admin Angkatan Filter
+                const adminAngkatanSet = new Set();
                 Object.values(appState.clients).forEach(c => {
-                    const p = (c.peksosEmail === POOL_EMAIL) ? 'POOL' : c.peksosEmail;
-                    l.innerHTML += `<label class="flex justify-between p-2 hover:bg-rose-50 border-b cursor-pointer"><div class="flex items-center gap-3"><input type="checkbox" name="admin_cb" value="${c.id}" class="rounded text-rose-600"><div><p class="text-sm font-bold text-slate-800">${c.nama}</p><p class="text-[10px] text-slate-500">Ang: ${c.formData?.angkatan||'-'}</p></div></div><span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded truncate max-w-[100px]">${p}</span></label>`;
+                    if(c.formData && c.formData.angkatan && c.formData.angkatan.trim() !== '') {
+                        adminAngkatanSet.add(c.formData.angkatan.trim());
+                    }
                 });
+                const adminAngkatanSel = document.getElementById('admin-filter-angkatan');
+                adminAngkatanSel.innerHTML = '<option value="">Semua Angkatan</option>';
+                Array.from(adminAngkatanSet).sort().forEach(a => {
+                    adminAngkatanSel.add(new Option(a, a));
+                });
+
+                // Bersihkan pencarian sebelumnya dan render ulang list
+                document.getElementById('admin-search-client').value = '';
+                renderAdminClientList();
+                
                 openModal('modal-admin-panel');
             } catch(e) { showToast("Gagal memuat Admin Panel", "error"); }
         }
-        function toggleAllAdminCbs(el) { document.querySelectorAll('input[name="admin_cb"]').forEach(cb => cb.checked = el.checked); }
+
+        function renderAdminClientList() {
+            const l = document.getElementById('admin-client-checklist'); 
+            l.innerHTML = '';
+            
+            const searchTerm = (document.getElementById('admin-search-client').value || '').toLowerCase();
+            const angkatanFilter = document.getElementById('admin-filter-angkatan').value;
+
+            let count = 0;
+            Object.values(appState.clients).forEach(c => {
+                const angkatan = c.formData?.angkatan || '';
+                
+                // Cek filter angkatan
+                if (angkatanFilter && angkatan !== angkatanFilter) return;
+                
+                // Cek filter pencarian teks (Nama atau ID)
+                if (searchTerm && !c.nama.toLowerCase().includes(searchTerm) && !c.id.toLowerCase().includes(searchTerm)) return;
+
+                const p = (c.peksosEmail === POOL_EMAIL) ? 'POOL' : c.peksosEmail;
+                l.innerHTML += `
+                    <label class="flex justify-between p-2.5 hover:bg-rose-50 border-b border-slate-100 cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" name="admin_cb" value="${c.id}" class="rounded text-rose-600 focus:ring-rose-500 w-4 h-4 mt-0.5">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 leading-tight">${c.nama}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">ID: ${c.id} <span class="mx-1">&bull;</span> Angkatan: ${c.formData?.angkatan || '-'}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 border border-slate-200 text-slate-600 px-2 py-1 rounded truncate max-w-[150px] self-center">${p}</span>
+                    </label>
+                `;
+                count++;
+            });
+            
+            document.getElementById('admin-client-count').textContent = `${count} Anak Ditemukan`;
+            document.getElementById('admin-check-all').checked = false; // Reset "Check All" checkbox
+        }
+
+        function filterAdminClientList() {
+            renderAdminClientList();
+        }
+
+        function toggleAllAdminCbs(el) { 
+            // Hanya centang kotak yang sedang TAMPIL di dalam list hasil filter pencarian
+            document.querySelectorAll('#admin-client-checklist input[name="admin_cb"]').forEach(cb => {
+                cb.checked = el.checked;
+            }); 
+        }
+
         async function executeHandover() {
             const ids = Array.from(document.querySelectorAll('input[name="admin_cb"]:checked')).map(cb => cb.value);
             const target = document.getElementById('admin-target-peksos').value;
@@ -1850,6 +2348,91 @@
             });
             await batch.commit(); closeModal('modal-admin-panel'); showToast(`Berhasil memutasi ${ids.length} kasus.`);
         }
+        
+        // --- GLOBAL DASHBOARD LOGIC ---
+        async function openGlobalDashboard() {
+            openModal('modal-global-dashboard');
+            const tbody = document.getElementById('global-dashboard-list');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Memuat data dari server...</td></tr>';
+            
+            try {
+                // Fetch ALL clients from database directly
+                const snap = await db.collection('clients').get();
+                window.globalClients = [];
+                const globalAngkatanSet = new Set(); // Menyimpan daftar angkatan unik
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const angkatan = d.formData?.angkatan || '-';
+                    
+                    if (angkatan !== '-' && angkatan.trim() !== '') {
+                        globalAngkatanSet.add(angkatan.trim());
+                    }
+
+                    window.globalClients.push({
+                        id: d.id,
+                        nama: d.nama,
+                        angkatan: angkatan,
+                        status: d.status || '-',
+                        peksos: d.peksosEmail
+                    });
+                });
+
+                // Isi dropdown filter Angkatan Global
+                const globalAngkatanSel = document.getElementById('global-filter-angkatan');
+                globalAngkatanSel.innerHTML = '<option value="">Semua Angkatan</option>';
+                Array.from(globalAngkatanSet).sort().forEach(a => {
+                    globalAngkatanSel.add(new Option(a, a));
+                });
+                
+                document.getElementById('global-search-input').value = ''; // Reset pencarian
+
+                renderGlobalDashboard();
+            } catch(e) {
+                console.error("Global Dashboard Error:", e);
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-rose-500 py-4"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Gagal memuat data. Periksa koneksi atau izin database.</td></tr>';
+            }
+        }
+
+        function renderGlobalDashboard() {
+            const tbody = document.getElementById('global-dashboard-list');
+            const search = (document.getElementById('global-search-input').value || '').toLowerCase();
+            const filterAngkatan = document.getElementById('global-filter-angkatan').value;
+            tbody.innerHTML = '';
+            
+            let count = 0;
+            window.globalClients.forEach((c) => {
+                // Terapkan Filter Angkatan
+                if (filterAngkatan && c.angkatan !== filterAngkatan) return;
+                
+                // Terapkan Filter Pencarian Teks
+                if (search && !c.nama.toLowerCase().includes(search) && !c.id.toLowerCase().includes(search)) return;
+                count++;
+                
+                const isPool = c.peksos === POOL_EMAIL;
+                const peksosLabel = isPool ? '<span class="text-[10px] text-amber-700 bg-amber-100 font-bold px-2 py-1 rounded">POOL DATA</span>' : c.peksos;
+                
+                let statBadge = '';
+                if(c.status.includes("Terminasi")) statBadge = '<span class="text-emerald-700 font-bold text-xs">Terminasi</span>';
+                else if (c.status.includes("Referal")) statBadge = '<span class="text-amber-700 font-bold text-xs">Referal</span>';
+                else if (c.status.includes("Drop")) statBadge = '<span class="text-rose-700 font-bold text-xs">Drop Out</span>';
+                else statBadge = '<span class="text-blue-700 font-bold text-xs">' + c.status + '</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-200 transition-colors">
+                        <td class="py-2.5 px-3 text-sm text-slate-500">${count}</td>
+                        <td class="py-2.5 px-3 text-sm font-bold text-slate-800">${c.nama}</td>
+                        <td class="py-2.5 px-3 text-sm text-slate-600">${c.id}</td>
+                        <td class="py-2.5 px-3 text-sm text-slate-600">${c.angkatan}</td>
+                        <td class="py-2.5 px-3 text-sm">${statBadge}</td>
+                        <td class="py-2.5 px-3 text-xs text-slate-700">${peksosLabel}</td>
+                    </tr>
+                `;
+            });
+            
+            if(count === 0) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-500 italic">Tidak ada data anak ditemukan.</td></tr>';
+            document.getElementById('global-dashboard-count').textContent = `Total: ${count} anak`;
+        }
 
         function generateReportPreview() {
             const c = appState.clients[appState.currentClientId];
@@ -1860,6 +2443,8 @@
             let layH = c.layananDiberikan?.length > 0 ? c.layananDiberikan.map(l => `<tr><td class="border border-black px-2 py-1">${l.tanggal}</td><td class="border border-black px-2 py-1">${l.jenis}</td><td class="border border-black px-2 py-1">${l.deskripsi}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
             let intH = c.pelaksanaanIntervensi?.length > 0 ? c.pelaksanaanIntervensi.map(i => `<tr><td class="border border-black px-2 py-1">${i.tanggal}</td><td class="border border-black px-2 py-1">${i.deskripsi}</td><td class="border border-black px-2 py-1">${i.indikator}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
             let brgH = c.barangBawaan?.length > 0 ? c.barangBawaan.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.nama}</td><td class="border border-black px-2 py-1 text-center">${b.jumlah}</td><td class="border border-black px-2 py-1">${b.keterangan||'-'}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada barang bawaan</td></tr>';
+            let sanH = c.bantuanSandang?.length > 0 ? c.bantuanSandang.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.tanggal}</td><td class="border border-black px-2 py-1">${b.nama}</td><td class="border border-black px-2 py-1 text-center">${b.jumlah}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada bantuan sandang</td></tr>';
+            let rujH = c.layananRujukan?.length > 0 ? c.layananRujukan.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.tanggal}</td><td class="border border-black px-2 py-1">${b.jenis}</td><td class="border border-black px-2 py-1">${b.keterangan}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada rujukan</td></tr>';
             
             let riskHTML = (fd.tingkatRisiko === 'Kritis' || fd.tingkatRisiko === 'Tinggi') ? `<div class="border-2 border-black p-2 font-bold text-center uppercase tracking-widest mb-4">Peringatan: Kedaruratan ${fd.tingkatRisiko}</div>` : '';
 
@@ -1899,7 +2484,7 @@
                             <tr><td class="py-1 font-bold">Nama Lengkap</td><td class="py-1">: ${c.nama||'-'} (${c.gender||'-'}, ${c.umur||'-'} Thn)</td></tr>
                             <tr><td class="py-1 font-bold">NIK / Identitas</td><td class="py-1">: ${fd.noIdentitas||'-'} (${fd.statusIdentitas||'-'})</td></tr>
                             <tr><td class="py-1 font-bold">Tempat, Tgl Lahir / Agama</td><td class="py-1">: ${fd.tempatLahir||'-'}, ${fd.tanggalLahir||'-'} / ${fd.agama||'-'}</td></tr>
-                            <tr><td class="py-1 font-bold">Pendidikan</td><td class="py-1">: ${fd.pendidikan||'-'} (Putus Sek: ${fd.putusSekolah||'-'})</td></tr>
+                            <tr><td class="py-1 font-bold">Pendidikan / Jurusan Dipilih</td><td class="py-1">: ${fd.pendidikan||'-'} / <span class="font-bold text-black uppercase">${fd.jurusan||'Belum Ditentukan'}</span></td></tr>
                             <tr><td class="py-1 font-bold">Nama Wali / Pekerjaan</td><td class="py-1">: ${fd.namaWali||'-'} / ${fd.pekerjaanOrangTua||'-'}</td></tr>
                             <tr><td class="py-1 font-bold align-top">Alamat Lengkap</td><td class="py-1 align-top">: ${fd.alamat||'-'} - ${fd.kabupatenKota||'-'}</td></tr>
                         </tbody>
@@ -1967,7 +2552,21 @@
                 </div>
 
                 <div class="mb-5 page-break">
-                    <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">V. Evaluasi & Keputusan Terminasi</h3>
+                    <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">V. Penyediaan Layanan Sosial & Rujukan</h3>
+                    <p class="font-bold text-sm mt-2 mb-1">A. Bantuan Sandang / Kebutuhan Dasar</p>
+                    <table class="w-full text-sm border-collapse border border-black mb-3">
+                        <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1 w-12 text-center">No</th><th class="border border-black px-2 py-1 text-left w-24">Tanggal</th><th class="border border-black px-2 py-1 text-left">Nama Barang</th><th class="border border-black px-2 py-1 w-20 text-center">Jumlah</th></tr></thead>
+                        <tbody>${sanH}</tbody>
+                    </table>
+                    <p class="font-bold text-sm mt-3 mb-1">B. Pelayanan Rujukan (Kesehatan, Psikologi, Sosial)</p>
+                    <table class="w-full text-sm border-collapse border border-black mb-3">
+                        <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1 w-12 text-center">No</th><th class="border border-black px-2 py-1 text-left w-24">Tanggal</th><th class="border border-black px-2 py-1 text-left w-24">Jenis</th><th class="border border-black px-2 py-1 text-left">Keterangan / Lembaga Tujuan</th></tr></thead>
+                        <tbody>${rujH}</tbody>
+                    </table>
+                </div>
+
+                <div class="mb-5 page-break">
+                    <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">VI. Evaluasi & Keputusan Terminasi</h3>
                     <div class="text-sm space-y-2 mt-1">
                         <div><p class="font-bold text-black">Perkembangan Klien:</p><p class="text-black text-justify border border-gray-300 p-1.5 min-h-[60px]">${fd.evaluasiPerkembangan||'-'}</p></div>
                         <div><p class="font-bold text-black">Hambatan Pendampingan:</p><p class="text-black text-justify">${fd.evaluasiHambatan||'-'}</p></div>
@@ -2041,7 +2640,7 @@
                             <tr><td class="py-1 font-bold">Nama Lengkap</td><td class="py-1">: ${c.nama||'-'} (${c.gender||'-'}, ${c.umur||'-'} Thn)</td></tr>
                             <tr><td class="py-1 font-bold">NIK / Identitas</td><td class="py-1">: ${fd.noIdentitas||'-'} (${fd.statusIdentitas||'-'})</td></tr>
                             <tr><td class="py-1 font-bold">Tempat, Tgl Lahir / Agama</td><td class="py-1">: ${fd.tempatLahir||'-'}, ${fd.tanggalLahir||'-'} / ${fd.agama||'-'}</td></tr>
-                            <tr><td class="py-1 font-bold">Pendidikan</td><td class="py-1">: ${fd.pendidikan||'-'} (Putus Sek: ${fd.putusSekolah||'-'})</td></tr>
+                            <tr><td class="py-1 font-bold">Pendidikan / Jurusan Dipilih</td><td class="py-1">: ${fd.pendidikan||'-'} / <span class="font-bold text-black uppercase">${fd.jurusan||'Belum Ditentukan'}</span></td></tr>
                             <tr><td class="py-1 font-bold">Nama Wali / Pekerjaan</td><td class="py-1">: ${fd.namaWali||'-'} / ${fd.pekerjaanOrangTua||'-'}</td></tr>
                             <tr><td class="py-1 font-bold align-top">Alamat Lengkap</td><td class="py-1 align-top">: ${fd.alamat||'-'} - ${fd.kabupatenKota||'-'}</td></tr>
                         </tbody>
@@ -2075,75 +2674,22 @@
                         <p class="text-xs text-black italic mt-2">*Hasil asesmen dari tiga profesi yang menentukan apakah anak memenuhi syarat untuk mendapatkan layanan di dalam lembaga.</p>
                     </div>
                 `;
-            } else if (activeTab === 'tab-profil') {
-                docTitle = "Formulir Profil, Biodata & Riwayat Klien";
-                contentHTML = profilHTML;
-            } else if (activeTab === 'tab-barang') {
-                docTitle = "Formulir Inventaris Barang Bawaan Kedatangan";
-                let brgH = c.barangBawaan?.length > 0 ? c.barangBawaan.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.nama}</td><td class="border border-black px-2 py-1 text-center">${b.jumlah}</td><td class="border border-black px-2 py-1">${b.keterangan||'-'}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada barang bawaan</td></tr>';
-                contentHTML = `
-                    <div class="mb-5">
-                        <table class="w-full text-sm border-collapse border border-black mb-4 mt-2">
-                            <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1.5 w-12 text-center">No</th><th class="border border-black px-2 py-1.5 text-left">Nama Barang / Dokumen</th><th class="border border-black px-2 py-1.5 w-24 text-center">Jumlah</th><th class="border border-black px-2 py-1.5 text-left">Keterangan Kondisi</th></tr></thead>
-                            <tbody>${brgH}</tbody>
-                        </table>
-                        <p class="text-xs text-black italic">*Tabel inventaris ini menjadi bukti serah terima barang sah milik klien selama berada di dalam lembaga.</p>
-                    </div>
-                `;
-            } else if (activeTab === 'tab-asesmen') {
-                docTitle = "Hasil Asesmen Anak Binaan UPTD PPSGBR";
+            } else if (activeTab === 'tab-layanan') {
+                docTitle = "Formulir Penyediaan Layanan Sosial & Rujukan";
+                let sanH = c.bantuanSandang?.length > 0 ? c.bantuanSandang.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.tanggal}</td><td class="border border-black px-2 py-1">${b.nama}</td><td class="border border-black px-2 py-1 text-center">${b.jumlah}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada bantuan sandang</td></tr>';
+                let rujH = c.layananRujukan?.length > 0 ? c.layananRujukan.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.tanggal}</td><td class="border border-black px-2 py-1">${b.jenis}</td><td class="border border-black px-2 py-1">${b.keterangan}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada rujukan</td></tr>';
                 
-                // Menambahkan Page-Break setelah Profil, agar Asesmen berada di halaman baru
-                let asesmenHTML = `
-                    <div class="mb-5 page-break">
-                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">III. Asesmen Masalah Tripartit</h3>
-                        <div class="text-sm space-y-2 mt-2 mb-4">
-                            <div><p class="font-bold text-black">A. Deskripsi Kronologi:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenKronologi||'-'}</p></div>
-                            <div><p class="font-bold text-black">B. Faktor Individu (Internal):</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenFaktorIndividu||'-'}</p></div>
-                            <div><p class="font-bold text-black">C. Faktor Situasi Lingkungan Masalah:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenFaktorSituasi||'-'}</p></div>
-                            <div><p class="font-bold text-black">D. Faktor Ketersediaan Dukungan:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenFaktorDukungan||'-'}</p></div>
-                        </div>
-                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">IV. Dimensi BPSS & Kapasitas Coping</h3>
-                        <table class="w-full text-sm border-collapse border border-black mb-3 mt-2">
-                            <tr><td class="border border-black p-1.5 font-bold w-1/4 bg-gray-100">Biologis (Fisik)</td><td class="border border-black p-1.5 text-justify">${fd.asesmenBiologis||'-'}</td></tr>
-                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Psikologis (Mental)</td><td class="border border-black p-1.5 text-justify">${fd.asesmenPsikologis||'-'}</td></tr>
-                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Sosial</td><td class="border border-black p-1.5 text-justify">${fd.asesmenSosial||'-'}</td></tr>
-                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Spiritual</td><td class="border border-black p-1.5 text-justify">${fd.asesmenSpiritual||'-'}</td></tr>
-                        </table>
-                        <table class="w-full text-sm border-collapse border border-black mb-3">
-                            <tr><td class="border border-black p-1.5 font-bold text-center w-1/2 bg-gray-100">Faktor Risiko (Kerentanan)</td><td class="border border-black p-1.5 font-bold text-center w-1/2 bg-gray-100">Faktor Pelindung (Protektif)</td></tr>
-                            <tr><td class="border border-black p-1.5 align-top text-justify">${fd.asesmenFaktorRisiko||'-'}</td><td class="border border-black p-1.5 align-top text-justify">${fd.asesmenFaktorPelindung||'-'}</td></tr>
-                        </table>
-                        <div class="text-sm space-y-2 mb-4">
-                            <div><p class="font-bold text-black">Deskripsi Genogram Keluarga (Silsilah):</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenGenogram||'-'}</p></div>
-                            <div><p class="font-bold text-black">Deskripsi Ekomap (Jejaring Sosial):</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenEkomap||'-'}</p></div>
-                        </div>
-                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">V. Keberfungsian Sosial & Sistem Sumber</h3>
-                        <div class="text-sm space-y-2 mt-2">
-                            <div><p class="font-bold text-black">Pemenuhan Kebutuhan Dasar:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenKebutuhanDasar||'-'}</p></div>
-                            <div><p class="font-bold text-black">Kemampuan Pemecahan Masalah:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenPemecahanMasalah||'-'}</p></div>
-                            <div><p class="font-bold text-black">Peran Sosial & Motivasi Berubah:</p><p class="text-black text-justify border border-gray-300 p-1.5"><strong>Peran:</strong> ${fd.asesmenPeranSosial||'-'}<br><strong>Motivasi:</strong> ${fd.asesmenMotivasi||'-'}</p></div>
-                        </div>
-                    </div>
-                `;
-                // PENGGABUNGAN PROFIL DAN ASESMEN
-                contentHTML = profilHTML + asesmenHTML;
-
-            } else if (activeTab === 'tab-intervensi') {
-                docTitle = "Pelaksanaan Intervensi Anak Binaan";
-                let intH = c.pelaksanaanIntervensi?.length > 0 ? c.pelaksanaanIntervensi.map(i => `<tr><td class="border border-black px-2 py-1">${i.tanggal}</td><td class="border border-black px-2 py-1">${i.deskripsi}</td><td class="border border-black px-2 py-1">${i.indikator}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
                 contentHTML = `
                     <div class="mb-5">
-                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">I. Perencanaan Intervensi</h3>
-                        <div class="text-sm space-y-3 mt-2 mb-6">
-                            <div><p class="font-bold text-black">Tujuan Akhir Intervensi (Goals):</p><p class="text-black text-justify border border-gray-300 p-2 min-h-[60px]">${fd.intervensiTujuan||'-'}</p></div>
-                            <div><p class="font-bold text-black">Strategi & Pendekatan Pekerjaan Sosial:</p><p class="text-black text-justify border border-gray-300 p-2 min-h-[60px]">${fd.intervensiStrategi||'-'}</p></div>
-                        </div>
-                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">II. Log Sesi Pelaksanaan Intervensi</h3>
-                        <p class="text-xs text-slate-500 mb-2 italic">Jejak Audit Pelayanan Sosial (Catatan Pertemuan, Bimbingan, dan Terapi)</p>
-                        <table class="w-full text-sm border-collapse border border-black mb-3">
-                            <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1.5 text-left w-[15%]">Tanggal</th><th class="border border-black px-2 py-1.5 text-left w-[55%]">Tindakan / Topik Sesi</th><th class="border border-black px-2 py-1.5 text-left w-[30%]">Evaluasi / Indikator Capaian</th></tr></thead>
-                            <tbody>${intH}</tbody>
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">I. Bantuan Sandang / Kebutuhan Dasar</h3>
+                        <table class="w-full text-sm border-collapse border border-black mb-4 mt-2">
+                            <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1.5 w-12 text-center">No</th><th class="border border-black px-2 py-1.5 text-left w-32">Tanggal</th><th class="border border-black px-2 py-1.5 text-left">Nama Barang</th><th class="border border-black px-2 py-1.5 w-24 text-center">Jumlah</th></tr></thead>
+                            <tbody>${sanH}</tbody>
+                        </table>
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">II. Pelayanan Rujukan (Kesehatan, Psikologi, Sosial)</h3>
+                        <table class="w-full text-sm border-collapse border border-black mb-4 mt-2">
+                            <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1.5 w-12 text-center">No</th><th class="border border-black px-2 py-1.5 text-left w-32">Tanggal</th><th class="border border-black px-2 py-1.5 text-left w-32">Jenis Rujukan</th><th class="border border-black px-2 py-1.5 text-left">Keterangan / Lembaga Tujuan</th></tr></thead>
+                            <tbody>${rujH}</tbody>
                         </table>
                     </div>
                 `;
