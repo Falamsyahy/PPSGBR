@@ -90,7 +90,8 @@
                 <button onclick="openRangeGenerateModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md">
                     <i class="fa-solid fa-wand-magic-sparkles text-blue-200"></i> Generate
                 </button>
-                <button onclick="openOverwriteConfirmModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition flex items-center gap-1.5">
+                <!-- PERBAIKAN: Tombol Simpan ini sekarang memanggil fungsi saveAllActivitiesForDay() -->
+                <button onclick="saveAllActivitiesForDay()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Simpan
                 </button>
             </div>
@@ -283,14 +284,12 @@
                     </div>
                 </div>
 
-                <!-- TAMBAHAN: PANEL RIWAYAT PELANGGARAN & HUKUMAN -->
                 <div class="mt-6 border-t border-slate-200 pt-6">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Riwayat Pelanggaran (Status "Tidak") & Konsekuensi</h4>
                     <div class="overflow-y-auto max-h-64 border border-rose-200 rounded-xl shadow-inner">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead class="bg-rose-50 sticky top-0"><tr class="text-rose-900 font-bold border-b border-rose-200"><th class="p-2.5">Tanggal</th><th class="p-2.5">Kegiatan yang Dilewatkan</th><th class="p-2.5">Tindak Lanjut / Hukuman Edukatif</th></tr></thead>
                             <tbody id="sumPelanggaranTableBody" class="divide-y divide-rose-100 bg-white">
-                                <!-- Data pelanggaran dirender di sini -->
                             </tbody>
                         </table>
                     </div>
@@ -392,7 +391,6 @@
                 </div>
             </div>
 
-            <!-- TAMBAHAN: PANEL PENGATURAN DURASI ANGKATAN -->
             <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
                 <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3 mb-4"><i class="fa-solid fa-graduation-cap text-indigo-600"></i> Pengaturan Masa Pembinaan (Kelulusan Otomatis)</h2>
                 <p class="text-[11px] text-slate-500 mb-4">Tentukan tanggal batas akhir pembinaan per angkatan. Anak pada angkatan tersebut akan otomatis berstatus <b>"Selesai / Lulus"</b> setelah melewati tanggal yang ditentukan.</p>
@@ -428,6 +426,9 @@
                     </table>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-2">*Anak dengan status "Selesai / Lulus" tidak akan muncul pada form input kegiatan harian.</p>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="saveManajemenAnak()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-xl shadow text-xs transition">Simpan Manajemen Anak</button>
+                </div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
@@ -564,6 +565,48 @@
             return sched;
         }
 
+        // --- DATABASE SYNC FUNCTIONS ---
+        async function syncConfigToDatabase() {
+            const url = getSavedUrl();
+            const payload = {
+                action: 'save_config',
+                config: {
+                    age_limit: getAgeLimit(),
+                    child_statuses: getChildStatuses(),
+                    angkatan_settings: getAngkatanSettings(),
+                    schedules: getActivitySchedules()
+                }
+            };
+            showGlobalProgress("Sinkronisasi Pengaturan", "Menyimpan pengaturan ke Cloud (Database)...");
+            try {
+                const response = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error("Gagal terhubung ke Apps Script");
+                hideGlobalProgress();
+                showNotification("Pengaturan berhasil disinkronkan ke Database!");
+            } catch (e) {
+                hideGlobalProgress();
+                showModalInfo("Peringatan Sinkronisasi", "Pengaturan tersimpan di laptop Anda, namun gagal terkirim ke Server Cloud. Pastikan Apps Script Anda sudah diperbarui.\n\nError: " + e.message);
+            }
+        }
+
+        async function loadConfigFromDatabase() {
+            const url = getSavedUrl();
+            try {
+                const res = await fetch(url + "?action=load_config");
+                const text = await res.text();
+                const data = JSON.parse(text);
+                if (data && data.config) {
+                    if(data.config.age_limit !== undefined) localStorage.setItem('pps_age_limit', data.config.age_limit);
+                    if(data.config.child_statuses) localStorage.setItem('pps_child_statuses', JSON.stringify(data.config.child_statuses));
+                    if(data.config.angkatan_settings) localStorage.setItem('pps_angkatan_settings', JSON.stringify(data.config.angkatan_settings));
+                    if(data.config.schedules) localStorage.setItem('pps_schedules', JSON.stringify(data.config.schedules));
+                    initConfigTab(); // Refresh UI pengaturan dengan data dari server
+                }
+            } catch(e) {
+                console.log("Belum ada konfigurasi di server atau gagal memuat.");
+            }
+        }
+
         // --- UI UTILS (DIPERBARUI) ---
         function setText(id, text) { const el = document.getElementById(id); if(el) el.innerText = text; }
         function showNotification(msg) { const b = document.getElementById('notificationBanner'); setText('notificationText', msg); b.classList.remove('hidden'); setTimeout(()=>b.classList.add('hidden'), 4000); }
@@ -619,6 +662,7 @@
             localStorage.setItem('pps_age_limit', document.getElementById('cfgAgeLimit').value || "0");
             showNotification("Pengaturan sistem berhasil disimpan.");
             fetchChildrenFromAppsScript();
+            syncConfigToDatabase();
         }
 
         function renderConfigChildren() {
@@ -633,7 +677,7 @@
                         <td class="p-2">${c.id}</td><td class="p-2 font-bold">${c.name}</td>
                         <td class="p-2">${c.umur} thn</td><td class="p-2">${c.agama}</td>
                         <td class="p-2 text-center">
-                            <select onchange="updateChildStatus('${c.id}', this.value)" class="text-[11px] p-1 border rounded ${stat==='aktif'?'bg-emerald-50 text-emerald-700':'bg-rose-50 text-rose-700'}">
+                            <select data-id="${c.id}" class="child-status-select text-[11px] p-1 border rounded ${stat==='aktif'?'bg-emerald-50 text-emerald-700':'bg-rose-50 text-rose-700'}">
                                 <option value="aktif" ${stat==='aktif'?'selected':''}>Aktif</option>
                                 <option value="selesai" ${stat==='selesai'?'selected':''}>Selesai / Lulus</option>
                             </select>
@@ -642,10 +686,15 @@
             });
         }
         function filterConfigChildren() { renderConfigChildren(); }
-        function updateChildStatus(id, val) {
-            let stats = getChildStatuses(); stats[id] = val;
+        function saveManajemenAnak() {
+            let stats = getChildStatuses();
+            document.querySelectorAll('.child-status-select').forEach(sel => {
+                stats[sel.dataset.id] = sel.value;
+            });
             localStorage.setItem('pps_child_statuses', JSON.stringify(stats));
-            renderConfigChildren(); showNotification("Status anak diperbarui.");
+            showNotification("Status Manajemen Anak berhasil disimpan.");
+            renderActivities();
+            syncConfigToDatabase();
         }
 
         // --- PENGATURAN KELULUSAN ANGKATAN ---
@@ -681,6 +730,7 @@
             localStorage.setItem('pps_angkatan_settings', JSON.stringify(settings));
             showNotification("Aturan kelulusan angkatan disimpan.");
             checkAutoGraduation();
+            syncConfigToDatabase();
         }
 
         function checkAutoGraduation() {
@@ -711,17 +761,27 @@
             const tbody = document.getElementById('configScheduleTableBody'); tbody.innerHTML = '';
             const scheds = getActivitySchedules();
             activities.forEach((act, i) => {
-                const s = scheds[i];
+                const s = scheds[i] || { type: 'daily' };
+                let multiHTML = '';
+                if(s.ranges && s.ranges.length > 0) {
+                    s.ranges.forEach(r => {
+                        multiHTML += `<div class="flex gap-1 mb-1 multi-range-row"><input type="date" value="${r.start||''}" class="mr-start text-[10px] border p-0.5 rounded"><input type="date" value="${r.end||''}" class="mr-end text-[10px] border p-0.5 rounded"><button onclick="this.parentElement.remove()" class="text-rose-600 text-xs px-1.5 py-0.5 hover:bg-rose-100 rounded"><i class="fa-solid fa-xmark"></i></button></div>`;
+                    });
+                } else {
+                    multiHTML = `<div class="flex gap-1 mb-1 multi-range-row"><input type="date" class="mr-start text-[10px] border p-0.5 rounded"><input type="date" class="mr-end text-[10px] border p-0.5 rounded"><button onclick="this.parentElement.remove()" class="text-rose-600 text-xs px-1.5 py-0.5 hover:bg-rose-100 rounded"><i class="fa-solid fa-xmark"></i></button></div>`;
+                }
+
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="p-2">${i+1}</td><td class="p-2 font-medium">${act}</td>
                         <td class="p-2">
-                            <select id="cfgSchedType_${i}" onchange="toggleCustomSched(${i})" class="text-[11px] p-1 border rounded bg-white">
+                            <select id="cfgSchedType_${i}" onchange="toggleCustomSched(${i})" class="text-[11px] p-1 border rounded bg-white font-semibold">
                                 <option value="daily" ${s.type==='daily'?'selected':''}>Setiap Hari</option>
                                 <option value="weekday" ${s.type==='weekday'?'selected':''}>Hari Kerja (Senin-Jumat)</option>
                                 <option value="weekend" ${s.type==='weekend'?'selected':''}>Akhir Pekan (Sabtu-Minggu)</option>
                                 <option value="custom_days" ${s.type==='custom_days'?'selected':''}>Hari Tertentu</option>
-                                <option value="date_range" ${s.type==='date_range'?'selected':''}>Rentang Tanggal</option>
+                                <option value="date_range" ${s.type==='date_range'?'selected':''}>Satu Rentang Tanggal</option>
+                                <option value="multi_date_range" ${s.type==='multi_date_range'?'selected':''}>Beberapa Rentang (Multi)</option>
                             </select>
                             <div id="cfgCustomBox_${i}" class="mt-1 flex flex-wrap gap-1 ${s.type==='custom_days'?'':'hidden'}">
                                 ${['M','S','S','R','K','J','S'].map((d,di)=>`<label class="text-[10px] bg-slate-100 px-1 border"><input type="checkbox" id="cfgDays_${i}_${di}" ${s.days&&s.days.includes(di)?'checked':''}> ${d}</label>`).join('')}
@@ -729,14 +789,29 @@
                             <div id="cfgRangeBox_${i}" class="mt-1 flex gap-1 ${s.type==='date_range'?'':'hidden'}">
                                 <input type="date" id="cfgRangeStart_${i}" value="${s.start||''}" class="text-[10px] border p-0.5"><input type="date" id="cfgRangeEnd_${i}" value="${s.end||''}" class="text-[10px] border p-0.5">
                             </div>
+                            <div id="cfgMultiRangeBox_${i}" class="mt-2 flex-col gap-1 ${s.type==='multi_date_range'?'flex':'hidden'}">
+                                <div id="cfgMultiContainer_${i}">${multiHTML}</div>
+                                <button onclick="addMultiRange(${i})" class="text-[10px] bg-sky-100 text-sky-700 px-2 py-1.5 rounded w-max font-bold hover:bg-sky-200"><i class="fa-solid fa-plus"></i> Tambah Rentang</button>
+                            </div>
                         </td>
                     </tr>`;
             });
+        }
+        function addMultiRange(i) {
+            const cont = document.getElementById(`cfgMultiContainer_${i}`);
+            const div = document.createElement('div'); div.className = 'flex gap-1 mb-1 multi-range-row';
+            div.innerHTML = `<input type="date" class="mr-start text-[10px] border p-0.5 rounded"><input type="date" class="mr-end text-[10px] border p-0.5 rounded"><button onclick="this.parentElement.remove()" class="text-rose-600 text-xs px-1.5 py-0.5 hover:bg-rose-100 rounded"><i class="fa-solid fa-xmark"></i></button>`;
+            cont.appendChild(div);
         }
         function toggleCustomSched(i) {
             const val = document.getElementById(`cfgSchedType_${i}`).value;
             document.getElementById(`cfgCustomBox_${i}`).classList.toggle('hidden', val !== 'custom_days');
             document.getElementById(`cfgRangeBox_${i}`).classList.toggle('hidden', val !== 'date_range');
+            const multiBox = document.getElementById(`cfgMultiRangeBox_${i}`);
+            if(multiBox) {
+                if(val === 'multi_date_range') { multiBox.classList.remove('hidden'); multiBox.classList.add('flex'); }
+                else { multiBox.classList.add('hidden'); multiBox.classList.remove('flex'); }
+            }
         }
         function saveScheduleSettings() {
             let scheds = {};
@@ -747,11 +822,21 @@
                     data.days = []; for(let d=0; d<7; d++) if(document.getElementById(`cfgDays_${i}_${d}`).checked) data.days.push(d);
                 } else if (type === 'date_range') {
                     data.start = document.getElementById(`cfgRangeStart_${i}`).value; data.end = document.getElementById(`cfgRangeEnd_${i}`).value;
+                } else if (type === 'multi_date_range') {
+                    data.ranges = [];
+                    const rows = document.getElementById(`cfgMultiContainer_${i}`).querySelectorAll('.multi-range-row');
+                    rows.forEach(r => {
+                        const s = r.querySelector('.mr-start').value;
+                        const e = r.querySelector('.mr-end').value;
+                        if(s && e) data.ranges.push({start: s, end: e});
+                    });
                 }
                 scheds[i] = data;
             }
             localStorage.setItem('pps_schedules', JSON.stringify(scheds));
-            showNotification("Pengaturan jadwal kegiatan berhasil disimpan!"); renderActivities();
+            showNotification("Pengaturan jadwal kegiatan berhasil disimpan!"); 
+            renderActivities();
+            syncConfigToDatabase();
         }
 
         async function processJSONImport() {
@@ -826,19 +911,30 @@
                 const s = new Date(rule.start); const e = new Date(rule.end);
                 return (d >= s && d <= e);
             }
+            if (rule.type === 'multi_date_range') {
+                if(!rule.ranges || rule.ranges.length === 0) return false;
+                for(let r of rule.ranges) {
+                    if(r.start && r.end) {
+                        const s = new Date(r.start); const e = new Date(r.end);
+                        if (d >= s && d <= e) return true;
+                    }
+                }
+                return false;
+            }
             return true; // daily
         }
 
-        // Get visible children for daily matrix (Active only, matching gender)
         function getVisibleChildren() {
-            const filterEl = document.getElementById('genderFilter'); const jk = filterEl ? filterEl.value : 'semua';
+            const genderEl = document.getElementById('genderFilter');
+            const genderFilter = genderEl ? genderEl.value : 'semua';
             const statuses = getChildStatuses();
             return children.filter(c => {
-                if (statuses[c.id] === 'selesai') return false;
-                if (jk === 'semua') return true;
-                return (c.jk === jk || c.jk === '-');
+                if (statuses[c.id] === 'selesai') return false; // Anak lulus disembunyikan dari harian
+                if (genderFilter !== 'semua' && c.jk !== genderFilter) return false;
+                return true;
             });
         }
+
         function getFilteredChildrenForReports(statusFilter, angkatanFilter) {
             const statuses = getChildStatuses();
             return children.filter(c => {
@@ -850,6 +946,7 @@
                 return statOk && angOk;
             });
         }
+
         function getShiftFilteredActivities() {
             const shiftEl = document.getElementById('shiftFilter'); const shift = shiftEl ? shiftEl.value : 'semua';
             let indices = [];
@@ -924,7 +1021,9 @@
                     }
 
                     populateAngkatanDropdowns();
-                    checkAutoGraduation(); // Cek kelulusan otomatis setiap selesai load data
+                    // PERBAIKAN: Fungsi di bawah ini dimatikan saat proses loading
+                    // checkAutoGraduation(); 
+                    
                     await loadSavedLogsForCurrentDate();
                     if(titleEl) titleEl.innerText = 'Database Terhubung (Google Sheets):';
                     if(descEl) descEl.innerHTML = `Data Google Sheets berhasil dimuat. Total: <span class="font-bold">${children.length}</span> Anak.`;
@@ -1041,7 +1140,6 @@
         }
 
         async function checkDataExists(dateStr) {
-            // Simplified check based on global logs if available
             if(globalAccumulatedLogs.length > 1) {
                 for (let i = 1; i < globalAccumulatedLogs.length; i++) {
                     if (normalizeDateStr(globalAccumulatedLogs[i][1]) === dateStr) return true;
@@ -1050,13 +1148,66 @@
             return false;
         }
 
-        // Action Wrapper with Overwrite Confirm
         function openOverwriteConfirmModal(callback) {
             confirmActionCallback = callback;
             document.getElementById('overwriteConfirmModal').classList.remove('hidden');
         }
         function closeOverwriteConfirmModal() { document.getElementById('overwriteConfirmModal').classList.add('hidden'); }
         
+        // PERBAIKAN: Fungsi simpan seluruh 22 kegiatan secara massal dalam 1 kali pengiriman (Mass Payload)
+        async function saveAllActivitiesForDay() {
+            const dateStr = document.getElementById('reportDate').value;
+            if(await checkDataExists(dateStr)) {
+                openOverwriteConfirmModal(action => executeSaveAllActivities(action));
+            } else {
+                executeSaveAllActivities('append');
+            }
+        }
+
+        async function executeSaveAllActivities(action) {
+            closeOverwriteConfirmModal();
+            const dateStr = document.getElementById('reportDate').value;
+            let items = [];
+            const activeChildren = getVisibleChildren();
+            
+            // Loop semua anak yang aktif, lalu loop seluruh 22 kegiatan mereka. Bungkus ke dalam 1 Array besar.
+            activeChildren.forEach(c => {
+                activities.forEach((_, actIdx) => {
+                    items.push({
+                        childId: c.id, 
+                        childName: c.name, 
+                        childAsal: c.asal, 
+                        activityIndex: actIdx, 
+                        activityText: activities[actIdx], 
+                        status: stateData[actIdx][c.id] || 'tidak_ada'
+                    });
+                });
+            });
+
+            showGlobalProgress("Menyimpan Keseluruhan Hari", `Menyimpan data tanggal ${dateStr}...`);
+            updateGlobalProgress(1, 1, "Mengirim semua kegiatan (Batch) ke Spreadsheet...");
+            
+            try {
+                // Mengirim 1 paket raksasa ke backend untuk menghemat waktu & menghindari duplikasi per baris
+                await fetch(getSavedUrl(), { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify({ 
+                        date: dateStr, 
+                        action: action, 
+                        sheetName: getTargetSheetName(), 
+                        items: items 
+                    }) 
+                });
+                hideGlobalProgress(); 
+                showNotification("Berhasil menyimpan seluruh kegiatan anak!"); 
+                await fetchAllLogsForDashboard();
+            } catch (err) { 
+                hideGlobalProgress(); 
+                showModalInfo("Gagal", err.message); 
+            }
+        }
+
         async function processSaveIndividualRow(actIdx) {
             const dateStr = document.getElementById('reportDate').value;
             if(await checkDataExists(dateStr)) {
@@ -1207,7 +1358,7 @@
             setText('sumAsal', child.asal + " | " + child.agama); setText('sumAngkatan', child.id + " | " + child.umur + " Thn | " + child.angkatan);
             
             let stats = {}; activities.forEach(a => stats[a] = {sesuai:0, arahan:0, terlambat:0, tidak:0, tidak_ada:0});
-            let riwayatPelanggaran = []; // Tampungan untuk log pelanggaran
+            let riwayatPelanggaran = []; 
 
             if (globalAccumulatedLogs.length > 1) {
                 for (let i = 1; i < globalAccumulatedLogs.length; i++) {
@@ -1216,7 +1367,6 @@
                             const st = normalizeStatus(row[5+actIdx]); 
                             if(st) {
                                 stats[act][st]++; 
-                                // Jika status TIDAK, catat ke riwayat
                                 if(st === 'tidak') {
                                     riwayatPelanggaran.push({ tgl: normalizeDateStr(row[1]), kegiatan: act, index: actIdx });
                                 }
@@ -1242,11 +1392,9 @@
                 if (riwayatPelanggaran.length === 0) {
                     pelBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500 font-semibold"><i class="fa-solid fa-face-smile text-emerald-500 mr-1"></i> Anak ini tidak memiliki riwayat pelanggaran kegiatan (Status 'Tidak').</td></tr>`;
                 } else {
-                    // Urutkan dari yang terbaru
                     riwayatPelanggaran.sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
                     riwayatPelanggaran.forEach(p => {
                         let hukuman = "Teguran Lisan & Pembinaan Kedisiplinan";
-                        // Mapping Hukuman Berdasarkan Pillar/Index
                         if (pillarMapping["Waringkas"].indices.includes(p.index)) hukuman = "Latihan Jasmani / Bimbingan Kedisiplinan Ekstra";
                         if (pillarMapping["Berseka"].indices.includes(p.index)) hukuman = "Tugas Tambahan Kebersihan (Piket Asrama/Kamar Mandi)";
                         if (pillarMapping["Motekar"].indices.includes(p.index)) hukuman = "Mengerjakan Resume / Tugas Vokasional Tambahan";
@@ -1276,7 +1424,6 @@
             setText('previewAsal', child.asal); setText('previewJK', child.jk); setText('previewAngkatan', child.angkatan);
             setText('previewStatus', getChildStatuses()[child.id] === 'selesai' ? "Alumni / Selesai" : "Aktif");
             setText('previewJurusan', child.jurusan);
-            // Tabel Raport can be built similarly to summary. Simplification for size:
             document.getElementById('tableWrapperContainer').innerHTML = "<div class='p-4 bg-slate-100 text-center font-bold'>Preview data berhasil dimuat. (Versi cetak PDF siap dilanjutkan)</div>";
         }
         function fetchAccumulatedLogsAndPrint() { window.print(); }
@@ -1289,6 +1436,7 @@
         }
         function openRangeGenerateModal() { document.getElementById('rangeGenerateModal').classList.remove('hidden'); const d = formatDateLocal(new Date()); document.getElementById('genStartDate').value = d; document.getElementById('genEndDate').value = d; }
         function closeRangeGenerateModal() { document.getElementById('rangeGenerateModal').classList.add('hidden'); }
+        
         async function executeDateRangeGeneration() {
             closeRangeGenerateModal();
             let d1 = new Date(document.getElementById('genStartDate').value), d2 = new Date(document.getElementById('genEndDate').value);
@@ -1333,6 +1481,7 @@
             }
             sW.value = weeklyTargetDatesCache.length - 1;
         }
+        
         function renderWeeklyTable() {
             const wIdx = document.getElementById('weeklySelectWeek').value, cId = document.getElementById('weeklySelectChild').value;
             const dates = weeklyTargetDatesCache[wIdx], child = children.find(c=>c.id===cId);
@@ -1352,6 +1501,7 @@
                 </tr>`;
             });
         }
+
         function calcW(i) {
             const s=parseInt(document.getElementById(`w_s_${i}`).value)||0, a=parseInt(document.getElementById(`w_a_${i}`).value)||0;
             const t=parseInt(document.getElementById(`w_t_${i}`).value)||0, x=parseInt(document.getElementById(`w_x_${i}`).value)||0;
@@ -1362,6 +1512,7 @@
                 if(tot !== 7) row.classList.add('bg-rose-100'); else row.classList.remove('bg-rose-100');
             }
         }
+
         function executeWeeklyDistribution() {
             for(let i=0; i<22; i++) {
                 const el = document.getElementById(`w_tot_${i}`);
@@ -1401,6 +1552,7 @@
                 dateEl.value = formatDateLocal(new Date());
             }
             initConfigTab();
+            await loadConfigFromDatabase();
             await fetchChildrenFromAppsScript();
         };
     </script>
