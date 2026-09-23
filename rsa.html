@@ -13,7 +13,7 @@
     <!-- Excel Export/Import -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- Firebase SDKs (Compat Version for simple HTML integration) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -41,9 +41,8 @@
         
         /* CSS Khusus Print / Cetak */
         @media print {
-            body * { visibility: hidden; }
-            #global-print-container, #global-print-container * { visibility: visible; }
-            #global-print-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; }
+            body > *:not(#global-print-container) { display: none !important; }
+            #global-print-container { display: block !important; position: static; visibility: visible; width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; }
             .no-print { display: none !important; }
             .page-break { page-break-before: always; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -52,7 +51,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- LAYER AUTHENTICATION (Ditampilkan jika belum login) -->
+    <!-- LAYER AUTHENTICATION -->
     <div id="auth-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
             <div class="bg-brand-600 p-6 text-center text-white">
@@ -96,7 +95,7 @@
         </div>
     </div>
 
-    <!-- MAIN APP LAYER (Ditampilkan setelah login) -->
+    <!-- MAIN APP LAYER -->
     <div id="main-app" class="hidden flex-col min-h-screen">
         
         <!-- Navbar Toolbar -->
@@ -151,7 +150,7 @@
                         <div class="relative flex items-center gap-2 border-l pl-3 ml-1 border-slate-300">
                             <button onclick="openModal('modal-edit-profile')" class="flex flex-col items-end hover:bg-slate-100 px-2 py-1 rounded transition-colors text-right cursor-pointer" title="Edit Profil Anda">
                                 <span id="display-peksos-name" class="text-sm font-bold text-slate-800 leading-tight">Memuat...</span>
-                                <span class="text-[10px] font-medium text-slate-500">Pekerja Sosial</span>
+                                <span class="text-[10px] font-medium text-slate-500">Pengaturan</span>
                             </button>
                             <button onclick="logout()" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-full transition-colors" title="Keluar">
                                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -195,8 +194,14 @@
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="border-b border-slate-200 overflow-x-auto">
                     <nav class="flex w-max min-w-full -mb-px px-2" aria-label="Tabs" id="tabs-nav">
-                        <button onclick="switchTab('tab-profil')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 font-bold text-sm border-brand-500 text-brand-600" data-target="tab-profil">
+                        <button onclick="switchTab('tab-seleksi')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 font-bold text-sm border-brand-500 text-brand-600" data-target="tab-seleksi">
+                            <i class="fa-solid fa-clipboard-user mr-2"></i>Seleksi Calon Klien
+                        </button>
+                        <button onclick="switchTab('tab-profil')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300" data-target="tab-profil">
                             <i class="fa-solid fa-file-medical mr-2"></i>Profil & Riwayat
+                        </button>
+                        <button onclick="switchTab('tab-barang')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300" data-target="tab-barang">
+                            <i class="fa-solid fa-suitcase mr-2"></i>Barang Bawaan
                         </button>
                         <button onclick="switchTab('tab-asesmen')" class="tab-btn flex-1 min-w-[150px] py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300" data-target="tab-asesmen">
                             <i class="fa-solid fa-clipboard-question mr-2"></i>Asesmen BPSS
@@ -214,8 +219,46 @@
                 </div>
 
                 <div class="p-6">
+                    <!-- TAB SELEKSI (BARU) -->
+                    <div id="tab-seleksi" class="tab-content active">
+                        <div class="bg-white rounded-lg border border-slate-200 mb-8 overflow-hidden shadow-sm p-6">
+                            <h3 class="text-lg font-semibold leading-6 text-slate-900 mb-1 border-b pb-2">
+                                <i class="fa-solid fa-clipboard-user text-brand-600 mr-2"></i> Asesmen Seleksi Calon Klien (Penerimaan)
+                            </h3>
+                            <p class="text-xs text-slate-500 mb-4 mt-2">Penilaian kelayakan awal sebelum anak resmi diterima di lembaga. Melibatkan 3 tenaga profesional (Medis, Psikolog, dan Pekerja Sosial) untuk menentukan syarat masuk.</p>
+                            
+                            <div class="grid grid-cols-1 gap-5">
+                                <div class="bg-emerald-50/50 p-4 rounded-lg border border-emerald-200">
+                                    <label class="block text-sm font-bold text-emerald-900 mb-1"><i class="fa-solid fa-user-doctor text-emerald-600 mr-1"></i> 1. Asesmen Biologis (Oleh Tenaga Kesehatan/Dokter)</label>
+                                    <textarea id="form-seleksi-biologis" rows="3" class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-emerald-300 focus:ring-2 focus:ring-emerald-600 sm:text-sm" placeholder="Catat hasil pemeriksaan fisik awal, riwayat penyakit menular, atau kondisi kedaruratan medis..."></textarea>
+                                </div>
+                                
+                                <div class="bg-purple-50/50 p-4 rounded-lg border border-purple-200">
+                                    <label class="block text-sm font-bold text-purple-900 mb-1"><i class="fa-solid fa-brain text-purple-600 mr-1"></i> 2. Asesmen Psikologis (Oleh Psikolog)</label>
+                                    <textarea id="form-seleksi-psikologis" rows="3" class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-purple-300 focus:ring-2 focus:ring-purple-600 sm:text-sm" placeholder="Catat kondisi mental awal, indikasi gangguan jiwa, dan penanganan trauma psikologis..."></textarea>
+                                </div>
+                                
+                                <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-200">
+                                    <label class="block text-sm font-bold text-blue-900 mb-1"><i class="fa-solid fa-hand-holding-hand text-blue-600 mr-1"></i> 3. Asesmen Sosial (Oleh Pekerja Sosial)</label>
+                                    <textarea id="form-seleksi-sosial" rows="3" class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-blue-300 focus:ring-2 focus:ring-blue-600 sm:text-sm" placeholder="Catat latar belakang masalah sosial keluarga, keterlantaran, serta lingkungan asal..."></textarea>
+                                </div>
+                                
+                                <div class="bg-slate-100 p-5 rounded-lg border border-slate-300 mt-2">
+                                    <label class="block text-base font-bold text-slate-900 mb-2">Keputusan Penerimaan (Kelayakan)</label>
+                                    <select id="form-seleksi-keputusan" onchange="updateStatusFromSeleksi(this.value)" class="block w-full rounded-md border-0 py-2.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-400 focus:ring-2 focus:ring-brand-600 sm:text-sm font-bold">
+                                        <option value="">-- Pilih Keputusan --</option>
+                                        <option value="Calon Klien (Proses Seleksi)">Menunggu Hasil Seleksi (Status: Calon Klien)</option>
+                                        <option value="Kasus Aktif">Memenuhi Syarat - Diterima Masuk (Status: Kasus Aktif)</option>
+                                        <option value="Ditolak (Tidak Memenuhi Syarat)">Tidak Memenuhi Syarat - Ditolak (Status: Ditolak)</option>
+                                    </select>
+                                    <p class="text-[11px] text-slate-500 mt-2">*Mengubah keputusan di sini akan otomatis mengubah Status Kasus anak ini secara sistematis.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- TAB 1: PROFIL & BIODATA -->
-                    <div id="tab-profil" class="tab-content active">
+                    <div id="tab-profil" class="tab-content">
                         <div class="bg-white rounded-lg border border-slate-200 mb-8 overflow-hidden shadow-sm">
                             
                             <!-- Kedatangan & Tingkat Risiko -->
@@ -228,10 +271,6 @@
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Angkatan / Kelompok Masuk</label>
                                     <input type="text" id="form-biodata-angkatan" placeholder="Misal: Angkatan 1 - 2026" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm font-bold">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Barang Bawaan saat Datang</label>
-                                    <textarea id="form-biodata-barangBawaan" rows="1" placeholder="Catat kelengkapan barang, dokumen, obat..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"></textarea>
                                 </div>
                                 <div class="md:col-span-3 border-t border-indigo-100 pt-4 mt-2">
                                     <label class="block text-sm font-bold text-rose-700 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Tingkat Risiko & Kedaruratan Anak (Red Flag)</label>
@@ -471,7 +510,54 @@
                         </div>
                     </div>
 
-                    <!-- TAB 2: ASESMEN BPSS (Standar Peksos) -->
+                    <!-- TAB BARANG BAWAAN (TAB BARU) -->
+                    <div id="tab-barang" class="tab-content">
+                        <div class="bg-white rounded-lg border border-slate-200 mb-8 overflow-hidden shadow-sm p-6">
+                            <div>
+                                <h3 class="text-lg font-semibold leading-6 text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing text-brand-600"></i> Inventaris Barang Kedatangan
+                                </h3>
+                                <p class="mt-1 text-xs text-slate-500 mb-4">Catat semua barang bawaan (pakaian, dokumen, obat) saat anak pertama kali tiba. Tabel ini akan otomatis masuk ke laporan cetak sebagai bukti serah terima.</p>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-3 mb-4 items-end bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div class="flex-1 min-w-[200px]">
+                                    <label class="block text-xs font-medium text-slate-700 mb-1">Nama Barang / Dokumen</label>
+                                    <input type="text" id="input-barang-nama" placeholder="Contoh: Tas Ransel Hitam, Ijazah Asli..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                </div>
+                                <div class="w-24">
+                                    <label class="block text-xs font-medium text-slate-700 mb-1">Jumlah</label>
+                                    <input type="number" id="input-barang-jumlah" value="1" min="1" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                </div>
+                                <div class="flex-1 min-w-[200px]">
+                                    <label class="block text-xs font-medium text-slate-700 mb-1">Keterangan Kondisi</label>
+                                    <input type="text" id="input-barang-ket" placeholder="Misal: Layak pakai, sobek sedikit..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
+                                </div>
+                                <button onclick="addBarang()" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 whitespace-nowrap">
+                                    <i class="fa-solid fa-plus mr-1"></i> Tambah Barang
+                                </button>
+                            </div>
+                            
+                            <div class="overflow-x-auto rounded-md border border-slate-200">
+                                <table class="min-w-full divide-y divide-slate-300">
+                                    <thead class="bg-slate-100">
+                                        <tr>
+                                            <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900 w-12">No</th>
+                                            <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900">Nama Barang</th>
+                                            <th scope="col" class="py-2.5 px-4 text-center text-xs font-bold text-slate-900 w-24">Jumlah</th>
+                                            <th scope="col" class="py-2.5 px-4 text-left text-xs font-bold text-slate-900">Keterangan</th>
+                                            <th scope="col" class="py-2.5 px-4 text-center text-xs font-bold text-slate-900 w-20">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="list-barang" class="divide-y divide-slate-200 bg-white">
+                                        <!-- Terisi oleh JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: ASESMEN BPSS (Standar Peksos) -->
                     <div id="tab-asesmen" class="tab-content">
                         <div class="space-y-8">
                             
@@ -590,7 +676,7 @@
                         </div>
                     </div>
 
-                    <!-- TAB 3: INTERVENSI & LOG -->
+                    <!-- TAB 4: INTERVENSI & LOG -->
                     <div id="tab-intervensi" class="tab-content">
                         <div class="space-y-8">
                             <div class="bg-blue-50/50 p-5 rounded-lg border border-blue-100">
@@ -641,7 +727,7 @@
                         </div>
                     </div>
 
-                    <!-- TAB 4: EVALUASI & TERMINASI -->
+                    <!-- TAB 5: EVALUASI & TERMINASI -->
                     <div id="tab-evaluasi" class="tab-content">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
@@ -665,13 +751,15 @@
                                         <label class="block text-sm font-medium leading-6 text-amber-900">Keputusan Status Akhir Kasus</label>
                                         <select id="form-terminasi-status" class="mt-2 block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-amber-300 focus:ring-2 focus:ring-amber-600 sm:text-sm font-bold">
                                             <option value="">-- Pilih Status / Tahapan Kasus --</option>
+                                            <option value="Calon Klien (Proses Seleksi)">Calon Klien (Proses Seleksi)</option>
                                             <option value="Kasus Aktif">Masih Aktif (On Going)</option>
                                             <option value="Terminasi (Selesai)">Terminasi (Selesai / Lulus dengan baik)</option>
                                             <option value="Referal (Rujukan)">Referal (Dirujuk ke lembaga/panti lain)</option>
                                             <option value="Drop Out">Drop Out (Klien melarikan diri/menolak layanan)</option>
+                                            <option value="Ditolak (Tidak Memenuhi Syarat)">Ditolak (Tidak Memenuhi Syarat)</option>
                                         </select>
                                     </div>
-                                    <div id="form-referal-details" class="bg-amber-100/50 p-3 border border-amber-200 rounded">
+                                    <div id="form-referal-details" class="bg-amber-100/50 p-3 border border-amber-200 rounded hidden">
                                         <p class="text-xs font-bold text-amber-800 mb-2"><i class="fa-solid fa-truck-medical mr-1"></i> Detail Follow-Up Rujukan (Jika Status Referal)</p>
                                         <div class="space-y-2">
                                             <input type="text" id="form-terminasi-lembaga" placeholder="Nama Lembaga Tujuan Rujukan..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-amber-300 focus:ring-2 focus:ring-amber-600 sm:text-sm">
@@ -687,7 +775,7 @@
                         </div>
                     </div>
 
-                    <!-- TAB 5: CETAK LAPORAN -->
+                    <!-- TAB 6: CETAK LAPORAN -->
                     <div id="tab-cetak" class="tab-content">
                         <div class="mb-6 flex flex-col sm:flex-row justify-between items-center bg-blue-50/50 p-4 rounded-lg border border-blue-100 gap-4 no-print shadow-sm">
                             <p class="text-sm text-slate-600"><i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>Laporan resmi keberfungsian sosial klien. Sistem secara otomatis menyusun narasi, tabel log sesi, dan memberikan 2 slot tanda tangan (Penyelia dan Peksos).</p>
@@ -696,7 +784,7 @@
                                     <i class="fa-solid fa-file-word"></i> Unduh Word
                                 </button>
                                 <button onclick="executeFullPrint()" class="flex-1 sm:flex-none bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-md shadow-sm font-bold text-sm flex items-center justify-center gap-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
-                                    <i class="fa-solid fa-print"></i> Cetak PDF
+                                    <i class="fa-solid fa-print"></i> Cetak Laporan PDF
                                 </button>
                             </div>
                         </div>
@@ -713,6 +801,12 @@
                 
                 <!-- Floating Save Action -->
                 <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3 no-print">
+                    <button type="button" onclick="exportActiveTabToWord()" class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fa-solid fa-file-word"></i> Unduh Word Tab Ini
+                    </button>
+                    <button type="button" onclick="printActiveTab()" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fa-solid fa-print"></i> Cetak Halaman / Tab Ini
+                    </button>
                     <button type="button" onclick="saveCurrentClient()" class="inline-flex items-center gap-2 rounded-md bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Sinkronisasi Data (Cloud)
                     </button>
@@ -720,8 +814,6 @@
             </div>
         </main>
     </div> <!-- /MAIN APP -->
-
-    <!-- MODAL LAYERS -->
 
     <!-- Modal: Add New Client -->
     <div id="modal-add-client" class="relative z-50 hidden no-print" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -752,10 +844,6 @@
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Angkatan / Gelombang Masuk</label>
                                         <input type="text" id="new-client-angkatan" placeholder="Misal: Angkatan 1 - 2026" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm font-bold">
                                     </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Barang Bawaan Kedatangan (Titipan)</label>
-                                        <input type="text" id="new-client-barang" placeholder="Tas ransel, KTP asli, obat obatan..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
-                                    </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Tempat Lahir</label>
                                         <input type="text" id="new-client-tempat-lahir" placeholder="Kota lahir..." class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
@@ -773,6 +861,13 @@
                                         <select id="new-client-gender" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm">
                                             <option value="Laki-laki">Laki-laki</option>
                                             <option value="Perempuan">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Pendaftaran Sebagai</label>
+                                        <select id="new-client-status" class="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-brand-600 sm:text-sm font-bold text-brand-700">
+                                            <option value="Calon Klien (Proses Seleksi)">Calon Klien (Masuk Tahap Seleksi)</option>
+                                            <option value="Kasus Aktif">Anak Binaan (Langsung Terima / Kasus Aktif)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -854,10 +949,12 @@
                             <label class="text-sm font-bold text-slate-800 block mb-1">Tetapkan Status Baru (Serentak):</label>
                             <select id="bulk-status-select" class="w-full border-slate-300 rounded-md text-sm shadow-sm focus:ring-amber-500 focus:border-amber-500 font-bold">
                                 <option value="">-- Pilih Status --</option>
+                                <option value="Calon Klien (Proses Seleksi)">Calon Klien (Proses Seleksi)</option>
                                 <option value="Kasus Aktif">Masih Aktif</option>
                                 <option value="Terminasi (Selesai)">Terminasi (Selesai/Lulus)</option>
                                 <option value="Referal (Rujukan)">Referal (Dirujuk)</option>
                                 <option value="Drop Out">Drop Out (Kabur/Ditolak)</option>
+                                <option value="Ditolak (Tidak Memenuhi Syarat)">Ditolak (Tidak Memenuhi Syarat)</option>
                             </select>
                         </div>
                         <div>
@@ -935,7 +1032,7 @@
                                     <i class="fa-solid fa-file-excel"></i> Impor Anak Baru via Excel
                                 </button>
                                 <button onclick="downloadExcelTemplate()" class="w-full inline-flex justify-center items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-bold text-emerald-700 shadow-sm border border-emerald-200 hover:bg-emerald-50 transition-colors">
-                                    <i class="fa-solid fa-table"></i> Unduh Template Excel V.2
+                                    <i class="fa-solid fa-table"></i> Unduh Template Excel V.3
                                 </button>
                             </div>
                         </div>
@@ -992,7 +1089,7 @@
         </div>
     </div>
 
-    <!-- Modal: Firebase Config (Untuk menempelkan kredensial) -->
+    <!-- Modal: Firebase Config -->
     <div id="modal-firebase-config" class="relative z-50 hidden no-print" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"></div>
         <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -1028,11 +1125,10 @@
 
     <script>
         /* === KONFIGURASI GLOBAL & STATE === */
-        const ADMIN_EMAIL = '199408162020121011@jabarprov.go.id'; // NIP Admin
-        const POOL_EMAIL = 'pool'; // Wadah data kosong
+        const ADMIN_EMAIL = '199408162020121011@jabarprov.go.id'; 
+        const POOL_EMAIL = 'Belum memiliki manajer kasus (Pool Data)';
         const KOP_SURAT_URL = "https://cdn.phototourl.com/free/2026-09-10-3dcfc7e4-e08b-46d9-bb27-9ef7dc12a2c7.png";
         
-        // Kredensial Firebase Bawaan (Default)
         const DEFAULT_FIREBASE_CONFIG = {
             apiKey: "AIzaSyDqdr3CGqm7I3RA4m7Rk5Jpf_2ouxw3iEQ",
             authDomain: "semarakppsgbr.firebaseapp.com",
@@ -1045,13 +1141,12 @@
 
         let appState = {
             currentClientId: null,
-            clients: {} // Data lokal dari Firestore
+            clients: {} // Data dari Firestore disaring di memori
         };
         let currentUser = null;
-        let db = null; // Firestore instance
+        let db = null; 
         let currentRegionFilter = '';
         let currentAngkatanFilter = '';
-        let registeredPeksosList = []; // Untuk Admin Panel
 
         const jawaBaratRegions = [
             "Kabupaten Bandung", "Kabupaten Bandung Barat", "Kabupaten Bekasi", "Kabupaten Bogor",
@@ -1063,9 +1158,10 @@
             "Kota Depok", "Kota Sukabumi", "Kota Tasikmalaya"
         ];
 
-        // Definisi ID Form dan Field (Sinkron dengan HTML)
+        // Definisi ID Form dan Field tanpa barang bawaan (karena dipindah ke array dinamis)
         const formInputIds = [
-            'form-biodata-angkatan', 'form-biodata-barangBawaan',
+            'form-seleksi-biologis', 'form-seleksi-psikologis', 'form-seleksi-sosial', 'form-seleksi-keputusan',
+            'form-biodata-angkatan',
             'form-biodata-kabupatenKota', 'form-biodata-tempatLahir', 'form-biodata-tanggalLahir', 'form-biodata-agama',
             'form-biodata-pendidikan', 'form-biodata-alamat', 'form-biodata-namaWali', 'form-biodata-kontakWali',
             'form-biodata-statusIdentitas', 'form-biodata-noIdentitas', 'form-biodata-pekerjaanOrangTua', 'form-biodata-penghasilanBulanan',
@@ -1085,7 +1181,8 @@
         ];
 
         const formKeys = [
-            'angkatan', 'barangBawaan',
+            'seleksiBiologis', 'seleksiPsikologis', 'seleksiSosial', 'seleksiKeputusan',
+            'angkatan',
             'kabupatenKota', 'tempatLahir', 'tanggalLahir', 'agama',
             'pendidikan', 'alamat', 'namaWali', 'kontakWali',
             'statusIdentitas', 'noIdentitas', 'pekerjaanOrangTua', 'penghasilanBulanan',
@@ -1121,7 +1218,6 @@
 
             initFirebaseSystem();
 
-            // Auto-calculate age listeners
             document.getElementById('form-biodata-tanggalLahir').addEventListener('change', function() {
                 document.getElementById('form-biodata-umur').value = calculateAge(this.value);
             });
@@ -1129,10 +1225,11 @@
                 document.getElementById('new-client-umur').value = calculateAge(this.value);
             });
 
-            // Terminasi Logic (Toggle Rujukan)
             document.getElementById('form-terminasi-status').addEventListener('change', function() {
                 if(appState.currentClientId && appState.clients[appState.currentClientId]) {
                     appState.clients[appState.currentClientId].status = this.value || 'Kasus Aktif';
+                    const s = document.getElementById('form-seleksi-keputusan');
+                    if (s) s.value = this.value;
                     renderProfileCard();
                 }
                 const detailRef = document.getElementById('form-referal-details');
@@ -1143,7 +1240,7 @@
 
         function initFirebaseSystem() {
             const rawConfig = localStorage.getItem('firebase_config');
-            let configObj = DEFAULT_FIREBASE_CONFIG; // Otomatis memakai default jika tidak ada setting manual
+            let configObj = DEFAULT_FIREBASE_CONFIG; 
             
             if (rawConfig) {
                 try {
@@ -1232,7 +1329,7 @@
                 firebase.auth().createUserWithEmailAndPassword(email, pass)
                     .then(cred => {
                         return db.collection('users').doc(email).set({
-                            email: email, nama: name, nip: '', namaSupervisor: '', nipSupervisor: '', jabatanSupervisor: ''
+                            email: email, nama: name, nip: '', jabatan: '', namaSupervisor: '', nipSupervisor: '', jabatanSupervisor: ''
                         });
                     })
                     .catch(err => {
@@ -1287,6 +1384,10 @@
                     document.getElementById('edit-profile-spv-name').value = data.namaSupervisor || "";
                     document.getElementById('edit-profile-spv-nip').value = data.nipSupervisor || "";
                     document.getElementById('edit-profile-spv-title').value = data.jabatanSupervisor || "";
+                } else {
+                    await db.collection('users').doc(currentUser.email).set({
+                        email: currentUser.email, nama: currentUser.email.split('@')[0], nip: '', jabatan: '', namaSupervisor: '', nipSupervisor: '', jabatanSupervisor: ''
+                    });
                 }
             } catch(e) { console.error("Gagal tarik profil", e); }
         }
@@ -1314,8 +1415,6 @@
             if (!currentUser || !db) return;
             try {
                 showToast("Mensinkronisasi data dari Cloud...", "success");
-                
-                // Mencegah error Query Firebase dengan menarik semua data lalu memfilternya di memori
                 const snapshot = await db.collection('clients').get();
                 
                 appState.clients = {};
@@ -1323,7 +1422,6 @@
                 
                 snapshot.forEach(doc => { 
                     const data = doc.data();
-                    // Jika Admin, tampilkan semua. Jika bukan, pastikan email Peksos cocok.
                     if (isAdmin || data.peksosEmail === currentUser.email) {
                         appState.clients[doc.id] = data; 
                     }
@@ -1436,7 +1534,7 @@
         function refreshUI() {
             const c = appState.clients[appState.currentClientId];
             if (!c) return;
-            renderProfileCard(); renderPenyakit(); renderPelayanan(); renderIntervensi();
+            renderProfileCard(); renderPenyakit(); renderPelayanan(); renderIntervensi(); renderBarang();
             populateFormFields();
             
             const stat = document.getElementById('form-terminasi-status').value;
@@ -1457,6 +1555,7 @@
             document.getElementById('profile-avatar').src = `https://placehold.co/150x150/e2e8f0/475569?text=?`;
             formInputIds.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
             ['penyakit', 'pelayanan', 'intervensi'].forEach(x => document.getElementById(`list-${x}`).innerHTML = `<li class="p-4 text-center text-sm text-slate-500 italic" id="empty-${x}">Kosong.</li>`);
+            document.getElementById('list-barang').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada barang dicatat.</td></tr>`;
             document.getElementById('print-content').innerHTML = '<p class="text-center text-slate-500 font-sans italic py-10">Kosong.</p>';
         }
 
@@ -1481,6 +1580,8 @@
             if(stTxt.includes("Terminasi")) stEl.className = "inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20";
             else if (stTxt.includes("Referal")) stEl.className = "inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700 ring-1 ring-inset ring-amber-600/20";
             else if (stTxt.includes("Drop")) stEl.className = "inline-flex items-center rounded-full bg-rose-50 px-3 py-1 text-sm font-bold text-rose-700 ring-1 ring-inset ring-rose-600/20";
+            else if (stTxt.includes("Calon Klien")) stEl.className = "inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 ring-1 ring-inset ring-slate-500/20 shadow-sm";
+            else if (stTxt.includes("Ditolak")) stEl.className = "inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-sm font-bold text-rose-800 ring-1 ring-inset ring-rose-600/20 shadow-sm";
             else stEl.className = "inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10";
             document.getElementById('profile-avatar').src = `https://placehold.co/150x150/e2e8f0/475569?text=${client.nama.charAt(0).toUpperCase()}`;
         }
@@ -1495,6 +1596,17 @@
             c.gender = document.getElementById('form-biodata-gender').value || c.gender;
             const sv = document.getElementById('form-terminasi-status').value;
             if(sv) c.status = sv;
+            const sk = document.getElementById('form-seleksi-keputusan').value;
+            if(sk) c.status = sk;
+        }
+
+        function updateStatusFromSeleksi(val) {
+            if(appState.currentClientId && appState.clients[appState.currentClientId]) {
+                if(val) appState.clients[appState.currentClientId].status = val;
+                const ts = document.getElementById('form-terminasi-status');
+                if (ts) ts.value = val;
+                renderProfileCard();
+            }
         }
 
         function populateFormFields() {
@@ -1505,6 +1617,11 @@
             document.getElementById('form-biodata-gender').value = c.gender || "Laki-laki";
             const fd = c.formData || {};
             formInputIds.forEach((id, i) => { const el = document.getElementById(id); if (el) el.value = fd[formKeys[i]] || ""; });
+            
+            const stDropdown = document.getElementById('form-terminasi-status');
+            if(stDropdown) stDropdown.value = c.status || "";
+            const selDropdown = document.getElementById('form-seleksi-keputusan');
+            if(selDropdown) selDropdown.value = c.status || "";
         }
 
         function switchTab(tId) {
@@ -1533,18 +1650,19 @@
             const kab = document.getElementById('new-client-kabupaten').value;
             const ang = document.getElementById('new-client-angkatan').value.trim();
             const tgl = document.getElementById('new-client-tanggal-lahir').value;
+            const statAwal = document.getElementById('new-client-status').value;
             
             if (!nama || !kab) return showToast("Nama dan Kabupaten wajib diisi!", "error");
             
             const newId = generateId();
             const client = {
                 id: newId, nama: nama, umur: calculateAge(tgl), gender: document.getElementById('new-client-gender').value,
-                status: "Kasus Aktif", peksosEmail: currentUser.email, // Assign ke Peksos yg bikin
-                riwayatPenyakit: [], layananDiberikan: [], pelaksanaanIntervensi: [],
+                status: statAwal || "Calon Klien (Proses Seleksi)", peksosEmail: currentUser.email, 
+                riwayatPenyakit: [], layananDiberikan: [], pelaksanaanIntervensi: [], barangBawaan: [],
                 formData: {
-                    kabupatenKota: kab, angkatan: ang, barangBawaan: document.getElementById('new-client-barang').value.trim(),
+                    kabupatenKota: kab, angkatan: ang,
                     tempatLahir: document.getElementById('new-client-tempat-lahir').value.trim(), tanggalLahir: tgl,
-                    tingkatRisiko: "Rendah"
+                    tingkatRisiko: "Rendah", seleksiKeputusan: statAwal
                 }
             };
             
@@ -1560,8 +1678,36 @@
                 populateAngkatanDropdown(); renderClientSelect(); refreshUI();
                 showToast("Berhasil menambah & menyimpan anak baru.");
                 
-                ['nama','angkatan','barang','tempat-lahir','tanggal-lahir','umur'].forEach(i => document.getElementById(`new-client-${i}`).value='');
+                ['nama','angkatan','tempat-lahir','tanggal-lahir','umur'].forEach(i => document.getElementById(`new-client-${i}`).value='');
             } catch(e) { showToast(e.message, "error"); }
+        }
+
+        // Tabel Array Bawaan
+        function addBarang() {
+            const nama = document.getElementById('input-barang-nama').value.trim();
+            const jumlah = document.getElementById('input-barang-jumlah').value;
+            const ket = document.getElementById('input-barang-ket').value.trim();
+            if(nama && jumlah && appState.currentClientId) {
+                const c = appState.clients[appState.currentClientId]; 
+                if(!c.barangBawaan) c.barangBawaan=[];
+                c.barangBawaan.push({nama, jumlah, keterangan: ket}); 
+                document.getElementById('input-barang-nama').value=''; 
+                document.getElementById('input-barang-jumlah').value='1'; 
+                document.getElementById('input-barang-ket').value=''; 
+                renderBarang();
+            }
+        }
+        function removeBarang(i) { appState.clients[appState.currentClientId].barangBawaan.splice(i,1); renderBarang(); }
+        function renderBarang() {
+            const c = appState.clients[appState.currentClientId]; const l = document.getElementById('list-barang');
+            l.innerHTML = '';
+            if(!c || !c.barangBawaan || c.barangBawaan.length===0) { 
+                l.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-500 italic">Belum ada barang dicatat.</td></tr>`;
+            } else {
+                c.barangBawaan.forEach((b,i) => {
+                    l.innerHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="py-2.5 px-4 text-sm text-slate-500">${i+1}</td><td class="py-2.5 px-4 text-sm font-semibold text-slate-800">${b.nama}</td><td class="py-2.5 px-4 text-sm text-center text-slate-700">${b.jumlah}</td><td class="py-2.5 px-4 text-sm text-slate-600">${b.keterangan || '-'}</td><td class="py-2.5 px-4 text-center"><button onclick="removeBarang(${i})" class="text-slate-400 hover:text-rose-600 transition-colors" title="Hapus"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+                });
+            }
         }
 
         function addPenyakit() {
@@ -1675,7 +1821,6 @@
 
         async function openAdminPanel() {
             try {
-                // Tarik Users
                 const uSnap = await db.collection('users').get();
                 const uSel = document.getElementById('admin-target-peksos');
                 uSel.innerHTML = `<option value="${POOL_EMAIL}">-- POOL DATA (Belum ada Peksos) --</option>`;
@@ -1684,7 +1829,6 @@
                     if(ud.email !== ADMIN_EMAIL) uSel.innerHTML += `<option value="${ud.email}">${ud.nama || ud.email} (${ud.email})</option>`;
                 });
                 
-                // Tarik Semua Clients untuk Admin (karena state lokal mungkin blm semua jika paginated, tp Admin fetch all di awal)
                 const l = document.getElementById('admin-client-checklist'); l.innerHTML = '';
                 Object.values(appState.clients).forEach(c => {
                     const p = (c.peksosEmail === POOL_EMAIL) ? 'POOL' : c.peksosEmail;
@@ -1715,10 +1859,10 @@
             let penH = c.riwayatPenyakit?.length > 0 ? c.riwayatPenyakit.map(p => `<li>- ${p}</li>`).join('') : '-';
             let layH = c.layananDiberikan?.length > 0 ? c.layananDiberikan.map(l => `<tr><td class="border border-black px-2 py-1">${l.tanggal}</td><td class="border border-black px-2 py-1">${l.jenis}</td><td class="border border-black px-2 py-1">${l.deskripsi}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
             let intH = c.pelaksanaanIntervensi?.length > 0 ? c.pelaksanaanIntervensi.map(i => `<tr><td class="border border-black px-2 py-1">${i.tanggal}</td><td class="border border-black px-2 py-1">${i.deskripsi}</td><td class="border border-black px-2 py-1">${i.indikator}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
+            let brgH = c.barangBawaan?.length > 0 ? c.barangBawaan.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.nama}</td><td class="border border-black px-2 py-1 text-center">${b.jumlah}</td><td class="border border-black px-2 py-1">${b.keterangan||'-'}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada barang bawaan</td></tr>';
             
             let riskHTML = (fd.tingkatRisiko === 'Kritis' || fd.tingkatRisiko === 'Tinggi') ? `<div class="border-2 border-black p-2 font-bold text-center uppercase tracking-widest mb-4">Peringatan: Kedaruratan ${fd.tingkatRisiko}</div>` : '';
 
-            // Tarik Profile Peksos aktif untuk Cetakan
             let peksosName = document.getElementById('edit-profile-name').value || document.getElementById('display-peksos-name').textContent;
             let peksosNip = document.getElementById('edit-profile-nip').value || '...................';
             let peksosJabatan = document.getElementById('edit-profile-jabatan').value || 'Pekerja Sosial';
@@ -1726,10 +1870,25 @@
             let spvNip = document.getElementById('edit-profile-spv-nip').value || '...................';
             let spvTitle = document.getElementById('edit-profile-spv-title').value || 'Penyelia / Supervisor';
 
+            let seleksiHTML = '';
+            if (fd.seleksiBiologis || fd.seleksiPsikologis || fd.seleksiSosial) {
+                seleksiHTML = `
+                <div class="mb-5 page-break">
+                    <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">Hasil Seleksi Calon Klien (Penerimaan)</h3>
+                    <table class="w-full text-sm border-collapse border border-black mt-2">
+                        <tr><td class="border border-black p-1.5 font-bold bg-gray-100 w-[35%]">Asesmen Biologis (Kesehatan)</td><td class="border border-black p-1.5 text-justify">${fd.seleksiBiologis||'-'}</td></tr>
+                        <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Asesmen Psikologis (Psikolog)</td><td class="border border-black p-1.5 text-justify">${fd.seleksiPsikologis||'-'}</td></tr>
+                        <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Asesmen Sosial (Peksos)</td><td class="border border-black p-1.5 text-justify">${fd.seleksiSosial||'-'}</td></tr>
+                        <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Keputusan Akhir Seleksi</td><td class="border border-black p-1.5 font-bold uppercase">${fd.seleksiKeputusan || c.status || '-'}</td></tr>
+                    </table>
+                </div>
+                `;
+            }
+
             const html = `
                 <div class="mb-4"><img src="${KOP_SURAT_URL}" class="w-full max-h-32 object-contain mx-auto" style="display:block; margin: 0 auto;"></div>
                 <div class="text-center mb-6 border-b-2 border-black pb-4">
-                    <h2 class="text-xl font-bold uppercase tracking-wider text-black m-0 p-0">Laporan Asesmen Biopsikososial Anak</h2>
+                    <h2 class="text-xl font-bold uppercase tracking-wider text-black m-0 p-0">Laporan Sosial Anak Binaan UPTD PPSGBR</h2>
                 </div>
                 ${riskHTML}
                 <div class="mb-5">
@@ -1743,15 +1902,23 @@
                             <tr><td class="py-1 font-bold">Pendidikan</td><td class="py-1">: ${fd.pendidikan||'-'} (Putus Sek: ${fd.putusSekolah||'-'})</td></tr>
                             <tr><td class="py-1 font-bold">Nama Wali / Pekerjaan</td><td class="py-1">: ${fd.namaWali||'-'} / ${fd.pekerjaanOrangTua||'-'}</td></tr>
                             <tr><td class="py-1 font-bold align-top">Alamat Lengkap</td><td class="py-1 align-top">: ${fd.alamat||'-'} - ${fd.kabupatenKota||'-'}</td></tr>
-                            <tr><td class="py-1 font-bold">Barang Bawaan Datang</td><td class="py-1">: ${fd.barangBawaan||'-'}</td></tr>
                         </tbody>
                     </table>
+                    
+                    <p class="font-bold text-sm mt-3 mb-1">Inventaris Barang Kedatangan</p>
+                    <table class="w-full text-sm border-collapse border border-black mb-3">
+                        <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1 w-12 text-center">No</th><th class="border border-black px-2 py-1 text-left">Nama Barang</th><th class="border border-black px-2 py-1 w-20 text-center">Jumlah</th><th class="border border-black px-2 py-1 text-left">Keterangan</th></tr></thead>
+                        <tbody>${brgH}</tbody>
+                    </table>
+
                     <p class="font-bold text-sm mt-3 mb-1">Kondisi Sosial Ekonomi Keluarga & Sanitasi</p>
                     <table class="w-full text-sm border-collapse border border-black mb-2">
                         <tr><td class="border border-black p-1.5 font-bold bg-gray-100 w-1/4">Penghasilan/Desil</td><td class="border border-black p-1.5 w-1/4">${fd.penghasilanBulanan||'-'} (${fd.desil||'-'})</td><td class="border border-black p-1.5 font-bold bg-gray-100 w-1/4">Bansos Diterima</td><td class="border border-black p-1.5 w-1/4">${fd.bantuan||'-'}</td></tr>
                         <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Status Tempat Tinggal</td><td class="border border-black p-1.5">${fd.ekonomiTempatTinggal||'-'} (Jalanan: ${fd.tinggalJalan||'-'})</td><td class="border border-black p-1.5 font-bold bg-gray-100">Toilet & Listrik</td><td class="border border-black p-1.5">${fd.ekonomiToilet||'-'} / ${fd.ekonomiListrik||'-'}</td></tr>
                     </table>
                 </div>
+                
+                ${seleksiHTML}
 
                 <div class="mb-5 page-break">
                     <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">II. Asesmen Masalah Tripartit</h3>
@@ -1834,9 +2001,19 @@
             saveFormDataToState(); generateReportPreview();
             const cont = document.getElementById('global-print-container');
             cont.innerHTML = `<div class="p-8">${document.getElementById('print-content').innerHTML}</div>`;
-            window.print(); 
-            cont.innerHTML = '';
+            cont.classList.remove('hidden');
+            // Memberi waktu agar browser dapat merender tabel dan gambar sebelum Dialog Print terbuka
+            setTimeout(() => {
+                window.print();
+            }, 500); 
         };
+
+        // Otomatis Sembunyikan container cetak setelah dialog print ditutup
+        window.addEventListener('afterprint', () => {
+            const cont = document.getElementById('global-print-container');
+            cont.innerHTML = '';
+            cont.classList.add('hidden');
+        });
 
         window.exportToWord = function() {
             saveFormDataToState(); generateReportPreview();
@@ -1844,6 +2021,248 @@
             const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Laporan BPSS</title><style>body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; } table { width: 100%; border-collapse: collapse; margin-bottom: 12pt; } td, th { padding: 4pt; vertical-align: top; } table.border-collapse td, table.border-collapse th { border: 1pt solid black; } h2, h3 { font-weight: bold; } .text-center { text-align: center; } .font-bold { font-weight: bold; } .bg-gray-100 { background-color: #f3f4f6; } img { max-width: 100%; height: auto; display: block; margin: 0 auto; text-align: center; } .page-break { page-break-before: always; }</style></head><body>${document.getElementById('print-content').innerHTML}</body></html>`;
             const blob = new Blob(['\ufeff', html], { type: 'application/msword' }); 
             const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Laporan_BPSS_${nm.replace(/\s+/g, '_')}.doc`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        };
+
+        // FUNGSI HELPER UNTUK MENDAPATKAN KONTEN TAB AKTIF
+        function getActiveTabDocumentContent(activeTab, c, fd) {
+            let docTitle = "";
+            let contentHTML = "";
+
+            let penH = c.riwayatPenyakit?.length > 0 ? c.riwayatPenyakit.map(p => `<li>- ${p}</li>`).join('') : '-';
+            let layH = c.layananDiberikan?.length > 0 ? c.layananDiberikan.map(l => `<tr><td class="border border-black px-2 py-1">${l.tanggal}</td><td class="border border-black px-2 py-1">${l.jenis}</td><td class="border border-black px-2 py-1">${l.deskripsi}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
+            
+            // Profil HTML yang bisa digunakan ulang (reusable)
+            let profilHTML = `
+                <div class="mb-5">
+                    <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">I. Identitas & Demografi Klien</h3>
+                    <table class="w-full text-sm mt-1 mb-4">
+                        <tbody>
+                            <tr><td class="py-1 w-[35%] font-bold">Nomor Registrasi (ID) / Angkatan</td><td class="py-1">: ${c.id} / ${fd.angkatan||'-'}</td></tr>
+                            <tr><td class="py-1 font-bold">Nama Lengkap</td><td class="py-1">: ${c.nama||'-'} (${c.gender||'-'}, ${c.umur||'-'} Thn)</td></tr>
+                            <tr><td class="py-1 font-bold">NIK / Identitas</td><td class="py-1">: ${fd.noIdentitas||'-'} (${fd.statusIdentitas||'-'})</td></tr>
+                            <tr><td class="py-1 font-bold">Tempat, Tgl Lahir / Agama</td><td class="py-1">: ${fd.tempatLahir||'-'}, ${fd.tanggalLahir||'-'} / ${fd.agama||'-'}</td></tr>
+                            <tr><td class="py-1 font-bold">Pendidikan</td><td class="py-1">: ${fd.pendidikan||'-'} (Putus Sek: ${fd.putusSekolah||'-'})</td></tr>
+                            <tr><td class="py-1 font-bold">Nama Wali / Pekerjaan</td><td class="py-1">: ${fd.namaWali||'-'} / ${fd.pekerjaanOrangTua||'-'}</td></tr>
+                            <tr><td class="py-1 font-bold align-top">Alamat Lengkap</td><td class="py-1 align-top">: ${fd.alamat||'-'} - ${fd.kabupatenKota||'-'}</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">II. Kondisi Sosial Ekonomi, Fisik & Riwayat</h3>
+                    <table class="w-full text-sm border-collapse border border-black mb-4 mt-2">
+                        <tr><td class="border border-black p-1.5 font-bold bg-gray-100 w-1/4">Penghasilan/Desil</td><td class="border border-black p-1.5 w-1/4">${fd.penghasilanBulanan||'-'} (${fd.desil||'-'})</td><td class="border border-black p-1.5 font-bold bg-gray-100 w-1/4">Bansos Diterima</td><td class="border border-black p-1.5 w-1/4">${fd.bantuan||'-'}</td></tr>
+                        <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Status Tempat Tinggal</td><td class="border border-black p-1.5">${fd.ekonomiTempatTinggal||'-'} (Jalanan: ${fd.tinggalJalan||'-'})</td><td class="border border-black p-1.5 font-bold bg-gray-100">Toilet & Listrik</td><td class="border border-black p-1.5">${fd.ekonomiToilet||'-'} / ${fd.ekonomiListrik||'-'}</td></tr>
+                    </table>
+                    <p class="text-sm font-bold text-black mb-1">Riwayat Penyakit Khusus / Medis:</p>
+                    <ul class="text-sm mb-4 list-none pl-2">${penH}</ul>
+                    <p class="text-sm font-bold text-black mb-1">Histori Bantuan / Layanan Sebelumnya:</p>
+                    <table class="w-full text-sm border-collapse border border-black mb-4">
+                        <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1 text-left w-1/5">Tgl</th><th class="border border-black px-2 py-1 text-left w-1/4">Jenis</th><th class="border border-black px-2 py-1 text-left">Deskripsi</th></tr></thead>
+                        <tbody>${layH}</tbody>
+                    </table>
+                </div>
+            `;
+
+            if (activeTab === 'tab-seleksi') {
+                docTitle = "Asesmen Seleksi Calon Klien (Penerimaan)";
+                contentHTML = `
+                    <div class="mb-5">
+                        <table class="w-full text-sm border-collapse border border-black mt-2">
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100 w-1/3">Asesmen Biologis (Kesehatan)</td><td class="border border-black p-1.5 text-justify">${fd.seleksiBiologis||'-'}</td></tr>
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Asesmen Psikologis (Psikolog)</td><td class="border border-black p-1.5 text-justify">${fd.seleksiPsikologis||'-'}</td></tr>
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Asesmen Sosial (Peksos)</td><td class="border border-black p-1.5 text-justify">${fd.seleksiSosial||'-'}</td></tr>
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Keputusan Akhir Seleksi</td><td class="border border-black p-1.5 font-bold uppercase">${fd.seleksiKeputusan || c.status || '-'}</td></tr>
+                        </table>
+                        <p class="text-xs text-black italic mt-2">*Hasil asesmen dari tiga profesi yang menentukan apakah anak memenuhi syarat untuk mendapatkan layanan di dalam lembaga.</p>
+                    </div>
+                `;
+            } else if (activeTab === 'tab-profil') {
+                docTitle = "Formulir Profil, Biodata & Riwayat Klien";
+                contentHTML = profilHTML;
+            } else if (activeTab === 'tab-barang') {
+                docTitle = "Formulir Inventaris Barang Bawaan Kedatangan";
+                let brgH = c.barangBawaan?.length > 0 ? c.barangBawaan.map((b,i) => `<tr><td class="border border-black px-2 py-1 text-center">${i+1}</td><td class="border border-black px-2 py-1">${b.nama}</td><td class="border border-black px-2 py-1 text-center">${b.jumlah}</td><td class="border border-black px-2 py-1">${b.keterangan||'-'}</td></tr>`).join('') : '<tr><td colspan="4" class="border border-black px-2 py-1 text-center text-xs italic">Tidak ada barang bawaan</td></tr>';
+                contentHTML = `
+                    <div class="mb-5">
+                        <table class="w-full text-sm border-collapse border border-black mb-4 mt-2">
+                            <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1.5 w-12 text-center">No</th><th class="border border-black px-2 py-1.5 text-left">Nama Barang / Dokumen</th><th class="border border-black px-2 py-1.5 w-24 text-center">Jumlah</th><th class="border border-black px-2 py-1.5 text-left">Keterangan Kondisi</th></tr></thead>
+                            <tbody>${brgH}</tbody>
+                        </table>
+                        <p class="text-xs text-black italic">*Tabel inventaris ini menjadi bukti serah terima barang sah milik klien selama berada di dalam lembaga.</p>
+                    </div>
+                `;
+            } else if (activeTab === 'tab-asesmen') {
+                docTitle = "Hasil Asesmen Anak Binaan UPTD PPSGBR";
+                
+                // Menambahkan Page-Break setelah Profil, agar Asesmen berada di halaman baru
+                let asesmenHTML = `
+                    <div class="mb-5 page-break">
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">III. Asesmen Masalah Tripartit</h3>
+                        <div class="text-sm space-y-2 mt-2 mb-4">
+                            <div><p class="font-bold text-black">A. Deskripsi Kronologi:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenKronologi||'-'}</p></div>
+                            <div><p class="font-bold text-black">B. Faktor Individu (Internal):</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenFaktorIndividu||'-'}</p></div>
+                            <div><p class="font-bold text-black">C. Faktor Situasi Lingkungan Masalah:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenFaktorSituasi||'-'}</p></div>
+                            <div><p class="font-bold text-black">D. Faktor Ketersediaan Dukungan:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenFaktorDukungan||'-'}</p></div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">IV. Dimensi BPSS & Kapasitas Coping</h3>
+                        <table class="w-full text-sm border-collapse border border-black mb-3 mt-2">
+                            <tr><td class="border border-black p-1.5 font-bold w-1/4 bg-gray-100">Biologis (Fisik)</td><td class="border border-black p-1.5 text-justify">${fd.asesmenBiologis||'-'}</td></tr>
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Psikologis (Mental)</td><td class="border border-black p-1.5 text-justify">${fd.asesmenPsikologis||'-'}</td></tr>
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Sosial</td><td class="border border-black p-1.5 text-justify">${fd.asesmenSosial||'-'}</td></tr>
+                            <tr><td class="border border-black p-1.5 font-bold bg-gray-100">Spiritual</td><td class="border border-black p-1.5 text-justify">${fd.asesmenSpiritual||'-'}</td></tr>
+                        </table>
+                        <table class="w-full text-sm border-collapse border border-black mb-3">
+                            <tr><td class="border border-black p-1.5 font-bold text-center w-1/2 bg-gray-100">Faktor Risiko (Kerentanan)</td><td class="border border-black p-1.5 font-bold text-center w-1/2 bg-gray-100">Faktor Pelindung (Protektif)</td></tr>
+                            <tr><td class="border border-black p-1.5 align-top text-justify">${fd.asesmenFaktorRisiko||'-'}</td><td class="border border-black p-1.5 align-top text-justify">${fd.asesmenFaktorPelindung||'-'}</td></tr>
+                        </table>
+                        <div class="text-sm space-y-2 mb-4">
+                            <div><p class="font-bold text-black">Deskripsi Genogram Keluarga (Silsilah):</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenGenogram||'-'}</p></div>
+                            <div><p class="font-bold text-black">Deskripsi Ekomap (Jejaring Sosial):</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenEkomap||'-'}</p></div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">V. Keberfungsian Sosial & Sistem Sumber</h3>
+                        <div class="text-sm space-y-2 mt-2">
+                            <div><p class="font-bold text-black">Pemenuhan Kebutuhan Dasar:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenKebutuhanDasar||'-'}</p></div>
+                            <div><p class="font-bold text-black">Kemampuan Pemecahan Masalah:</p><p class="text-black text-justify border border-gray-300 p-1.5">${fd.asesmenPemecahanMasalah||'-'}</p></div>
+                            <div><p class="font-bold text-black">Peran Sosial & Motivasi Berubah:</p><p class="text-black text-justify border border-gray-300 p-1.5"><strong>Peran:</strong> ${fd.asesmenPeranSosial||'-'}<br><strong>Motivasi:</strong> ${fd.asesmenMotivasi||'-'}</p></div>
+                        </div>
+                    </div>
+                `;
+                // PENGGABUNGAN PROFIL DAN ASESMEN
+                contentHTML = profilHTML + asesmenHTML;
+
+            } else if (activeTab === 'tab-intervensi') {
+                docTitle = "Pelaksanaan Intervensi Anak Binaan";
+                let intH = c.pelaksanaanIntervensi?.length > 0 ? c.pelaksanaanIntervensi.map(i => `<tr><td class="border border-black px-2 py-1">${i.tanggal}</td><td class="border border-black px-2 py-1">${i.deskripsi}</td><td class="border border-black px-2 py-1">${i.indikator}</td></tr>`).join('') : '<tr><td colspan="3" class="border border-black px-2 text-center text-xs italic">Kosong</td></tr>';
+                contentHTML = `
+                    <div class="mb-5">
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">I. Perencanaan Intervensi</h3>
+                        <div class="text-sm space-y-3 mt-2 mb-6">
+                            <div><p class="font-bold text-black">Tujuan Akhir Intervensi (Goals):</p><p class="text-black text-justify border border-gray-300 p-2 min-h-[60px]">${fd.intervensiTujuan||'-'}</p></div>
+                            <div><p class="font-bold text-black">Strategi & Pendekatan Pekerjaan Sosial:</p><p class="text-black text-justify border border-gray-300 p-2 min-h-[60px]">${fd.intervensiStrategi||'-'}</p></div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">II. Log Sesi Pelaksanaan Intervensi</h3>
+                        <p class="text-xs text-slate-500 mb-2 italic">Jejak Audit Pelayanan Sosial (Catatan Pertemuan, Bimbingan, dan Terapi)</p>
+                        <table class="w-full text-sm border-collapse border border-black mb-3">
+                            <thead><tr class="bg-gray-100"><th class="border border-black px-2 py-1.5 text-left w-[15%]">Tanggal</th><th class="border border-black px-2 py-1.5 text-left w-[55%]">Tindakan / Topik Sesi</th><th class="border border-black px-2 py-1.5 text-left w-[30%]">Evaluasi / Indikator Capaian</th></tr></thead>
+                            <tbody>${intH}</tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (activeTab === 'tab-evaluasi') {
+                docTitle = "Formulir Evaluasi Akhir & Terminasi Kasus";
+                contentHTML = `
+                    <div class="mb-5">
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">I. Evaluasi Akhir Pendampingan</h3>
+                        <div class="text-sm space-y-3 mt-2 mb-6">
+                            <div><p class="font-bold text-black">Perkembangan Klien / Anak Binaan:</p><p class="text-black text-justify border border-gray-300 p-2 min-h-[100px]">${fd.evaluasiPerkembangan||'-'}</p></div>
+                            <div><p class="font-bold text-black">Hambatan / Catatan Selama Pendampingan:</p><p class="text-black text-justify border border-gray-300 p-2 min-h-[60px]">${fd.evaluasiHambatan||'-'}</p></div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1 text-black border-b border-black pb-1">II. Keputusan Terminasi / Referal</h3>
+                        <div class="border-2 border-black p-4 mt-3 bg-gray-50">
+                            <p class="font-bold text-black text-center text-xl mb-4 border-b border-gray-300 pb-2">STATUS AKHIR: <span class="uppercase">${c.status || 'Kasus Aktif'}</span></p>
+                            <table class="w-full text-sm mt-2">
+                                <tr><td class="py-1.5 w-[35%] font-bold align-top">Lembaga Tujuan Rujukan</td><td class="py-1.5 align-top">: ${fd.terminasiLembaga||'-'}</td></tr>
+                                <tr><td class="py-1.5 font-bold align-top">Contact Person (CP) Rujukan</td><td class="py-1.5 align-top">: ${fd.terminasiCp||'-'}</td></tr>
+                                <tr><td class="py-1.5 font-bold align-top">Alasan Terminasi / Rujukan</td><td class="py-1.5 align-top">: ${fd.terminasiAlasan||'-'}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return { docTitle, contentHTML };
+        }
+
+        // FUNGSI UTAMA MEMBANGUN HTML DOKUMEN CETAK/WORD
+        function buildActiveTabDocument(activeTab) {
+            const c = appState.clients[appState.currentClientId];
+            const fd = c.formData || {};
+            
+            let peksosName = document.getElementById('edit-profile-name').value || document.getElementById('display-peksos-name').textContent;
+            let peksosNip = document.getElementById('edit-profile-nip').value || '...................';
+            let peksosJabatan = document.getElementById('edit-profile-jabatan').value || 'Pekerja Sosial';
+            let spvName = document.getElementById('edit-profile-spv-name').value || '...........................................';
+            let spvNip = document.getElementById('edit-profile-spv-nip').value || '...................';
+            let spvTitle = document.getElementById('edit-profile-spv-title').value || 'Penyelia / Supervisor';
+
+            const { docTitle, contentHTML } = getActiveTabDocumentContent(activeTab, c, fd);
+
+            let headerHTML = `
+                <div class="mb-4"><img src="${KOP_SURAT_URL}" class="w-full max-h-32 object-contain mx-auto" style="display:block; margin: 0 auto;"></div>
+                <div class="text-center mb-6 border-b-2 border-black pb-4">
+                    <h2 class="text-xl font-bold uppercase tracking-wider text-black m-0 p-0">${docTitle}</h2>
+                </div>
+                <div class="mb-5 text-sm">
+                    <table class="w-full border border-gray-300">
+                        <tr><td class="w-[20%] font-bold bg-gray-100 p-1.5 border border-gray-300">Nama Klien</td><td class="w-[30%] p-1.5 border border-gray-300">: ${c.nama||'-'}</td><td class="w-[20%] font-bold bg-gray-100 p-1.5 border border-gray-300">Tanggal Cetak</td><td class="w-[30%] p-1.5 border border-gray-300">: ${new Date().toLocaleDateString('id-ID')}</td></tr>
+                        <tr><td class="w-[20%] font-bold bg-gray-100 p-1.5 border border-gray-300">ID / Angkatan</td><td class="w-[30%] p-1.5 border border-gray-300">: ${c.id} / ${fd.angkatan||'-'}</td><td class="w-[20%] font-bold bg-gray-100 p-1.5 border border-gray-300">Pekerja Sosial</td><td class="w-[30%] p-1.5 border border-gray-300">: ${peksosName}</td></tr>
+                    </table>
+                </div>
+            `;
+
+            let signatureHTML = `
+                <div class="mt-12 flex justify-between w-full text-sm text-black" style="page-break-inside: avoid;">
+                    <div class="text-center w-64">
+                        <p class="mb-20 font-bold">Mengetahui,<br>${spvTitle}</p>
+                        <p class="border-t border-black pt-1 font-bold">${spvName}</p>
+                        <p>NIP. ${spvNip}</p>
+                    </div>
+                    <div class="text-center w-64">
+                        <p class="mb-20">${fd.kabupatenKota || '...........................'}, ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}<br><span class="font-bold">${peksosJabatan}</span></p>
+                        <p class="border-t border-black pt-1 font-bold">${peksosName}</p>
+                        <p>NIP. ${peksosNip}</p>
+                    </div>
+                </div>
+            `;
+            
+            return headerHTML + contentHTML + signatureHTML;
+        }
+
+        window.exportActiveTabToWord = function() {
+            if (!appState.currentClientId || !appState.clients[appState.currentClientId]) {
+                return showToast("Pilih data anak terlebih dahulu!", "error");
+            }
+            saveFormDataToState();
+            
+            const activeTab = document.querySelector('.tab-content.active').id;
+            if(activeTab === 'tab-cetak') {
+                exportToWord(); // Gunakan fungsi export full yang sudah ada
+                return;
+            }
+
+            const c = appState.clients[appState.currentClientId];
+            const bodyContent = buildActiveTabDocument(activeTab);
+            const { docTitle } = getActiveTabDocumentContent(activeTab, c, c.formData || {});
+
+            const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${docTitle}</title><style>body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; } table { width: 100%; border-collapse: collapse; margin-bottom: 12pt; } td, th { padding: 4pt; vertical-align: top; } table.border-collapse td, table.border-collapse th { border: 1pt solid black; } h2, h3 { font-weight: bold; } .text-center { text-align: center; } .font-bold { font-weight: bold; } .bg-gray-100 { background-color: #f3f4f6; } img { max-width: 100%; height: auto; display: block; margin: 0 auto; text-align: center; } .page-break { page-break-before: always; }</style></head><body>${bodyContent}</body></html>`;
+            const blob = new Blob(['\ufeff', html], { type: 'application/msword' }); 
+            const link = document.createElement('a'); 
+            link.href = URL.createObjectURL(blob); 
+            link.download = `${docTitle.replace(/\s+/g, '_')}_${c.nama.replace(/\s+/g, '_')}.doc`; 
+            document.body.appendChild(link); 
+            link.click(); 
+            document.body.removeChild(link);
+        };
+
+        window.printActiveTab = function() {
+            if (!appState.currentClientId || !appState.clients[appState.currentClientId]) {
+                return showToast("Pilih data anak terlebih dahulu!", "error");
+            }
+            saveFormDataToState();
+            
+            const activeTab = document.querySelector('.tab-content.active').id;
+            if(activeTab === 'tab-cetak') {
+                executeFullPrint();
+                return;
+            }
+
+            const fullDocumentHTML = buildActiveTabDocument(activeTab);
+
+            const cont = document.getElementById('global-print-container');
+            cont.innerHTML = `<div class="p-8">${fullDocumentHTML}</div>`;
+            cont.classList.remove('hidden');
+            setTimeout(() => {
+                window.print();
+            }, 500);
         };
 
         function exportDataJSON() {
@@ -1876,7 +2295,7 @@
             if(typeof XLSX === 'undefined') return showToast("Lib Excel memuat..", "error");
             const ws = XLSX.utils.aoa_to_sheet([
                 ["ID", "Angkatan", "Barang Bawaan", "Nama Lengkap", "Kabupaten/Kota", "Tempat Lahir", "Tanggal Lahir (YYYY-MM-DD)", "Gender", "Agama", "Alamat", "Status Kasus"],
-                ["", "Gel 1 - 2026", "Tas, Baju", "Andi", "Kota Bandung", "Bandung", "2015-08-14", "Laki-laki", "Islam", "Jl Merdeka", "Kasus Aktif"]
+                ["", "Gel 1 - 2026", "Tas Hitam, Baju", "Andi", "Kota Bandung", "Bandung", "2015-08-14", "Laki-laki", "Islam", "Jl Merdeka", "Kasus Aktif"]
             ]);
             ws['!cols'] = [{wch:15}, {wch:15}, {wch:20}, {wch:25}, {wch:20}, {wch:15}, {wch:25}, {wch:15}, {wch:15}, {wch:35}, {wch:15}];
             const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template"); XLSX.writeFile(wb, "Template_Import.xlsx");
@@ -1894,11 +2313,18 @@
                         const nama = r["Nama Lengkap"] || r["Nama"]; const kab = r["Kabupaten/Kota"] || r["KabupatenKota"];
                         if(nama && kab) {
                             let id = r["ID"]; if(!id) id = generateId();
-                            if(!appState.clients[id]) appState.clients[id] = { riwayatPenyakit:[], layananDiberikan:[], pelaksanaanIntervensi:[], formData:{} };
+                            if(!appState.clients[id]) appState.clients[id] = { riwayatPenyakit:[], layananDiberikan:[], pelaksanaanIntervensi:[], barangBawaan: [], formData:{} };
                             const cli = appState.clients[id];
                             cli.id = id; cli.nama = nama; cli.gender = r["Gender"] || "Laki-laki"; cli.umur = calculateAge(r["Tanggal Lahir (YYYY-MM-DD)"]);
                             cli.status = r["Status Kasus"] || "Kasus Aktif"; cli.peksosEmail = (currentUser.email === ADMIN_EMAIL) ? POOL_EMAIL : currentUser.email;
-                            cli.formData.kabupatenKota = kab; cli.formData.angkatan = r["Angkatan"]||""; cli.formData.barangBawaan = r["Barang Bawaan"]||""; cli.formData.tempatLahir = r["Tempat Lahir"]||""; cli.formData.tanggalLahir = r["Tanggal Lahir (YYYY-MM-DD)"]||""; cli.formData.agama = r["Agama"]||""; cli.formData.alamat = r["Alamat"]||"";
+                            
+                            // Migrasi barang bawaan dari Excel
+                            let excelBarang = r["Barang Bawaan"];
+                            if (excelBarang && excelBarang.trim() !== '') {
+                                cli.barangBawaan.push({nama: excelBarang, jumlah: 1, keterangan: 'Diimpor dari Excel'});
+                            }
+
+                            cli.formData.kabupatenKota = kab; cli.formData.angkatan = r["Angkatan"]||""; cli.formData.tempatLahir = r["Tempat Lahir"]||""; cli.formData.tanggalLahir = r["Tanggal Lahir (YYYY-MM-DD)"]||""; cli.formData.agama = r["Agama"]||""; cli.formData.alamat = r["Alamat"]||"";
                             batch.set(db.collection('clients').doc(id), cli); c++;
                         }
                     });
